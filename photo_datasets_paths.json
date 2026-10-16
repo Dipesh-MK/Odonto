@@ -1,0 +1,5 @@
+{
+  "alphadent_weights": "/home/aracknab/Projects/Dental LLM and CV/alphadent_weights/yolov8x_AlphaDent_9_classes_640px.pt",
+  "dentalai_dir": "/home/aracknab/.cache/kagglehub/datasets/pawanvalluri/dental-segmentation/versions/1",
+  "alphadent_dir": "/home/aracknab/Projects/Dental LLM and CV/data/alphadent"
+}

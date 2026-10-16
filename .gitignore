@@ -1,0 +1,33 @@
+# Virtual environment
+venv/
+.venv/
+
+# Datasets and heavy binary model weights
+data/
+alphadent_weights/
+sam2_checkpoints/
+alphadent_repo/
+
+# Cache directories
+__pycache__/
+*.pyc
+.pdf_img_cache/
+
+# Web runtime uploads and dynamic renders
+static/uploads/*
+static/renders/*
+!static/uploads/.gitkeep
+!static/renders/.gitkeep
+
+# Large raw validation PNG dumps and intermediate test meshes
+validation_step1/
+validation_step2/
+validation_step3/
+hitl_eval_cases/
+hitl_3d_outputs/*.obj
+
+# Temporary run artifacts
+test_*.png
+spot_check_*.png
+test_result.png
+hitl_validation_visuals/

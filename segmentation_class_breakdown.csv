@@ -1,0 +1,8 @@
+class_id,class_name,sample_count,mean_iou
+0,Abrasion,82,0.4887162886862424
+3,Caries 1 class,41,0.23615260142122554
+4,Caries 2 class,53,0.15658314122243777
+5,Caries 3 class,31,0.0594407272881945
+6,Caries 4 class,3,0.0
+7,Caries 5 class,32,0.18376657741931857
+8,Caries 6 class,7,0.0

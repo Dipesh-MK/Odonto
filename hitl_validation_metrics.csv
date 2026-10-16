@@ -1,0 +1,11 @@
+case_id,anomaly_type,dataset,first_pass_accepted,num_attempts,correction_required,prompt_type,validation_time_sec,iou,dice,gt_area_px,pred_area_px,centroid_error_px,relative_centroid_error,radius_error_rel,aspect_ratio_error,carve_radius_mm,carve_depth_mm,carve_center_idx,3d_success
+case_01_caries1,Caries 1,AlphaDent,False,2,True,Point + Bounding Box,2.81,0.2269,0.3698,35891,158213,45.06,0.1081,1.0994,1.82,2.412,1.426,839,True
+case_02_caries1,Caries 1,AlphaDent,False,2,True,Point + Bounding Box,2.67,0.1878,0.3162,15942,84903,53.03,0.1662,1.3076,0.07,1.769,1.426,4681,True
+case_03_caries5,Caries 5,AlphaDent,False,2,True,Point + Bounding Box,2.64,0.1526,0.2648,70395,216906,151.62,0.205,0.7554,0.0,2.981,1.426,169,True
+case_04_caries5,Caries 5,AlphaDent,False,2,True,Point + Bounding Box,2.64,0.7429,0.8525,17368,18249,9.08,0.0426,0.0252,0.02,0.867,1.426,4926,True
+case_05_crack,Crack,DentalAI,False,2,True,Point + Bounding Box,2.49,0.7439,0.8531,55115,71331,16.36,0.0268,0.1376,1.94,2.361,1.426,3878,True
+case_06_crack,Crack,DentalAI,False,2,True,Point + Bounding Box,2.69,0.2735,0.4295,8501,30299,35.15,0.1523,0.8879,0.96,1.243,1.426,4681,True
+case_07_cavity,Cavity,DentalAI,False,2,True,Point + Bounding Box,2.43,0.1,0.1818,288,2859,11.52,0.1613,2.1526,9.84,0.6,1.426,5924,True
+case_08_cavity,Cavity,DentalAI,True,1,False,Point Click,1.8,0.4027,0.5742,36638,89818,61.6,0.1501,0.5658,0.62,1.918,1.426,1975,True
+case_09_abrasion,Abrasion,AlphaDent,True,1,False,Point Click,1.82,0.9189,0.9577,320703,311563,12.49,0.0127,0.0143,0.05,3.385,1.426,8134,True
+case_10_abrasion,Abrasion,AlphaDent,True,1,False,Point Click,1.84,0.9047,0.95,439189,426753,5.56,0.0044,0.0143,0.27,3.962,1.426,8129,True

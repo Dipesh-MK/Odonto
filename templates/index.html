@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odonto — Single-Anomaly Human-in-the-Loop MVP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="/static/js/three.min.js"></script>
+  <script src="/static/js/OrbitControls.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #131b2e;
+      --surface-border: #1e293b;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .header .tag {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #1e3a8a;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button, select, input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--surface-border);
+      background: #1e293b;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover:not(:disabled) {
+      background: #334155;
+    }
+    button.primary {
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 600;
+      border: none;
+    }
+    button.primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+    button.accept {
+      background: var(--accent);
+      color: #0b0f19;
+      font-weight: 700;
+      border: none;
+    }
+    button.resegment {
+      background: var(--danger);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--surface-border);
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      cursor: crosshair;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .status-awaiting { background: #374151; color: #d1d5db; }
+    .status-prompted { background: #1e3a8a; color: #93c5fd; }
+    .status-predicted { background: #854d0e; color: #fef08a; }
+    .status-validated { background: #065f46; color: #6ee7b7; }
+    .status-carved { background: #581c87; color: #d8b4fe; }
+    
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+    .metrics-table th, .metrics-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--surface-border);
+      text-align: left;
+    }
+    .metrics-table th { color: var(--text-muted); font-weight: 500; }
+    .metrics-table td { color: #fff; }
+    .disclaimer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #0f172a;
+      border-left: 3px solid var(--warning);
+      border-radius: 0 4px 4px 0;
+    }
+    .preview-3d {
+      width: 100%;
+      height: 380px;
+      background: #111827;
+      border-radius: 8px;
+      border: 1px solid var(--surface-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .preview-3d img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>Odonto — Single-Anomaly Human-in-the-Loop MVP</h1>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Teacher uploads clinical photo &rarr; points/boxes anomaly &rarr; SAM2 segments &rarr; Teacher validates &rarr; 3D tooth carving</p>
+    </div>
+    <span class="tag">ZERO MULTI-CLASS BAGGAGE &bull; SAM2 PROMPTABLE</span>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT PANEL: Image & Interactive SAM2 Prompting -->
+    <div class="card">
+      <h2>1. Dental Photo & Anomaly Selection</h2>
+
+      <div class="controls-row">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Preset Sample:</label>
+        <select id="presetSelect" onchange="loadPresetImage()">
+          <option value="">-- Choose Sample --</option>
+          <option value="case_01">Sample 1: Caries 1 (AlphaDent Molar)</option>
+          <option value="case_04">Sample 2: Caries 5 (AlphaDent Premolar)</option>
+          <option value="case_05">Sample 3: Crack (DentalAI Enamel Fracture)</option>
+          <option value="case_07">Sample 4: Cavity (DentalAI Occlusal)</option>
+          <option value="case_09">Sample 5: Abrasion (AlphaDent Wear Facet)</option>
+        </select>
+        <label class="button" style="cursor: pointer; background: #1e293b; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem;">
+          Upload Image <input type="file" id="fileUpload" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+        </label>
+      </div>
+
+      <div class="controls-row">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Mode:</span>
+        <button id="modePointBtn" class="primary" onclick="setMode('point')">Click Point</button>
+        <button id="modeBoxBtn" onclick="setMode('box')">Draw Box</button>
+        <button onclick="clearPrompts()">Clear Prompts</button>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="photoCanvas" width="800" height="600"></canvas>
+      </div>
+
+      <div class="controls-row" style="margin-top: 16px; justify-content: space-between;">
+        <div>
+          <button id="segmentBtn" class="primary" onclick="runSAM2()" disabled>Run SAM2 Segmentation</button>
+        </div>
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Mask Opacity:</span>
+          <input type="range" id="opacitySlider" min="0.1" max="0.9" step="0.05" value="0.5" oninput="redrawCanvas()">
+        </div>
+      </div>
+
+      <!-- Human Validation Decision Gate -->
+      <div id="validationBar" style="display:none; margin-top: 14px; padding: 12px; background: #1e293b; border-radius: 8px;">
+        <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Teacher Validation Decision:</p>
+        <div style="display: flex; gap: 10px;">
+          <button class="accept" onclick="acceptSegmentation()">&#x2714; ACCEPT SEGMENTATION</button>
+          <button class="resegment" onclick="resegment()">&#x21bb; RE-SEGMENT (New Point/Box)</button>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+          Inspect the predicted mask. If over-segmented (spill onto whole tooth) or inaccurate, click <b>RE-SEGMENT</b> to guide SAM2 with a new point or bounding box.
+        </p>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Geometry Extraction & 3D Reconstruction -->
+    <div class="card">
+      <h2>2. Shape Parameters & 3D Reconstruction</h2>
+
+      <div id="statusBadge" class="status-badge status-awaiting">Awaiting Anomaly Selection</div>
+
+      <div id="geometryCard" style="display: none;">
+        <h3 style="font-size: 0.95rem; margin-bottom: 6px;">Deterministic 2D Shape Parameters</h3>
+        <table class="metrics-table">
+          <tr><th>Centroid (X, Y)</th><td id="m_centroid">-</td><th>Area</th><td id="m_area">-</td></tr>
+          <tr><th>Equivalent Radius (r)</th><td id="m_radius">-</td><th>Aspect Ratio</th><td id="m_aspect">-</td></tr>
+          <tr><th>BBox Dimensions</th><td id="m_dims">-</td><th>Orientation Angle</th><td id="m_angle">-</td></tr>
+        </table>
+
+        <div style="margin-top: 16px; border-top: 1px solid var(--surface-border); padding-top: 14px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Manual Clinical Context & Tooth Selection</h3>
+          
+          <div class="controls-row">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Anomaly Type (Metadata):</label>
+              <select id="anomalyMeta">
+                <option value="Caries">Caries</option>
+                <option value="Cavity">Cavity</option>
+                <option value="Crack">Crack</option>
+                <option value="Abrasion">Abrasion</option>
+                <option value="Plaque">Plaque</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Target Tooth FDI:</label>
+              <input type="number" id="targetToothFdi" value="36" min="11" max="48" style="width: 80px;">
+            </div>
+            <div style="align-self: flex-end;">
+              <button class="primary" onclick="generate3D()">Carve Anomaly onto 3D Tooth</button>
+            </div>
+          </div>
+          <p style="font-size: 0.72rem; color: #94a3b8;">*Metadata is purely descriptive for student learning and does NOT alter geometry extraction.</p>
+        </div>
+      </div>
+
+      <div id="renderSection" style="margin-top: 16px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h3 style="font-size: 0.95rem;">Interactive 3D Tooth Model (Move, Rotate & Zoom)</h3>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button onclick="reset3DView()" style="font-size: 0.72rem; padding: 4px 8px;">Reset View</button>
+            <button onclick="set3DView('top')" style="font-size: 0.72rem; padding: 4px 8px;">Occlusal (Top)</button>
+            <button onclick="set3DView('front')" style="font-size: 0.72rem; padding: 4px 8px;">Buccal (Front)</button>
+            <button id="autoRotateBtn" onclick="toggleAutoRotate()" style="font-size: 0.72rem; padding: 4px 8px;">Auto-Rotate</button>
+            <button id="wireframeBtn" onclick="toggleWireframe()" style="font-size: 0.72rem; padding: 4px 8px;">Wireframe</button>
+          </div>
+        </div>
+
+        <div id="threeContainer" style="width: 100%; height: 420px; background: #0f172a; border-radius: 8px; border: 1px solid var(--surface-border); position: relative; overflow: hidden;">
+          <!-- Three.js Canvas injected here -->
+          <div style="position: absolute; bottom: 8px; left: 10px; z-index: 10; font-size: 0.72rem; color: #94a3b8; background: rgba(15,23,42,0.85); padding: 4px 10px; border-radius: 4px; pointer-events: none; border: 1px solid #1e293b;">
+            Left-Drag: <b>Rotate</b> &bull; Scroll: <b>Zoom</b> &bull; Right-Drag / Shift-Drag: <b>Pan</b>
+          </div>
+          <div id="threeLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94a3b8; font-size: 0.85rem; display: none;">
+            Rendering 3D Mesh...
+          </div>
+        </div>
+
+        <div class="controls-row" style="margin-top: 10px; justify-content: space-between;">
+          <div style="display: flex; gap: 10px;">
+            <a id="downloadNpz" class="button" style="text-decoration:none; padding: 6px 12px; font-size: 0.8rem; background: #1e293b; border-radius: 6px;" download>Download Atomic .NPZ</a>
+            <a id="downloadObj" class="button" style="text-decoration:none; padding: 6px 12px; font-size: 0.8rem; background: #1e293b; border-radius: 6px;" download>Download .OBJ</a>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">
+            Enamel: <span style="display:inline-block; width:10px; height:10px; background:#f8f6f0; border-radius:2px; vertical-align:middle; border:1px solid #64748b;"></span> &bull;
+            Carved Anomaly: <span style="display:inline-block; width:10px; height:10px; background:#dc2626; border-radius:2px; vertical-align:middle;"></span>
+          </div>
+        </div>
+
+        <div class="disclaimer">
+          <b>LIMITATION NOTICE:</b> 3D depth uses documented default approximation (<code>DEFAULT_DEPTH = 0.8 mm</code>). No physical scale calibration or monocular depth estimation is performed. The resulting 3D geometry is a geometry-informed simulation.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentImage = null;
+    let currentMask = null;
+    let currentGeometry = null;
+    let mode = 'point'; // 'point' or 'box'
+    let promptPoints = [];
+    let promptBox = null;
+    let isDrawingBox = false;
+    let boxStart = null;
+    let activeImageId = null;
+
+    const canvas = document.getElementById('photoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function setMode(newMode) {
+      mode = newMode;
+      document.getElementById('modePointBtn').className = mode === 'point' ? 'primary' : '';
+      document.getElementById('modeBoxBtn').className = mode === 'box' ? 'primary' : '';
+    }
+
+    function clearPrompts() {
+      promptPoints = [];
+      promptBox = null;
+      document.getElementById('segmentBtn').disabled = true;
+      redrawCanvas();
+    }
+
+    function loadPresetImage() {
+      const val = document.getElementById('presetSelect').value;
+      if (!val) return;
+      activeImageId = val;
+      fetch(`/api/preset/${val}`)
+        .then(r => r.json())
+        .then(data => {
+          loadImageFromSrc(data.image_url);
+        });
+    }
+
+    function handleUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      fetch('/api/upload', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+          activeImageId = data.image_id;
+          loadImageFromSrc(data.image_url);
+        });
+    }
+
+    function loadImageFromSrc(src) {
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        currentMask = null;
+        currentGeometry = null;
+        promptPoints = [];
+        promptBox = null;
+        document.getElementById('validationBar').style.display = 'none';
+        document.getElementById('geometryCard').style.display = 'none';
+        document.getElementById('renderSection').style.display = 'none';
+        setStatus('Point or draw box on anomaly', 'prompted');
+        redrawCanvas();
+      };
+      img.src = src;
+    }
+
+    function setStatus(text, type) {
+      const b = document.getElementById('statusBadge');
+      b.textContent = text;
+      b.className = `status-badge status-${type}`;
+    }
+
+    // Canvas Mouse Interaction
+    canvas.addEventListener('mousedown', e => {
+      if (!currentImage) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = currentImage.width / canvas.width;
+      const scaleY = currentImage.height / canvas.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      if (mode === 'point') {
+        promptPoints = [[x, y]];
+        document.getElementById('segmentBtn').disabled = false;
+        redrawCanvas();
+      } else if (mode === 'box') {
+        isDrawingBox = true;
+        boxStart = [x, y];
+      }
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (!isDrawingBox || mode !== 'box') return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = currentImage.width / canvas.width;
+      const scaleY = currentImage.height / canvas.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+      promptBox = [
+        Math.min(boxStart[0], x), Math.min(boxStart[1], y),
+        Math.max(boxStart[0], x), Math.max(boxStart[1], y)
+      ];
+      redrawCanvas();
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      if (isDrawingBox && mode === 'box') {
+        isDrawingBox = false;
+        if (promptBox && (promptBox[2] - promptBox[0] > 10)) {
+          document.getElementById('segmentBtn').disabled = false;
+        }
+        redrawCanvas();
+      }
+    });
+
+    function redrawCanvas() {
+      if (!currentImage) return;
+      canvas.width = 800;
+      canvas.height = (800 / currentImage.width) * currentImage.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+      const scaleX = canvas.width / currentImage.width;
+      const scaleY = canvas.height / currentImage.height;
+
+      // Draw mask overlay if available
+      if (currentMask) {
+        const opacity = parseFloat(document.getElementById('opacitySlider').value);
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        ctx.drawImage(currentMask, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+
+      // Draw points
+      ctx.fillStyle = '#ef4444';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      promptPoints.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p[0] * scaleX, p[1] * scaleY, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // Draw bounding box
+      if (promptBox) {
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(
+          promptBox[0] * scaleX, promptBox[1] * scaleY,
+          (promptBox[2] - promptBox[0]) * scaleX,
+          (promptBox[3] - promptBox[1]) * scaleY
+        );
+      }
+    }
+
+    function runSAM2() {
+      if (!activeImageId) return;
+      setStatus('Running SAM2 Zero-Shot Segmentation...', 'predicted');
+      fetch('/api/segment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_id: activeImageId,
+          points: promptPoints,
+          box: promptBox
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const maskImg = new Image();
+        maskImg.onload = () => {
+          currentMask = maskImg;
+          currentGeometry = data.geometry;
+          redrawCanvas();
+          setStatus('SAM2 Prediction Ready &bull; Awaiting Human Decision', 'predicted');
+          document.getElementById('validationBar').style.display = 'block';
+        };
+        maskImg.src = data.mask_url;
+      });
+    }
+
+    function acceptSegmentation() {
+      setStatus('Mask Validated by Teacher', 'validated');
+      document.getElementById('validationBar').style.display = 'none';
+      document.getElementById('geometryCard').style.display = 'block';
+
+      // Populate geometry card
+      const g = currentGeometry;
+      document.getElementById('m_centroid').textContent = `(${g.centroid[0]}, ${g.centroid[1]})`;
+      document.getElementById('m_area').textContent = `${g.area.toLocaleString()} px`;
+      document.getElementById('m_radius').textContent = `${g.radius} px`;
+      document.getElementById('m_aspect').textContent = `${g.aspect_ratio}`;
+      document.getElementById('m_dims').textContent = `${g.width} × ${g.height} px`;
+      document.getElementById('m_angle').textContent = `${g.orientation}°`;
+    }
+
+    function resegment() {
+      currentMask = null;
+      promptPoints = [];
+      promptBox = null;
+      document.getElementById('validationBar').style.display = 'none';
+      document.getElementById('segmentBtn').disabled = true;
+      setStatus('Choose new point or bounding box to guide SAM2', 'prompted');
+      redrawCanvas();
+    }
+
+    // -------------------------------------------------------------
+    // THREE.JS INTERACTIVE 3D TOOTH VIEWER
+    // -------------------------------------------------------------
+    let threeScene = null;
+    let threeCamera = null;
+    let threeRenderer = null;
+    let threeControls = null;
+    let toothMesh = null;
+    let currentMeshData = null;
+
+    function initThreeViewer() {
+      const container = document.getElementById('threeContainer');
+      const w = container.clientWidth || 400;
+      const h = container.clientHeight || 420;
+
+      // 1. Scene
+      threeScene = new THREE.Scene();
+      threeScene.background = new THREE.Color(0x0b0f19);
+
+      // 2. Camera
+      threeCamera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
+      threeCamera.position.set(0, -22, 16);
+      threeCamera.up.set(0, 0, 1);
+
+      // 3. Renderer
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+      threeRenderer.setSize(w, h);
+      threeRenderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(threeRenderer.domElement);
+
+      // 4. Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      threeScene.add(ambientLight);
+
+      const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
+      dirLight1.position.set(10, -15, 25);
+      threeScene.add(dirLight1);
+
+      const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+      dirLight2.position.set(-10, 15, -15);
+      threeScene.add(dirLight2);
+
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.4);
+      threeScene.add(hemiLight);
+
+      // 5. OrbitControls (Mouse drag rotate, scroll zoom, right-drag pan)
+      threeControls = new THREE.OrbitControls(threeCamera, threeRenderer.domElement);
+      threeControls.enableDamping = true;
+      threeControls.dampingFactor = 0.08;
+      threeControls.screenSpacePanning = true;
+      threeControls.minDistance = 5;
+      threeControls.maxDistance = 80;
+      threeControls.target.set(0, 0, 0);
+
+      // 6. Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        threeControls.update();
+        threeRenderer.render(threeScene, threeCamera);
+      }
+      animate();
+
+      // Resize observer
+      window.addEventListener('resize', onThreeResize);
+    }
+
+    function onThreeResize() {
+      if (!threeRenderer || !threeCamera) return;
+      const container = document.getElementById('threeContainer');
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      threeCamera.aspect = w / h;
+      threeCamera.updateProjectionMatrix();
+      threeRenderer.setSize(w, h);
+    }
+
+    function loadInteractiveToothMesh(meshData) {
+      if (!threeScene) {
+        initThreeViewer();
+      }
+
+      currentMeshData = meshData;
+      const loading = document.getElementById('threeLoading');
+      loading.style.display = 'block';
+
+      // Remove existing tooth mesh
+      if (toothMesh) {
+        threeScene.remove(toothMesh);
+        if (toothMesh.geometry) toothMesh.geometry.dispose();
+        if (toothMesh.material) toothMesh.material.dispose();
+        toothMesh = null;
+      }
+
+      // Build BufferGeometry directly from numpy arrays
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(meshData.vertices), 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(meshData.colors), 3));
+      geometry.setIndex(meshData.faces);
+      geometry.computeVertexNormals();
+
+      const material = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.32,
+        metalness: 0.05,
+        side: THREE.DoubleSide
+      });
+
+      toothMesh = new THREE.Mesh(geometry, material);
+      threeScene.add(toothMesh);
+
+      // Frame camera based on tooth size
+      const size = meshData.tooth_size || 14.0;
+      threeCamera.position.set(0, -size * 1.5, size * 1.1);
+      threeCamera.up.set(0, 0, 1);
+      threeControls.target.set(0, 0, 0);
+      threeControls.update();
+
+      loading.style.display = 'none';
+      onThreeResize();
+    }
+
+    function reset3DView() {
+      if (!threeControls || !currentMeshData) return;
+      const size = currentMeshData.tooth_size || 14.0;
+      threeCamera.position.set(0, -size * 1.5, size * 1.1);
+      threeCamera.up.set(0, 0, 1);
+      threeControls.target.set(0, 0, 0);
+      threeControls.update();
+    }
+
+    function set3DView(view) {
+      if (!threeControls || !currentMeshData) return;
+      const size = currentMeshData.tooth_size || 14.0;
+      if (view === 'top') {
+        // Occlusal chewing surface view (looking straight down +Z)
+        threeCamera.position.set(0, 0, size * 1.8);
+        threeCamera.up.set(0, 1, 0);
+      } else if (view === 'front') {
+        // Buccal front view
+        threeCamera.position.set(0, -size * 1.8, 0);
+        threeCamera.up.set(0, 0, 1);
+      }
+      threeControls.target.set(0, 0, 0);
+      threeControls.update();
+    }
+
+    function toggleAutoRotate() {
+      if (!threeControls) return;
+      threeControls.autoRotate = !threeControls.autoRotate;
+      const btn = document.getElementById('autoRotateBtn');
+      btn.className = threeControls.autoRotate ? 'primary' : '';
+    }
+
+    function toggleWireframe() {
+      if (!toothMesh) return;
+      toothMesh.material.wireframe = !toothMesh.material.wireframe;
+      const btn = document.getElementById('wireframeBtn');
+      btn.className = toothMesh.material.wireframe ? 'primary' : '';
+    }
+
+    function generate3D() {
+      setStatus('Converting 2D Parameters & Carving 3D Tooth...', 'carved');
+      const toothFdi = parseInt(document.getElementById('targetToothFdi').value) || 36;
+      const anomalyMeta = document.getElementById('anomalyMeta').value;
+
+      fetch('/api/carve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          geometry: currentGeometry,
+          tooth_fdi: toothFdi,
+          anomaly_type: anomalyMeta
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        setStatus('3D Tooth Anomaly Reconstruction Complete', 'carved');
+        document.getElementById('renderSection').style.display = 'block';
+        document.getElementById('downloadNpz').href = data.npz_url;
+        document.getElementById('downloadObj').href = data.obj_url;
+
+        // Load interactive Three.js 3D mesh
+        if (data.mesh_data) {
+          loadInteractiveToothMesh(data.mesh_data);
+        }
+      });
+    }
+
+    // Auto-load first preset on startup
+    window.onload = () => {
+      document.getElementById('presetSelect').value = 'case_01';
+      loadPresetImage();
+    };
+  </script>
+</body>
+</html>
