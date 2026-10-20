@@ -1,0 +1,12 @@
+flask>=3.0.0
+torch>=2.0.0
+torchvision
+numpy
+opencv-python-headless
+trimesh
+pyvista
+scipy
+pandas
+kagglehub
+matplotlib
+sam2
