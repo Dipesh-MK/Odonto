@@ -1,20 +1,28 @@
 """
 tooth_carver.py
 
-Integrates validated 2D shape parameters with the 3D dental mesh carving pipeline
-across all tooth types (incisors, canines, premolars, molars) and anomaly types
-(cavity/caries, abrasion, crack).
+Integrates validated 2D shape parameters and custom 3D anomaly generation
+with the real Teeth3DS+ patient dental mesh pipeline across all 32 FDI teeth
+(incisors, canines, premolars, molars) and anomaly types (cavity/caries, abrasion, crack, cervical).
 
-Strict adherence to project core principles:
-1. Always load meshes with trimesh.load(path, process=False)
-2. Never rely on OBJ round-trips for label arrays; save single atomic .npz
-3. Use vertex-normal inward displacement with surface-normal alignment gating
-   to prevent opposite-face bleed-through on thin anterior teeth
-4. Render 3D tooth using PyVista via pv.wrap(trimesh) with dynamic lesion-aligned camera
+Core capabilities & strict adherence to project principles:
+1. Multi-tooth library: loads real patient 3D models for ANY FDI tooth (11-18, 21-28, 31-38, 41-48)
+   using trimesh.load(path, process=False) to preserve vertex indexing.
+2. Surface-normal alignment gating: prevents opposite-wall bleed-through on thin anterior teeth.
+3. Realistic clinical lesion sculpting:
+   - Cavities (Class I occlusal, Class II interproximal, Class V cervical)
+   - Cracks / structural fractures with narrow V-grooves
+   - Abrasions / wear facets with flat-bottomed saucer bevels
+4. Authentic pathological color grading:
+   - Enamel ivory base (#F8F6F0) with fissure ambient occlusion
+   - Opaque demineralization halo (#E8DFCE)
+   - Carious amber dentin (#7B4722) and deep necrotic floor (#211209)
+5. Single atomic .npz export and 2-viewport PyVista rendering via pv.wrap(trimesh).
 """
 
 import os
 import json
+import math
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -22,8 +30,47 @@ import trimesh
 import pyvista as pv
 
 BASE_DIR = Path(__file__).resolve().parent
-MANIFEST_PATH = BASE_DIR / "dental_manifest_part1.csv"
+CACHE_DIR = BASE_DIR / "extracted_teeth"
+CACHE_DIR.mkdir(exist_ok=True)
+MANIFEST_PATH = BASE_DIR / "teeth3ds_manifest.csv"
 DEFAULT_TOOTH_PATH = BASE_DIR / "tooth_36_isolated.obj"
+DATASET_DIR = Path("/Users/mi/.cache/kagglehub/datasets/aracknab69/dental-data-part-1-stl/versions/1")
+
+# FDI Tooth Metadata Descriptions
+FDI_NAMES = {
+    18: "Upper Right 3rd Molar (Wisdom)",
+    17: "Upper Right 2nd Molar",
+    16: "Upper Right 1st Molar",
+    15: "Upper Right 2nd Premolar",
+    14: "Upper Right 1st Premolar",
+    13: "Upper Right Canine",
+    12: "Upper Right Lateral Incisor",
+    11: "Upper Right Central Incisor",
+    21: "Upper Left Central Incisor",
+    22: "Upper Left Lateral Incisor",
+    23: "Upper Left Canine",
+    24: "Upper Left 1st Premolar",
+    25: "Upper Left 2nd Premolar",
+    26: "Upper Left 1st Molar",
+    27: "Upper Left 2nd Molar",
+    28: "Upper Left 3rd Molar",
+    38: "Lower Left 3rd Molar",
+    37: "Lower Left 2nd Molar",
+    36: "Lower Left 1st Molar",
+    35: "Lower Left 2nd Premolar",
+    34: "Lower Left 1st Premolar",
+    33: "Lower Left Canine",
+    32: "Lower Left Lateral Incisor",
+    31: "Lower Left Central Incisor",
+    41: "Lower Right Central Incisor",
+    42: "Lower Right Lateral Incisor",
+    43: "Lower Right Canine",
+    44: "Lower Right 1st Premolar",
+    45: "Lower Right 2nd Premolar",
+    46: "Lower Right 1st Molar",
+    47: "Lower Right 2nd Molar",
+    48: "Lower Right 3rd Molar"
+}
 
 # In-memory cache of isolated tooth meshes keyed by (patient_id, target_tooth)
 _TOOTH_MESH_CACHE = {}
@@ -31,13 +78,15 @@ _TOOTH_MESH_CACHE = {}
 
 def load_or_extract_tooth_mesh(manifest_row=None, target_tooth=36):
     """
-    Loads an isolated tooth mesh for the requested FDI tooth number from the
-    Teeth3DS+ manifest. Always uses process=False to preserve vertex indexing.
-    Never silently substitutes tooth 36 when a different target_tooth is requested.
+    Loads an isolated 3D tooth mesh for ANY FDI tooth number.
+    1. If manifest_row is explicitly provided with existing paths, extracts from that scan.
+    2. Checks in-memory cache and extracted_teeth/tooth_{fdi}.obj pre-extracted library.
+    3. Searches teeth3ds_manifest.csv / dataset if not yet cached.
+    Always uses process=False to preserve exact vertex indexing.
     """
     target_tooth = int(target_tooth)
 
-    # 1. If a specific manifest_row is provided, extract from that scan
+    # 1. If a specific manifest_row is provided and files exist on disk, extract from that scan
     if manifest_row is not None and "obj_path" in manifest_row and "json_path" in manifest_row:
         patient_id = manifest_row.get("patient_id", "custom")
         cache_key = (patient_id, target_tooth)
@@ -59,18 +108,25 @@ def load_or_extract_tooth_mesh(manifest_row=None, target_tooth=36):
                     _TOOTH_MESH_CACHE[cache_key] = tooth
                     return tooth.copy()
 
-    # 2. Check cache for any already-loaded instance of target_tooth
+    # 2. Check in-memory cache for any already-loaded instance of target_tooth
     for (pid, fdi), cached_mesh in _TOOTH_MESH_CACHE.items():
         if fdi == target_tooth:
             return cached_mesh.copy()
 
-    # 3. Fast path for default tooth 36 if cached file exists
+    # 3. Check extracted_teeth/tooth_{target_tooth}.obj cache (32 FDI teeth library)
+    cache_file = CACHE_DIR / f"tooth_{target_tooth}.obj"
+    if cache_file.exists():
+        tooth = trimesh.load(str(cache_file), process=False)
+        _TOOTH_MESH_CACHE[("extracted_teeth", target_tooth)] = tooth
+        return tooth.copy()
+
+    # 4. Fast path for default tooth 36 if cached file exists
     if target_tooth == 36 and DEFAULT_TOOTH_PATH.exists():
         tooth = trimesh.load(str(DEFAULT_TOOTH_PATH), process=False)
         _TOOTH_MESH_CACHE[("default", 36)] = tooth
         return tooth.copy()
 
-    # 4. Search Teeth3DS+ manifest for a scan containing target_tooth
+    # 5. Search Teeth3DS+ manifest for a scan containing target_tooth
     if MANIFEST_PATH.exists():
         manifest = pd.read_csv(MANIFEST_PATH)
         quadrant = target_tooth // 10
@@ -98,9 +154,107 @@ def load_or_extract_tooth_mesh(manifest_row=None, target_tooth=36):
             except Exception:
                 continue
 
+    # 6. Extract on-the-fly from DATASET_DIR if present
+    if DATASET_DIR.exists():
+        subfolder = "upper" if target_tooth < 30 else "lower"
+        scan_jsons = list((DATASET_DIR / subfolder).glob("*/*.json"))
+        for jf in scan_jsons:
+            try:
+                with open(jf, "r") as f:
+                    lbls = np.array(json.load(f).get("labels", []))
+                if target_tooth in lbls:
+                    obj_p = jf.with_suffix(".obj")
+                    if obj_p.exists():
+                        tmesh = trimesh.load(str(obj_p), process=False)
+                        vmask = (lbls == target_tooth)
+                        fmask = vmask[tmesh.faces].all(axis=1)
+                        submesh = tmesh.submesh([fmask], append=True)
+                        if len(submesh.vertices) > 500:
+                            submesh.export(str(cache_file))
+                            _TOOTH_MESH_CACHE[("dataset", target_tooth)] = submesh
+                            return submesh.copy()
+            except Exception:
+                continue
+
     raise FileNotFoundError(
-        f"Could not find or extract target FDI tooth #{target_tooth} in manifest."
+        f"Could not find or extract target FDI tooth #{target_tooth} in manifest or cache."
     )
+
+
+def find_surface_vertex(tooth_mesh, surface="occlusal", rel_coords=None):
+    """
+    Finds the optimal vertex index on a specified anatomical tooth surface.
+    Uses rel_coords (2D segmentation centroid normalized to [0,1]) to map
+    the anomaly position onto the correct 3D surface region.
+
+    Surfaces:
+      - 'occlusal': Chewing table (central groove / pit)
+      - 'buccal': Facial / cheek-facing outer surface
+      - 'lingual': Palatal / tongue-facing inner surface
+      - 'cervical': Near the neck / gumline margin
+      - 'interproximal': Mesial / distal contact margin
+    """
+    verts = tooth_mesh.vertices
+    bounds = tooth_mesh.bounds
+    center_pos = (bounds[0] + bounds[1]) / 2.0
+    z = verts[:, 2]
+    x = verts[:, 0]
+    y = verts[:, 1]
+
+    def _pick_from_candidates(cands, primary_axes, fallback_pos):
+        if len(cands) == 0:
+            return int(np.argmax(z))
+        if rel_coords and len(rel_coords) == 2:
+            c_min = verts[cands][:, primary_axes].min(axis=0)
+            c_max = verts[cands][:, primary_axes].max(axis=0)
+            c_range = c_max - c_min
+            c_range[c_range < 1e-6] = 1.0
+            target = c_min + np.array(rel_coords) * c_range
+            dists = np.linalg.norm(verts[cands][:, primary_axes] - target, axis=1)
+            return int(cands[np.argmin(dists)])
+        else:
+            dists = np.linalg.norm(verts[cands][:, primary_axes] - fallback_pos[primary_axes], axis=1)
+            return int(cands[np.argmin(dists)])
+
+    if surface == "occlusal":
+        z_thresh = np.percentile(z, 82)
+        cands = np.where(z >= z_thresh)[0]
+        if len(cands) == 0:
+            cands = np.array([int(np.argmax(z))])
+        return _pick_from_candidates(cands, [0, 1], center_pos)
+
+    elif surface == "buccal":
+        y_thresh = np.percentile(y, 80)
+        cands = np.where(y >= y_thresh)[0]
+        if len(cands) == 0:
+            cands = np.where(z >= np.median(z))[0]
+        return _pick_from_candidates(cands, [0, 2], center_pos)
+
+    elif surface == "lingual":
+        y_thresh = np.percentile(y, 20)
+        cands = np.where(y <= y_thresh)[0]
+        if len(cands) == 0:
+            cands = np.where(z >= np.median(z))[0]
+        return _pick_from_candidates(cands, [0, 2], center_pos)
+
+    elif surface == "cervical":
+        cands = np.where((z >= np.percentile(z, 15)) & (z <= np.percentile(z, 40)))[0]
+        if len(cands) == 0:
+            cands = np.where(z <= np.percentile(z, 30))[0]
+        return _pick_from_candidates(cands, [0, 1], center_pos)
+
+    elif surface == "interproximal":
+        if rel_coords and len(rel_coords) == 2 and rel_coords[0] < 0.5:
+            x_thresh = np.percentile(x, 12)
+            cands = np.where(x <= x_thresh)[0]
+        else:
+            x_thresh = np.percentile(x, 88)
+            cands = np.where(x >= x_thresh)[0]
+        if len(cands) == 0:
+            cands = np.where(z >= np.median(z))[0]
+        return _pick_from_candidates(cands, [1, 2], center_pos)
+
+    return int(np.argmax(z))
 
 
 def carve_cavity(
@@ -111,7 +265,8 @@ def carve_cavity(
     aspect_ratio=1.0,
     orientation=0.0,
     profile="cavity",
-    tangent_u=None
+    tangent_u=None,
+    lesion_type=None
 ):
     """
     Carves an anomaly onto a 3D tooth mesh via surface-normal-gated inward displacement.
@@ -121,25 +276,10 @@ def carve_cavity(
       the lesion center normal (dot product <= 0.15, such as the opposing lingual
       surface of thin incisors/canines) receive zero displacement, eliminating
       double-sided bleed-through.
-    - Anomaly Profile Support:
-        * "cavity": Smooth quadratic concave pit (1 - d)^2
-        * "abrasion": Flat-bottomed superficial wear facet (1 - d^3)^1.5 with
-          blended planar normal displacement.
-
-    Args:
-        mesh: trimesh.Trimesh
-        center_idx: int, vertex index of the anomaly center
-        radius: float, effective radius in mm
-        depth: float, inward displacement depth in mm
-        aspect_ratio: float, ratio of major to minor axis (default 1.0)
-        orientation: float, orientation angle in degrees
-        profile: str, "cavity" or "abrasion"
-        tangent_u: Optional 3D unit vector for primary tangent axis
-
-    Returns:
-        carved_mesh: trimesh.Trimesh with displaced vertices
-        influence: 1D np.ndarray of ground-truth anomaly influence (0.0 to 1.0)
+    - Supports both `profile` and `lesion_type` arguments ('cavity', 'abrasion', 'crack', 'cervical').
     """
+    active_profile = str(lesion_type if lesion_type is not None else profile).lower()
+
     verts = mesh.vertices.copy()
     normals = mesh.vertex_normals
     center = verts[center_idx]
@@ -147,10 +287,10 @@ def carve_cavity(
     center_normal = center_normal / (np.linalg.norm(center_normal) + 1e-8)
 
     diffs = verts - center
+    dists = np.linalg.norm(diffs, axis=1)
 
     # 1. Surface-Normal Alignment Gate (prevents opposite-wall perforation on thin teeth)
     normal_dots = np.dot(normals, center_normal)
-    # Strict zero for vertices facing >81 deg away (dot <= 0.15); smooth ramp up to dot = 0.50
     normal_gate = np.clip((normal_dots - 0.15) / 0.35, 0.0, 1.0)
 
     # 2. Construct orthonormal tangent plane at center_idx
@@ -180,8 +320,8 @@ def carve_cavity(
 
     # 3. Compute normalized distance (isotropic or elliptical)
     eff_aspect = max(float(aspect_ratio), 1.0)
-    if eff_aspect > 1.15:
-        scale_u = np.sqrt(eff_aspect)
+    if eff_aspect > 1.15 or "crack" in active_profile:
+        scale_u = np.sqrt(max(eff_aspect, 1.0))
         scale_v = 1.0 / scale_u
         scaled_dists = np.sqrt(
             (coord_u / (radius * scale_u)) ** 2 +
@@ -189,19 +329,27 @@ def carve_cavity(
             (coord_n / radius) ** 2
         )
     else:
-        dists = np.linalg.norm(diffs, axis=1)
         scaled_dists = dists / max(radius, 1e-5)
 
     # 4. Anomaly-specific falloff and inward displacement
-    if str(profile).lower() == "abrasion":
+    if "abrasion" in active_profile or "wear" in active_profile:
         # Flat-bottomed saucer wear facet with smooth rim bevel
         clamped_d = np.clip(scaled_dists, 0.0, 1.0)
         radial_falloff = (1.0 - clamped_d ** 3) ** 1.5
         influence = normal_gate * radial_falloff
-        # Blend vertex normal with center facet normal for a flatter worn facet plane
         effective_normals = 0.5 * normals + 0.5 * center_normal[None, :]
         effective_normals /= (np.linalg.norm(effective_normals, axis=1, keepdims=True) + 1e-8)
         displacement = -effective_normals * (depth * influence[:, None])
+    elif "crack" in active_profile:
+        raw_influence = np.clip(1.0 - scaled_dists, 0.0, 1.0)
+        influence = normal_gate * np.clip(raw_influence ** 3.5, 0.0, 1.0)
+        displacement = -normals * (depth * 1.35 * influence[:, None])
+    elif "cervical" in active_profile:
+        np.random.seed(42)
+        noise = 1.0 + 0.10 * np.sin(diffs[:, 0] * 3.8) * np.cos(diffs[:, 1] * 3.8)
+        raw_influence = np.clip(1.0 - scaled_dists, 0.0, 1.0)
+        influence = normal_gate * np.clip((raw_influence ** 1.7) * noise, 0.0, 1.0)
+        displacement = -normals * (depth * influence[:, None])
     else:
         # Standard parabolic carious cavitation falloff
         radial_falloff = np.clip(1.0 - scaled_dists, 0.0, 1.0) ** 2
@@ -209,17 +357,62 @@ def carve_cavity(
         displacement = -normals * (depth * influence[:, None])
 
     carved_verts = verts + displacement
+    carved_mesh = mesh.copy()
+    carved_mesh.vertices = carved_verts
+    return carved_mesh, influence
 
-    carved = mesh.copy()
-    carved.vertices = carved_verts
-    return carved, influence
+
+def compute_clinical_vertex_colors(mesh, influence, lesion_type="cavity"):
+    """
+    Computes natural dental clinical vertex colors:
+    - Translucent healthy enamel: #F8F6F0 with subtle anatomical ambient occlusion in fissures
+    - Demineralization halo: chalky opaque buff #E8DFCE
+    - Active carious dentin: warm amber/burnt caramel #7B4722
+    - Deep necrotic floor: dark espresso brown & carbon black #211209
+    """
+    verts = mesh.vertices
+    n_verts = len(verts)
+    colors = np.zeros((n_verts, 3), dtype=np.float32)
+
+    z = verts[:, 2]
+    z_norm = (z - z.min()) / (z.max() - z.min() + 1e-6)
+    enamel_base = np.array([0.97, 0.96, 0.93], dtype=np.float32)
+    enamel_fissure = np.array([0.91, 0.88, 0.83], dtype=np.float32)
+
+    lesion_lower = str(lesion_type).lower()
+    if "crack" in lesion_lower:
+        decay_color = np.array([0.28, 0.16, 0.10], dtype=np.float32)
+        necrotic_color = np.array([0.12, 0.06, 0.04], dtype=np.float32)
+    elif "abrasion" in lesion_lower or "wear" in lesion_lower:
+        decay_color = np.array([0.80, 0.60, 0.36], dtype=np.float32)
+        necrotic_color = np.array([0.65, 0.45, 0.25], dtype=np.float32)
+    else:
+        decay_color = np.array([0.48, 0.28, 0.14], dtype=np.float32)
+        necrotic_color = np.array([0.15, 0.08, 0.04], dtype=np.float32)
+
+    halo_color = np.array([0.89, 0.84, 0.75], dtype=np.float32)
+
+    for i in range(n_verts):
+        groove_t = float(np.clip(z_norm[i] * 0.4 + 0.6, 0.0, 1.0))
+        base = (1.0 - groove_t) * enamel_fissure + groove_t * enamel_base
+
+        inf = float(influence[i])
+        if inf <= 0.02:
+            colors[i] = base
+        elif inf <= 0.25:
+            w = (inf - 0.02) / (0.25 - 0.02)
+            colors[i] = (1.0 - w) * base + w * halo_color
+        elif inf <= 0.65:
+            w = (inf - 0.25) / (0.65 - 0.25)
+            colors[i] = (1.0 - w) * halo_color + w * decay_color
+        else:
+            w = (inf - 0.65) / (1.0 - 0.65)
+            colors[i] = (1.0 - w) * decay_color + w * necrotic_color
+
+    return colors
 
 
 def save_atomic_case(output_path, carved_mesh, gt_mask, metadata):
-    """
-    Saves the 3D anomaly case as an atomic .npz file and companion .obj.
-    Guarantees vertices, faces, and cavity ground truth remain in lockstep.
-    """
     out_p = Path(output_path)
     npz_path = out_p.with_suffix(".npz")
     obj_path = out_p.with_suffix(".obj")
@@ -260,7 +453,6 @@ def render_carved_tooth_pyvista(carved_mesh, gt_mask, output_img_path, off_scree
     bounds = carved_mesh.bounds
     diag = float(np.linalg.norm(bounds[1] - bounds[0]))
 
-    # Determine lesion center and outward normal dynamically from gt_mask
     active = gt_mask > 0.05
     if np.any(active):
         weights = gt_mask[active][:, None]
@@ -271,7 +463,6 @@ def render_carved_tooth_pyvista(carved_mesh, gt_mask, output_img_path, off_scree
         lesion_center = mesh_center
         lesion_normal = np.array([0.0, 0.0, 1.0])
 
-    # Determine crown up vector
     if carve_params and "e_crown" in carve_params:
         e_crown = np.array(carve_params["e_crown"], dtype=np.float64)
     else:
@@ -279,7 +470,6 @@ def render_carved_tooth_pyvista(carved_mesh, gt_mask, output_img_path, off_scree
         e_crown = area_normals.sum(axis=0)
         e_crown /= (np.linalg.norm(e_crown) + 1e-8)
 
-    # Choose stable camera view_up vector orthogonal to lesion_normal
     if abs(np.dot(lesion_normal, e_crown)) < 0.80:
         view_up = e_crown
     else:
@@ -296,7 +486,7 @@ def render_carved_tooth_pyvista(carved_mesh, gt_mask, output_img_path, off_scree
     plotter.add_mesh(
         pv_mesh,
         scalars="cavity_influence",
-        cmap="YlOrRd",
+        cmap="copper",
         clim=[0.0, 1.0],
         smooth_shading=True,
         show_scalar_bar=False,

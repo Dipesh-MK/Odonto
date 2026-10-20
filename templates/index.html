@@ -462,8 +462,71 @@
             <span class="font-code-md text-code-md px-2 py-0.5 rounded bg-secondary-container/50 text-on-secondary-container font-semibold">Phase 0 Whitelist</span>
           </div>
 
+          <!-- Auto-Identified Tooth Classification Banner (tooth_classifier.py) -->
+          <div id="pipe-auto-id-banner" class="hidden px-3 py-2 rounded-lg bg-secondary-container/50 border border-secondary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary text-[18px]">my_location</span>
+              <div>
+                <span id="pipe-auto-id-title" class="font-bold text-on-surface">Auto-Identified: FDI #36 — Lower Left 1st Molar</span>
+                <span id="pipe-auto-id-meta" class="block font-code-md text-[11px] text-on-surface-variant">Mandibular Left • Occlusal Surface • 92% Confidence</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-secondary text-white font-code-md text-[10px] font-bold uppercase">Auto-Matched</span>
+          </div>
+
+          <!-- Interactive 32-Tooth FDI Odontogram Arch Selector -->
+          <div class="bg-surface-container-low p-2.5 rounded-lg space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase">32-Tooth FDI Odontogram Library (Click Any Tooth to Load 3D Model):</span>
+              <button type="button" onclick="loadCleanToothPreview()"
+                class="px-2.5 py-0.5 rounded bg-surface-container-lowest border border-outline-variant/40 text-[11px] font-bold text-primary hover:bg-primary-fixed">
+                &#10024; View Clean Tooth
+              </button>
+            </div>
+            <!-- Upper Arch (18..11 | 21..28) -->
+            <div class="flex items-center justify-center gap-0.5 flex-wrap font-code-md text-[10px]">
+              <button type="button" onclick="selectOdontogramTooth(18)" id="chip_18" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">18</button>
+              <button type="button" onclick="selectOdontogramTooth(17)" id="chip_17" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">17</button>
+              <button type="button" onclick="selectOdontogramTooth(16)" id="chip_16" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">16</button>
+              <button type="button" onclick="selectOdontogramTooth(15)" id="chip_15" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">15</button>
+              <button type="button" onclick="selectOdontogramTooth(14)" id="chip_14" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">14</button>
+              <button type="button" onclick="selectOdontogramTooth(13)" id="chip_13" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">13</button>
+              <button type="button" onclick="selectOdontogramTooth(12)" id="chip_12" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">12</button>
+              <button type="button" onclick="selectOdontogramTooth(11)" id="chip_11" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">11</button>
+              <span class="px-1 text-outline">|</span>
+              <button type="button" onclick="selectOdontogramTooth(21)" id="chip_21" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">21</button>
+              <button type="button" onclick="selectOdontogramTooth(22)" id="chip_22" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">22</button>
+              <button type="button" onclick="selectOdontogramTooth(23)" id="chip_23" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">23</button>
+              <button type="button" onclick="selectOdontogramTooth(24)" id="chip_24" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">24</button>
+              <button type="button" onclick="selectOdontogramTooth(25)" id="chip_25" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">25</button>
+              <button type="button" onclick="selectOdontogramTooth(26)" id="chip_26" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">26</button>
+              <button type="button" onclick="selectOdontogramTooth(27)" id="chip_27" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">27</button>
+              <button type="button" onclick="selectOdontogramTooth(28)" id="chip_28" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">28</button>
+            </div>
+            <!-- Lower Arch (48..41 | 31..38) -->
+            <div class="flex items-center justify-center gap-0.5 flex-wrap font-code-md text-[10px]">
+              <button type="button" onclick="selectOdontogramTooth(48)" id="chip_48" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">48</button>
+              <button type="button" onclick="selectOdontogramTooth(47)" id="chip_47" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">47</button>
+              <button type="button" onclick="selectOdontogramTooth(46)" id="chip_46" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">46</button>
+              <button type="button" onclick="selectOdontogramTooth(45)" id="chip_45" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">45</button>
+              <button type="button" onclick="selectOdontogramTooth(44)" id="chip_44" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">44</button>
+              <button type="button" onclick="selectOdontogramTooth(43)" id="chip_43" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">43</button>
+              <button type="button" onclick="selectOdontogramTooth(42)" id="chip_42" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">42</button>
+              <button type="button" onclick="selectOdontogramTooth(41)" id="chip_41" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">41</button>
+              <span class="px-1 text-outline">|</span>
+              <button type="button" onclick="selectOdontogramTooth(31)" id="chip_31" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">31</button>
+              <button type="button" onclick="selectOdontogramTooth(32)" id="chip_32" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">32</button>
+              <button type="button" onclick="selectOdontogramTooth(33)" id="chip_33" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">33</button>
+              <button type="button" onclick="selectOdontogramTooth(34)" id="chip_34" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">34</button>
+              <button type="button" onclick="selectOdontogramTooth(35)" id="chip_35" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">35</button>
+              <button type="button" onclick="selectOdontogramTooth(36)" id="chip_36" class="fdi-chip px-1.5 py-0.5 rounded bg-primary text-white font-bold">36</button>
+              <button type="button" onclick="selectOdontogramTooth(37)" id="chip_37" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">37</button>
+              <button type="button" onclick="selectOdontogramTooth(38)" id="chip_38" class="fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold">38</button>
+            </div>
+          </div>
+
           <!-- 6-Metric 2D Geometry Bar -->
-          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 bg-surface-container-low p-2.5 rounded-lg text-center">
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 bg-surface-container-low p-2 rounded-lg text-center">
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Centroid</span><span id="pipe-m-centroid" class="font-code-md text-code-md font-bold">—</span></div>
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Area</span><span id="pipe-m-area" class="font-code-md text-code-md font-bold">—</span></div>
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Radius</span><span id="pipe-m-radius" class="font-code-md text-code-md font-bold text-primary">—</span></div>
@@ -472,12 +535,12 @@
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Angle</span><span id="pipe-m-angle" class="font-code-md text-code-md font-bold text-secondary">—</span></div>
           </div>
 
-          <!-- FDI Tooth + Anomaly Selector -->
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 bg-surface-container-low p-3 rounded-lg">
-            <div class="sm:col-span-5">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Target FDI Tooth (#11–#47):</label>
-              <select id="pipe-fdi-select" onchange="onPipelineWhitelistCheck()"
-                class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2.5">
+          <!-- Method A (Photo-Guided) + Method B (Direct Custom 3D Pathology Generator) -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 bg-surface-container-low p-3 rounded-lg">
+            <div class="sm:col-span-4">
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Target FDI Tooth (#11–#48):</label>
+              <select id="pipe-fdi-select" onchange="onPipelineWhitelistCheck(true)"
+                class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <optgroup label="Molars (Occlusal Table — Cavity Only)">
                   <option value="36" selected>FDI #36 — Lower Left 1st Molar</option>
                   <option value="46">FDI #46 — Lower Right 1st Molar</option>
@@ -485,6 +548,12 @@
                   <option value="26">FDI #26 — Upper Left 1st Molar</option>
                   <option value="37">FDI #37 — Lower Left 2nd Molar</option>
                   <option value="47">FDI #47 — Lower Right 2nd Molar</option>
+                  <option value="17">FDI #17 — Upper Right 2nd Molar</option>
+                  <option value="27">FDI #27 — Upper Left 2nd Molar</option>
+                  <option value="18">FDI #18 — Upper Right 3rd Molar</option>
+                  <option value="28">FDI #28 — Upper Left 3rd Molar</option>
+                  <option value="38">FDI #38 — Lower Left 3rd Molar</option>
+                  <option value="48">FDI #48 — Lower Right 3rd Molar</option>
                 </optgroup>
                 <optgroup label="Premolars (Occlusal Fossa — Cavity Only)">
                   <option value="34">FDI #34 — Lower Left 1st Premolar</option>
@@ -493,6 +562,8 @@
                   <option value="24">FDI #24 — Upper Left 1st Premolar</option>
                   <option value="44">FDI #44 — Lower Right 1st Premolar</option>
                   <option value="45">FDI #45 — Lower Right 2nd Premolar</option>
+                  <option value="15">FDI #15 — Upper Right 2nd Premolar</option>
+                  <option value="25">FDI #25 — Upper Left 2nd Premolar</option>
                 </optgroup>
                 <optgroup label="Incisors (Labial — Cavity &amp; Abrasion)">
                   <option value="31">FDI #31 — Lower Left Central Incisor</option>
@@ -501,6 +572,8 @@
                   <option value="21">FDI #21 — Upper Left Central Incisor</option>
                   <option value="12">FDI #12 — Upper Right Lateral Incisor</option>
                   <option value="22">FDI #22 — Upper Left Lateral Incisor</option>
+                  <option value="32">FDI #32 — Lower Left Lateral Incisor</option>
+                  <option value="42">FDI #42 — Lower Right Lateral Incisor</option>
                 </optgroup>
                 <optgroup label="Canines (Labial — Cavity &amp; Abrasion)">
                   <option value="33">FDI #33 — Lower Left Canine</option>
@@ -511,19 +584,56 @@
               </select>
             </div>
             <div class="sm:col-span-4">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Anomaly Type:</label>
-              <select id="pipe-anomaly-select" onchange="onPipelineWhitelistCheck()"
-                class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2.5">
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Anomaly / Pathology Type:</label>
+              <select id="pipe-anomaly-select" onchange="onPipelineWhitelistCheck(false)"
+                class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <option value="Cavity">Cavity / Caries</option>
                 <option value="Abrasion">Abrasion (Anterior Labial)</option>
+                <option value="Cervical">Class V Cervical Notch (Custom)</option>
+                <option value="Crack">Structural Crack / Fissure (Custom)</option>
               </select>
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Anatomical Surface:</label>
+              <select id="pipe-surface-select"
+                class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
+                <option value="">Auto (Anatomical Frame)</option>
+                <option value="occlusal">Occlusal (Chewing Table)</option>
+                <option value="buccal">Buccal / Labial (Outer)</option>
+                <option value="lingual">Lingual / Palatal (Inner)</option>
+                <option value="cervical">Cervical (Gumline Margin)</option>
+                <option value="interproximal">Interproximal (Contact)</option>
+              </select>
+            </div>
+
+            <!-- Method B Direct Sliders + Method A / B Action Buttons -->
+            <div class="sm:col-span-3 flex flex-col justify-center">
+              <div class="flex justify-between text-[10px] font-code-md text-on-surface-variant">
+                <span>Custom Radius</span><span id="pipe-custom-r-lbl" class="font-bold text-primary">1.8 mm</span>
+              </div>
+              <input type="range" id="pipe-custom-radius" min="0.8" max="3.6" step="0.1" value="1.8"
+                oninput="document.getElementById('pipe-custom-r-lbl').textContent = this.value + ' mm'" class="w-full accent-primary"/>
+            </div>
+            <div class="sm:col-span-3 flex flex-col justify-center">
+              <div class="flex justify-between text-[10px] font-code-md text-on-surface-variant">
+                <span>Custom Depth</span><span id="pipe-custom-d-lbl" class="font-bold text-secondary">1.1 mm</span>
+              </div>
+              <input type="range" id="pipe-custom-depth" min="0.3" max="2.5" step="0.1" value="1.1"
+                oninput="document.getElementById('pipe-custom-d-lbl').textContent = this.value + ' mm'" class="w-full accent-secondary"/>
             </div>
             <div class="sm:col-span-3 flex items-end">
               <button type="button" id="btn-pipe-carve-preview" onclick="runPipelineCarvePreview()"
-                class="w-full py-1.5 px-3 rounded-md bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container">
-                Carve 3D Tooth
+                class="w-full py-1.5 px-2.5 rounded-md bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container" title="Method A: Project 2D SAM2 Mask to 3D Tooth">
+                Method A: Photo &rarr; 3D
               </button>
             </div>
+            <div class="sm:col-span-3 flex items-end">
+              <button type="button" id="btn-pipe-carve-custom" onclick="runPipelineCustomCarve()"
+                class="w-full py-1.5 px-2.5 rounded-md bg-secondary text-white text-xs font-bold shadow-sm hover:opacity-95" title="Method B: Direct 3D Pathology Generator using Sliders">
+                Method B: Direct 3D
+              </button>
+            </div>
+
             <div id="pipe-whitelist-banner" class="sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex flex-wrap items-center justify-between gap-2">
               <span id="pipe-whitelist-text" class="font-semibold text-on-secondary-fixed-variant">UNCONDITIONAL GO: FDI #36 + Cavity is Whitelisted.</span>
               <span id="pipe-3d-telemetry" class="font-code-md text-code-md text-primary font-bold"></span>
@@ -531,10 +641,12 @@
           </div>
 
           <!-- Interactive Three.js Viewport -->
-          <div class="relative w-full h-[300px] bg-[#0F172A] rounded-xl overflow-hidden flex flex-col justify-between shadow-inner">
+          <div class="relative w-full h-[270px] bg-[#0F172A] rounded-xl overflow-hidden flex flex-col justify-between shadow-inner">
             <div class="relative z-10 p-2.5 flex items-center justify-between text-xs text-white pointer-events-none">
               <span id="pipe-3d-hud" class="bg-[#0F172A]/85 px-2.5 py-1 rounded font-code-md text-code-md">3D Carved Mesh Preview</span>
               <div class="flex items-center gap-1 bg-[#0F172A]/85 px-2 py-1 rounded pointer-events-auto font-code-md text-[11px]">
+                <button type="button" onclick="togglePipelineShaderMode()" id="btn-pipe-shader-mode" class="text-secondary-fixed font-bold hover:underline px-1">Shader: Clinical</button>
+                <span>•</span>
                 <button type="button" onclick="setPipeline3DView('reset')" class="hover:text-secondary-fixed px-1">Reset</button>
                 <span>•</span>
                 <button type="button" onclick="setPipeline3DView('top')" class="hover:text-secondary-fixed px-1">Occlusal</button>
@@ -550,7 +662,7 @@
                 <a id="pipe-download-npz" href="#" download class="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white hidden">.NPZ</a>
                 <a id="pipe-download-obj" href="#" download class="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white hidden">.OBJ</a>
               </div>
-              <span id="pipe-carve-summary" class="text-secondary-fixed truncate">Click "Carve 3D Tooth" to inspect 3D geometry</span>
+              <span id="pipe-carve-summary" class="text-secondary-fixed truncate">Click "Method A: Photo → 3D" or "Method B: Direct 3D" to inspect</span>
             </div>
           </div>
 
@@ -2377,6 +2489,40 @@
     });
   }
 
+  let pipeShaderMode = 'clinical'; // 'clinical' | 'heatmap'
+
+  function highlightOdontogramChip(fdi) {
+    document.querySelectorAll('.fdi-chip').forEach(btn => {
+      btn.className = 'fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold';
+    });
+    const activeChip = document.getElementById(`chip_${fdi}`);
+    if (activeChip) {
+      activeChip.className = 'fdi-chip px-1.5 py-0.5 rounded bg-primary text-white font-bold shadow-sm';
+    }
+  }
+
+  async function selectOdontogramTooth(fdi) {
+    const sel = document.getElementById('pipe-fdi-select');
+    if (sel) sel.value = String(fdi);
+    highlightOdontogramChip(fdi);
+    onPipelineWhitelistCheck(false);
+    await loadCleanToothPreview(fdi);
+  }
+
+  async function loadCleanToothPreview(overrideFdi) {
+    const fdi = overrideFdi || Number(document.getElementById('pipe-fdi-select').value || 36);
+    highlightOdontogramChip(fdi);
+    document.getElementById('pipe-status-badge').textContent = `Loading Clean 3D Tooth FDI #${fdi}...`;
+    const res = await fetch(`/api/tooth/${fdi}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('pipe-3d-hud').textContent = `Clean 3D Model: FDI #${data.tooth_fdi} (${data.tooth_name})`;
+    document.getElementById('pipe-carve-summary').textContent =
+      `FDI #${data.tooth_fdi} — ${data.mesh_data.num_vertices} vertices • Ready for Method A or Method B carving`;
+    document.getElementById('pipe-status-badge').textContent = `Loaded Clean Tooth #${data.tooth_fdi}`;
+    buildPipelineThreeMesh(data.mesh_data);
+  }
+
   async function runPipelineSAM2() {
     if (!pipeActiveImageId) return;
     document.getElementById('pipe-status-badge').textContent = 'Running SAM2 Segmentation...';
@@ -2403,6 +2549,25 @@
     document.getElementById('pipe-m-angle').textContent = `${g.orientation}°`;
     document.getElementById('pipe-sam2-conf').textContent = `SAM2 Confidence: ${(data.confidence * 100).toFixed(1)}%`;
 
+    // Display Automatic FDI Tooth Identification from tooth_classifier.py
+    if (data.identified_tooth && data.identified_tooth.fdi) {
+      const idt = data.identified_tooth;
+      const autoBanner = document.getElementById('pipe-auto-id-banner');
+      if (autoBanner) {
+        autoBanner.classList.remove('hidden');
+        document.getElementById('pipe-auto-id-title').textContent =
+          `Auto-Identified: FDI #${idt.fdi} — ${idt.name}`;
+        document.getElementById('pipe-auto-id-meta').textContent =
+          `${idt.quadrant} • ${idt.surface} surface • ${Math.round((idt.confidence || 0.88) * 100)}% Confidence`;
+      }
+      const fdiSel = document.getElementById('pipe-fdi-select');
+      if (fdiSel && Array.from(fdiSel.options).some(o => Number(o.value) === Number(idt.fdi))) {
+        fdiSel.value = String(idt.fdi);
+      }
+      highlightOdontogramChip(idt.fdi);
+      onPipelineWhitelistCheck(false);
+    }
+
     const mImg = new Image();
     mImg.onload = () => {
       pipeMaskObj = mImg;
@@ -2421,10 +2586,11 @@
     clearPipelinePrompts();
   }
 
-  function onPipelineWhitelistCheck() {
+  function onPipelineWhitelistCheck(syncChip = false) {
     const fdi = Number(document.getElementById('pipe-fdi-select').value);
+    if (syncChip) highlightOdontogramChip(fdi);
     const anom = document.getElementById('pipe-anomaly-select').value;
-    const isPosterior = [14, 15, 16, 17, 24, 25, 26, 27, 34, 35, 36, 37, 44, 45, 46, 47].includes(fdi);
+    const isPosterior = [14, 15, 16, 17, 18, 24, 25, 26, 27, 28, 34, 35, 36, 37, 38, 44, 45, 46, 47, 48].includes(fdi);
     const banner = document.getElementById('pipe-whitelist-banner');
     const txt = document.getElementById('pipe-whitelist-text');
     const btnCarve = document.getElementById('btn-pipe-carve-preview');
@@ -2432,9 +2598,14 @@
 
     if (isPosterior && anom === 'Abrasion') {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-error-container text-on-error-container text-xs flex items-center justify-between';
-      txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Posterior Abrasion on FDI #${fdi} is excluded.`;
+      txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Posterior Abrasion on FDI #${fdi} is excluded from Room Cases (use Method B for custom preview).`;
       btnCarve.disabled = true;
       btnPub.disabled = true;
+    } else if (anom === 'Cervical' || anom === 'Crack') {
+      banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-primary-fixed/60 text-primary text-xs flex items-center justify-between';
+      txt.textContent = `CUSTOM 3D GENERATOR MODE: Click "Method B: Direct 3D" to sculpt ${anom} on FDI #${fdi}.`;
+      btnCarve.disabled = false;
+      btnPub.disabled = false;
     } else {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex items-center justify-between';
       txt.textContent = `UNCONDITIONAL GO: FDI #${fdi} + ${anom} is Phase 0 Whitelisted.`;
@@ -2447,12 +2618,19 @@
     if (!pipeGeometry) await runPipelineSAM2();
     const fdi = Number(document.getElementById('pipe-fdi-select').value);
     const anomaly = document.getElementById('pipe-anomaly-select').value;
+    const surface = document.getElementById('pipe-surface-select')?.value || '';
+    if (anomaly === 'Cervical' || anomaly === 'Crack') {
+      return runPipelineCustomCarve();
+    }
     document.getElementById('pipe-status-badge').textContent = `Carving 3D Tooth (#${fdi} ${anomaly})...`;
+
+    const payload = { tooth_fdi: fdi, anomaly_type: anomaly, geometry: pipeGeometry };
+    if (surface) payload.surface = surface;
 
     const res = await fetch('/api/carve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tooth_fdi: fdi, anomaly_type: anomaly, geometry: pipeGeometry })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (!res.ok) {
@@ -2461,6 +2639,7 @@
     }
 
     const cp = data.carve_params;
+    document.getElementById('pipe-3d-hud').textContent = `Method A Carved: FDI #${fdi} (${anomaly})`;
     document.getElementById('pipe-3d-telemetry').textContent =
       `r=${cp.radius}mm • d=${cp.depth}mm • wall=${cp.local_wall_thickness_mm}mm`;
     document.getElementById('pipe-carve-summary').textContent =
@@ -2473,6 +2652,47 @@
     objLink.href = data.obj_url;
     npzLink.classList.remove('hidden');
     objLink.classList.remove('hidden');
+
+    buildPipelineThreeMesh(data.mesh_data);
+  }
+
+  async function runPipelineCustomCarve() {
+    const fdi = Number(document.getElementById('pipe-fdi-select').value || 36);
+    const lesionType = document.getElementById('pipe-anomaly-select').value || 'Cavity';
+    const surface = document.getElementById('pipe-surface-select')?.value || 'occlusal';
+    const radius = parseFloat(document.getElementById('pipe-custom-radius')?.value || '1.8');
+    const depth = parseFloat(document.getElementById('pipe-custom-depth')?.value || '1.1');
+
+    document.getElementById('pipe-status-badge').textContent = `Method B: Sculpting Custom ${lesionType} on FDI #${fdi}...`;
+    const res = await fetch('/api/carve_custom', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tooth_fdi: fdi,
+        lesion_type: lesionType,
+        surface: surface,
+        radius: radius,
+        depth: depth
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('pipe-carve-summary').textContent = data.error || 'Custom carve failed.';
+      return;
+    }
+
+    const cp = data.carve_params;
+    document.getElementById('pipe-3d-hud').textContent = `Method B Custom: FDI #${fdi} (${lesionType} • ${cp.surface})`;
+    document.getElementById('pipe-3d-telemetry').textContent =
+      `r=${cp.radius}mm • d=${cp.depth}mm • surf=${cp.surface}`;
+    document.getElementById('pipe-carve-summary').textContent =
+      `Custom FDI #${fdi} (${lesionType} on ${cp.surface}) — ${cp.affected_vertices || '—'} displaced verts`;
+    document.getElementById('pipe-status-badge').textContent = `Custom 3D Tooth Carved — Inspect or Publish to Room`;
+
+    const npzLink = document.getElementById('pipe-download-npz');
+    const objLink = document.getElementById('pipe-download-obj');
+    if (data.npz_url) { npzLink.href = data.npz_url; npzLink.classList.remove('hidden'); }
+    if (data.obj_url) { objLink.href = data.obj_url; objLink.classList.remove('hidden'); }
 
     buildPipelineThreeMesh(data.mesh_data);
   }
@@ -2500,22 +2720,27 @@
     }
 
     const fdi = Number(document.getElementById('pipe-fdi-select').value);
-    const anomaly = document.getElementById('pipe-anomaly-select').value;
+    const rawAnomaly = document.getElementById('pipe-anomaly-select').value;
+    const anomaly = rawAnomaly === 'Abrasion' ? 'Abrasion' : 'Cavity';
+    const surface = document.getElementById('pipe-surface-select')?.value || '';
     const patientName = document.getElementById('pipe-patient-name').value.trim() || 'Jordan Taylor';
     const rigor = document.getElementById('pipe-case-rigor').value;
 
     fb.textContent = `Publishing #${fdi} (${anomaly})...`;
+    const payload = {
+      room_id: Number(targetRoomId),
+      tooth_fdi: fdi,
+      anomaly_type: anomaly,
+      geometry: pipeGeometry,
+      patient_name: patientName,
+      rigor: rigor
+    };
+    if (surface) payload.surface = surface;
+
     const res = await fetch('/api/carve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        room_id: Number(targetRoomId),
-        tooth_fdi: fdi,
-        anomaly_type: anomaly,
-        geometry: pipeGeometry,
-        patient_name: patientName,
-        rigor: rigor
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (!res.ok) {
@@ -2558,7 +2783,7 @@
   function resizePipelineThreeJS() {
     const c = document.getElementById('pipe-three-container');
     if (!c || !pipeThree.renderer) return;
-    const w = c.clientWidth || 600, h = c.clientHeight || 300;
+    const w = c.clientWidth || 600, h = c.clientHeight || 270;
     if (w <= 0 || h <= 0) return;
     pipeThree.camera.aspect = w / h;
     pipeThree.camera.updateProjectionMatrix();
@@ -2571,7 +2796,8 @@
     if (pipeThree.mesh) pipeThree.scene.remove(pipeThree.mesh);
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(meshData.vertices), 3));
-    const cols = meshData.colors || meshData.enamel_colors;
+    const useClinical = pipeShaderMode === 'clinical' && meshData.clinical_colors;
+    const cols = useClinical ? meshData.clinical_colors : (meshData.colors || meshData.enamel_colors);
     geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
     geom.setIndex(new THREE.BufferAttribute(new Uint32Array(meshData.faces), 1));
     geom.computeVertexNormals();
@@ -2582,6 +2808,13 @@
     pipeThree.scene.add(pipeThree.mesh);
     setPipeline3DView('reset');
     resizePipelineThreeJS();
+  }
+
+  function togglePipelineShaderMode() {
+    pipeShaderMode = pipeShaderMode === 'clinical' ? 'heatmap' : 'clinical';
+    const btn = document.getElementById('btn-pipe-shader-mode');
+    if (btn) btn.textContent = pipeShaderMode === 'clinical' ? 'Shader: Clinical' : 'Shader: Heatmap';
+    if (pipeThree.meshData) buildPipelineThreeMesh(pipeThree.meshData);
   }
 
   function setPipeline3DView(mode) {

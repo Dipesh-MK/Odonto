@@ -15,12 +15,15 @@ Key Architectural Principles:
      on the labial crown face.
    - Posterior teeth (Premolar, Molar): possess an occlusal chewing table.
      2D coordinates map to (mesio-distal, bucco-lingual) on the occlusal basin/table.
-3. Anomaly-aware depth and profile:
+3. Optional explicit anatomical surface override ('buccal', 'lingual', 'cervical', 'interproximal')
+   via find_surface_vertex while preserving dynamic mesh-derived radius & depth bounds.
+4. Anomaly-aware depth and profile:
    - Cavity / Caries: deeper concave cavitation scaled to radius and local wall thickness.
    - Abrasion: shallow, flat-bottomed mechanical wear facet aligned with anatomical wear axes.
 """
 
 import numpy as np
+from tooth_carver import find_surface_vertex
 
 
 def classify_fdi_tooth(tooth_fdi=None, mesh_spans=None):
@@ -73,7 +76,6 @@ def classify_fdi_tooth(tooth_fdi=None, mesh_spans=None):
         except (ValueError, TypeError):
             pass
 
-    # Dynamic geometric fallback if FDI number is omitted
     if mesh_spans is not None:
         md_span, bl_span, crown_h = mesh_spans
         horizontal_footprint = max(np.sqrt(md_span * bl_span), 1e-5)
@@ -154,7 +156,6 @@ def compute_anatomical_frame(tooth_mesh):
     md_span = float(np.percentile(u, 98) - np.percentile(u, 2))
     bl_span = float(np.percentile(v, 98) - np.percentile(v, 2))
 
-    # Measure mean mesh edge length dynamically to ensure lesions always span enough triangles
     mean_edge_len = float(tooth_mesh.edges_unique_length.mean())
 
     return {
@@ -193,7 +194,8 @@ def convert_2d_geometry_to_3d_params(
     geometry,
     tooth_mesh,
     tooth_fdi=None,
-    anomaly_type="Cavity"
+    anomaly_type="Cavity",
+    surface=None
 ):
     """
     Converts 2D shape geometry into 3D carving arguments for carve_cavity().
@@ -224,33 +226,24 @@ def convert_2d_geometry_to_3d_params(
     rel_x = float(np.clip(rel_x, 0.20, 0.80))
     rel_y = float(np.clip(rel_y, 0.20, 0.80))
 
-    is_abrasion = str(anomaly_type).strip().lower().startswith("abrasion")
+    anomaly_lower = str(anomaly_type).strip().lower()
+    is_abrasion = anomaly_lower.startswith("abrasion") or "wear" in anomaly_lower
     raw_orientation = float(geometry.get("orientation", 0.0))
 
     # =========================================================================
     # 3. EXPLICIT TOOTH-TYPE BRANCH FOR CROWN REGION & PROJECTION
     # =========================================================================
     if anatomical_group == "anterior":
-        # ---------------------------------------------------------------------
-        # BRANCH A: ANTERIOR TEETH (Incisors & Canines)
-        # Incisors and canines have a thin incisal ridge/cusp and NO occlusal
-        # table. Clinical photographs view the labial (facial) surface.
-        #   - Horizontal image axis (rel_x) -> Mesio-Distal axis (u)
-        #   - Vertical image axis (rel_y)   -> Apico-Coronal crown axis (w)
-        # ---------------------------------------------------------------------
         target_surface = "labial_facial"
+        actual_surface = surface if surface in ("lingual", "cervical", "interproximal") else "buccal"
         facial_alignment = np.dot(normals, e_facial)
 
-        # Measure full anatomical labial crown face dimensions first (before interior padding)
         full_labial_mask = (facial_alignment > 0.30) & (w_norm >= 0.15) & (w_norm <= 0.88)
         if np.sum(full_labial_mask) < 30:
             full_labial_mask = facial_alignment > 0.15
         surf_span_u = float(np.percentile(u[full_labial_mask], 95) - np.percentile(u[full_labial_mask], 5))
         surf_span_w = float(np.percentile(w[full_labial_mask], 95) - np.percentile(w[full_labial_mask], 5))
 
-        # Interior safe placement zone on the labial enamel plate:
-        # For Abrasion (Class V cervical/labial wear), place in the cervical-middle third;
-        # For Cavity/Caries, place in the central labial third.
         w_low = 0.32 if is_abrasion else 0.42
         w_high = 0.54 if is_abrasion else 0.68
         u_low, u_high = np.percentile(u[full_labial_mask], [28, 72])
@@ -273,39 +266,31 @@ def convert_2d_geometry_to_3d_params(
         dists_2d = np.sqrt((u_cand - target_u) ** 2 + (w_cand - target_w) ** 2)
         center_idx = int(crown_indices[np.argmin(dists_2d)])
 
+        if surface in ("lingual", "cervical", "interproximal"):
+            center_idx = find_surface_vertex(tooth_mesh, surface=surface, rel_coords=[rel_x, 1.0 - rel_y])
+            target_surface = surface
+
         characteristic_surf_span = min(surf_span_u, surf_span_w)
-        max_major_span = surf_span_u  # Mesio-distal width bounds horizontal extension
+        max_major_span = surf_span_u
         tangent_u = e_md
         tangent_v = e_crown
 
-        # On anterior labial surfaces, cervical/labial abrasion wear facets run
-        # horizontally along the mesio-distal arch axis (tangent_u = e_md).
         if is_abrasion:
             effective_orientation = float(np.clip(raw_orientation, -18.0, 18.0))
         else:
             effective_orientation = float(np.clip(raw_orientation, -35.0, 35.0))
 
     else:
-        # ---------------------------------------------------------------------
-        # BRANCH B: POSTERIOR TEETH (Premolars & Molars)
-        # Premolars and molars possess an occlusal chewing table facing e_crown.
-        #   - Horizontal image axis (rel_x) -> Mesio-Distal axis (u)
-        #   - Vertical image axis (rel_y)   -> Bucco-Lingual axis (v)
-        # ---------------------------------------------------------------------
         target_surface = "occlusal_table"
+        actual_surface = surface if surface in ("buccal", "lingual", "cervical", "interproximal") else "occlusal"
         occlusal_alignment = np.dot(normals, e_crown)
 
-        # Measure full occlusal table span
         full_occ_mask = (occlusal_alignment > 0.30) & (w_norm >= 0.45)
         if np.sum(full_occ_mask) < 30:
             full_occ_mask = w_norm >= 0.50
         surf_span_u = float(np.percentile(u[full_occ_mask], 95) - np.percentile(u[full_occ_mask], 5))
         surf_span_v = float(np.percentile(v[full_occ_mask], 95) - np.percentile(v[full_occ_mask], 5))
 
-        # Select interior occlusal basin / fossa & cusp slopes (avoiding outer vertical walls):
-        # Note: Mandibular first premolars (#34/#44) have a strong lingual tilt of the
-        # occlusal plane (occ_alignment ~ 0.42-0.50 in the developmental groove), so
-        # we allow occlusal_alignment > 0.38 within the [10, 90] interior percentile box.
         u_low, u_high = np.percentile(u[full_occ_mask], [10, 90])
         v_low, v_high = np.percentile(v[full_occ_mask], [10, 90])
 
@@ -320,9 +305,6 @@ def convert_2d_geometry_to_3d_params(
 
         crown_indices = np.where(crown_mask)[0]
         if not is_abrasion and len(crown_indices) > 15:
-            # Occlusal caries originates in concave pits, fissures, and developmental
-            # grooves/fossae (where surrounding neighbors sit higher along the surface
-            # normal: (v_neighbor_mean - v_i) . n_i > 0), rather than convex cusp peaks.
             verts = np.asarray(tooth_mesh.vertices, dtype=np.float64)
             cand_verts = verts[crown_indices]
             cand_norms = normals[crown_indices]
@@ -334,7 +316,6 @@ def convert_2d_geometry_to_3d_params(
                 if np.any(nbrs):
                     diff_mean = verts[nbrs].mean(axis=0) - v_pos
                     concavity_scores[idx_k] = float(np.dot(diff_mean, cand_norms[idx_k]))
-            # Keep concave fossa/groove vertices (top 20% most concave pits/grooves)
             concavity_thresh = max(0.02, float(np.percentile(concavity_scores, 80)))
             fossa_indices = crown_indices[concavity_scores >= concavity_thresh]
             if len(fossa_indices) >= 6:
@@ -348,6 +329,10 @@ def convert_2d_geometry_to_3d_params(
 
         dists_2d = np.sqrt((u_cand - target_u) ** 2 + (v_cand - target_v) ** 2)
         center_idx = int(crown_indices[np.argmin(dists_2d)])
+
+        if surface in ("buccal", "lingual", "cervical", "interproximal"):
+            center_idx = find_surface_vertex(tooth_mesh, surface=surface, rel_coords=[rel_x, 1.0 - rel_y])
+            target_surface = surface
 
         characteristic_surf_span = min(surf_span_u, surf_span_v)
         max_major_span = max(surf_span_u, surf_span_v)
@@ -366,25 +351,18 @@ def convert_2d_geometry_to_3d_params(
     else:
         local_wall_thickness = max(float(w[center_idx] - w.min()), 2.0)
 
-    # Dynamic radius bounds derived from:
-    # 1. Mesh resolution floor (at least 4.2x mean triangle edge length so the lesion
-    #    always spans >= 35-50 vertices and never forms a jagged 5-vertex pinhole)
-    # 2. Tooth surface span (18% to 32% of characteristic crown surface dimension)
     mesh_resolution_min_r = 4.2 * mean_edge_len
     min_radius_dyn = max(mesh_resolution_min_r, 0.18 * characteristic_surf_span)
     max_radius_dyn = max(min_radius_dyn * 1.15, 0.30 * characteristic_surf_span)
 
-    # Scale 2D relative_radius (which is normalized to full-arch photo width) into tooth space
     rel_r = float(geometry.get("relative_radius", 0.06))
     raw_radius = rel_r * characteristic_surf_span * 3.2
     carve_radius = float(np.clip(raw_radius, min_radius_dyn, max_radius_dyn))
 
-    # Clamp aspect ratio so elongated lesions stay cleanly inside the crown borders
     raw_aspect = float(geometry.get("aspect_ratio", 1.0))
     max_allowed_aspect = min(2.2, (0.38 * max_major_span / max(carve_radius, 1e-4)) ** 2)
     aspect_ratio = float(np.clip(raw_aspect, 1.0, max(1.1, max_allowed_aspect)))
 
-    # Dynamic depth coupled to both carve_radius (aspect ratio d/r) and local_wall_thickness:
     # NOTE ON DEPTH CALIBRATION:
     # `characteristic_surf_span` and `local_wall_thickness` are measured dynamically from
     # the Teeth3DS+ tooth mesh geometry. However, the dimensionless multipliers below
@@ -392,13 +370,11 @@ def convert_2d_geometry_to_3d_params(
     # for Cavity) are clinical heuristics applied to those measured mesh dimensions, NOT
     # parameters empirically regressed from clinical ground-truth lesion depth scans.
     if is_abrasion:
-        # Abrasion heuristic ratio: shallow wear facet (depth = 20% of radius, capped at 8% of wall thickness)
         profile = "abrasion"
         target_depth = min(0.20 * carve_radius, 0.08 * local_wall_thickness)
         min_depth_dyn = min(0.14 * carve_radius, 0.05 * local_wall_thickness)
         max_depth_dyn = min(0.24 * carve_radius, 0.10 * local_wall_thickness)
     else:
-        # Cavity / Caries heuristic ratio: concave cavitation (depth = 42% of radius, capped at 15% of wall thickness)
         profile = "cavity"
         target_depth = min(0.42 * carve_radius, 0.15 * local_wall_thickness)
         min_depth_dyn = min(0.32 * carve_radius, 0.10 * local_wall_thickness)
@@ -409,7 +385,7 @@ def convert_2d_geometry_to_3d_params(
     carve_depth = float(np.clip(target_depth, min_depth_dyn, max_depth_dyn))
 
     return {
-        "center_idx": center_idx,
+        "center_idx": int(center_idx),
         "radius": round(carve_radius, 3),
         "depth": round(carve_depth, 3),
         "aspect_ratio": round(aspect_ratio, 2),
@@ -419,6 +395,7 @@ def convert_2d_geometry_to_3d_params(
         "tooth_type": tooth_type,
         "anatomical_group": anatomical_group,
         "target_surface": target_surface,
+        "surface": actual_surface,
         "tooth_size": round(tooth_size, 3),
         "surface_span_mm": round(characteristic_surf_span, 3),
         "local_wall_thickness_mm": round(local_wall_thickness, 3),
