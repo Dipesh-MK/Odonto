@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Odonto - Dental Simulation &amp; Viva</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#ffdcc3", "surface-dim": "#cbdbf5", "outline-variant": "#c2c7d0", "outline": "#72777f", "error": "#ba1a1a", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "on-error": "#ffffff", "inverse-primary": "#a0cafc", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#a0cafc", "primary-container": "#1f4e79", "secondary-fixed-dim": "#6bd8cb", "secondary": "#006a61", "surface-container": "#e5eeff", "on-tertiary-fixed-variant": "#6e3900", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-tint": "#35618d", "surface-variant": "#d3e4fe", "on-tertiary-container": "#ffa85e", "primary": "#00375e", "tertiary": "#542a00", "on-secondary-container": "#006f66", "on-secondary-fixed": "#00201d", "on-tertiary-fixed": "#2f1500", "surface": "#f8f9ff", "secondary-container": "#86f2e4", "secondary-fixed": "#89f5e7", "tertiary-fixed-dim": "#ffb77d", "on-primary-container": "#95bff1", "primary-fixed": "#d1e4ff", "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "inverse-surface": "#213145", "on-background": "#0b1c30", "on-primary-fixed-variant": "#184974", "tertiary-container": "#753d00", "on-error-container": "#93000a", "surface-container-highest": "#d3e4fe", "on-primary-fixed": "#001d35", "on-secondary-fixed-variant": "#005049", "on-surface-variant": "#42474f", "surface-container-low": "#eff4ff", "on-surface": "#0b1c30", "on-primary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-mobile": "1rem", "space-md": "1rem", "space-xl": "2.5rem", "margin": "2rem", "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "gutter": "1.25rem" }, "fontFamily": { "body-lg": [ "Inter" ], "display-lg-mobile": [ "Inter" ], "code-md": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "headline-sm": [ "Inter" ], "label-lg": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "Inter" ], "label-sm": [ "Inter" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "headline-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-lg-mobile": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "code-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "display-lg": [ "36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-sm": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-lg-mobile": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-sm"><img alt="Odonto Dental Simulator Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xz2Gh9LQJSYpx5DYeh6WcNJ0uRCUd_gITN5s7XQBeaspVny4lZ61Qp_1i9E7cCkiYkJ7wTSLNi66fBWVRfMFo2oIJclGh3_z3UpX7dHtA8QADd49E5YRSmmroSkXqkEZsjd1mYTwQI4pThpWbRAmmXTPbCqQj7ug5I4l5xdA1654jbUIaMwxcHKm084oNP-4yEBb_M2HbRiuq8TDAe8Fpc4UEgiYN9HezHSh8mXTMz6A"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Odonto</span></div><div class="h-5 w-px bg-outline-variant/50 hidden sm:block"></div><span class="hidden md:inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Dental Simulation &amp; Viva</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary rounded-lg font-label-md text-label-md"><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="case-library" href="#">Case Library</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="3d-viewer-and-sim" href="#">3D Viewer &amp; Sim</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="evaluate-the-ai" href="#">Evaluate the AI</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="voice-viva-session" href="#">Voice Viva Session</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="results-and-performance" href="#">Results &amp; Performance</a></nav><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-lg"><span class="font-label-sm text-label-sm text-on-surface-variant">Mode:</span><span class="font-label-sm text-label-sm text-primary font-semibold">Resident Trainee</span><span class="text-outline-variant">•</span><span class="font-code-md text-code-md text-secondary font-medium">FDI ISO-3950</span></div><button aria-label="Notifications" class="relative p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Dr. Sarah Patel</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">DMD Candidate</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASlRfyXYAG3Z7oplZPsgWd1SCjSd46Mr_Nqep-PyAvgZfLJB10HIbnZVbXRGvNU9CHnTuWgTz4aejhspVmHws8aS0V_aJq3aDMj9dQE7XdlZU3j27INBk-4uTqoopPWyVfigQuj9KEWI1HIye-E4BCTBdNh_xgtOZsomhIfVYbVsAEliGddOJVwp66DgKGY-ClNT-eIeq7sI-n5h4kDo_0IT6SkSnjq03-X6rfQ4sK"/></div></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-[1440px] mx-auto px-gutter py-space-md"><div class="flex flex-col w-full gap-space-md">
+<!-- Clinical Breadcrumbs & Quick Access Meta -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-space-xs">
+<a class="hover:text-primary transition-colors" href="#">Case Library</a>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+<span class="text-on-surface">Case #1042</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+<span class="text-primary font-semibold">3D Anatomy &amp; Clinical Vignette</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs font-code-md text-code-md bg-surface-container px-2.5 py-1 rounded-full text-primary">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>DICOM/CBCT Synced</span>
+</div>
+<div class="font-code-md text-code-md text-on-surface-variant">Arch: Mandibular Right (Q4)</div>
+</div>
+</div>
+<!-- Header Section with Case Meta, Badges, and Diagnostic Simulation Timer -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary font-code-md text-headline-sm font-semibold shadow-inner">
+        46
+      </div>
+<div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Case #1042: Mandibular Right First Molar</h1>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">pending_actions</span>
+            Pending Student Evaluation
+          </span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5 font-label-md text-label-md text-on-surface-variant">
+<span class="font-code-md text-code-md text-secondary font-medium">ISO-3950: Tooth 46</span>
+<span class="text-outline-variant">•</span>
+<span>Endodontic &amp; Operative Track</span>
+<span class="text-outline-variant">•</span>
+<span>Simulation Level: Intermediate Resident</span>
+</div>
+</div>
+</div>
+<!-- Timer & Clinical Controls -->
+<div class="flex flex-wrap items-center gap-space-sm w-full lg:w-auto justify-end">
+<div class="flex items-center gap-space-xs bg-surface-container-low px-3 py-2 rounded-lg font-code-md text-code-md text-primary font-semibold shadow-inner">
+<span class="material-symbols-outlined text-[18px] text-secondary">timer</span>
+<span>Elapsed: <span id="session-timer">04:12</span></span>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">download</span>
+<span>Export DICOM/OBJ</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Notes</span>
+</button>
+<button aria-label="Toggle Fullscreen" class="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Main 2/3 (3D Simulation Area) to 1/3 (Clinical Vignette Panel) Split Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
+<!-- LEFT 2/3: 3D High-Fidelity Viewer Workspace -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Primary 3D Viewport Frame -->
+<div class="relative w-full h-[580px] rounded-xl overflow-hidden shadow-xl bg-gradient-to-b from-[#0F172A] via-[#162032] to-[#1E293B] select-none flex flex-col justify-between">
+<!-- Subtle Grid Floor Illusion -->
+<div class="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px]"></div>
+<!-- TOP HUD Overlay: Tooth Tag & Orientation -->
+<div class="relative z-10 p-space-md flex items-start justify-between">
+<div class="flex flex-col gap-1.5">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0F172A]/85 backdrop-blur-md text-white shadow-md">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-headline-sm text-headline-sm tracking-tight text-surface-bright">Tooth 46</span>
+<span class="text-outline-variant font-code-md text-code-md">| Q4 Mandibular R1M</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/15 backdrop-blur text-surface-dim font-code-md text-label-sm">FDI Notation</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-lowest/15 backdrop-blur text-surface-dim font-code-md text-label-sm">Plane: Occlusal-Buccal</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/80 text-tertiary-fixed font-code-md text-label-sm">Occlusal Pits Scanned</span>
+</div>
+</div>
+<!-- Interactive Viewport Floating Toolbar -->
+<div class="flex items-center gap-1 bg-[#0F172A]/90 backdrop-blur-md p-1.5 rounded-xl shadow-2xl">
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" title="Rotate 360°" type="button">
+<span class="material-symbols-outlined text-[20px]">360</span>
+</button>
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" title="Pan Canvas" type="button">
+<span class="material-symbols-outlined text-[20px]">pan_tool</span>
+</button>
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" title="Zoom In" type="button">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" title="Zoom Out" type="button">
+<span class="material-symbols-outlined text-[20px]">zoom_out</span>
+</button>
+<div class="w-px h-5 bg-outline-variant/30 my-auto"></div>
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" id="toggle-wireframe" title="Toggle Wireframe Mesh" type="button">
+<span class="material-symbols-outlined text-[20px]">view_in_ar</span>
+</button>
+<button class="p-2 rounded-lg text-surface-dim hover:text-white hover:bg-surface-container-lowest/15 transition-all" title="Cross-section Slice" type="button">
+<span class="material-symbols-outlined text-[20px]">splitscreen</span>
+</button>
+<button class="p-2 rounded-lg text-secondary-container hover:text-secondary-fixed hover:bg-surface-container-lowest/15 transition-all" id="reset-view" title="Reset Camera View" type="button">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- CENTER VIEWPORT: Anatomical Dental Model Render Simulation -->
+<div class="relative flex-1 flex items-center justify-center p-4">
+<!-- Atmospheric lighting glow -->
+<div class="absolute w-80 h-80 rounded-full bg-primary-container/20 blur-3xl pointer-events-none"></div>
+<!-- Anatomical SVG Rendering of Mandibular Molar Tooth 46 -->
+<div class="relative w-72 h-80 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform duration-300">
+<svg class="w-full h-full drop-shadow-[0_20px_35px_rgba(0,0,0,0.65)]" fill="none" viewbox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Crown Enamel Gradient -->
+<radialgradient cx="45%" cy="30%" id="crownGrad" r="65%">
+<stop offset="0%" stop-color="#F1F5F9"></stop>
+<stop offset="35%" stop-color="#CBD5E1"></stop>
+<stop offset="75%" stop-color="#94A3B8"></stop>
+<stop offset="100%" stop-color="#475569"></stop>
+</radialgradient>
+<!-- Mesial Root Gradient -->
+<lineargradient id="rootMesialGrad" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#94A3B8"></stop>
+<stop offset="40%" stop-color="#64748B"></stop>
+<stop offset="100%" stop-color="#334155"></stop>
+</lineargradient>
+<!-- Distal Root Gradient -->
+<lineargradient id="rootDistalGrad" x1="1" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#94A3B8"></stop>
+<stop offset="50%" stop-color="#64748B"></stop>
+<stop offset="100%" stop-color="#1E293B"></stop>
+</lineargradient>
+<!-- Central Fissure Shadow -->
+<radialgradient cx="50%" cy="50%" id="cariesGlow" r="50%">
+<stop offset="0%" stop-color="#542a00" stop-opacity="0.9"></stop>
+<stop offset="60%" stop-color="#753d00" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#753d00" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<!-- Mesial Root (Left/Anterior) -->
+<path d="M75 160 C70 195, 62 250, 72 295 C75 305, 88 308, 98 296 C115 272, 122 215, 126 168 Z" fill="url(#rootMesialGrad)" opacity="0.95"></path>
+<path d="M82 175 C78 215, 75 260, 85 292" opacity="0.4" stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="0.8"></path>
+<!-- Distal Root (Right/Posterior) -->
+<path d="M152 168 C158 210, 172 260, 192 288 C198 296, 209 294, 212 284 C218 245, 212 195, 206 160 Z" fill="url(#rootDistalGrad)" opacity="0.95"></path>
+<path d="M165 178 C172 218, 185 258, 200 282" opacity="0.4" stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="0.8"></path>
+<!-- Bifurcation Groove Shadow -->
+<path d="M126 168 C134 185, 144 185, 152 168 C145 158, 133 158, 126 168 Z" fill="#0F172A" opacity="0.8"></path>
+<!-- Cementum-Enamel Junction (CEJ) Line -->
+<path d="M50 152 C85 165, 120 156, 140 162 C160 156, 195 165, 230 152 C236 138, 238 120, 234 100 C228 65, 210 50, 180 44 C155 40, 125 40, 100 44 C70 50, 52 65, 46 100 C42 120, 44 138, 50 152 Z" fill="url(#crownGrad)"></path>
+<!-- Anatomical Cusp Highlights (Mesiobuccal, Distobuccal, Lingual lobes) -->
+<path d="M60 85 C65 60, 90 52, 105 60 C110 75, 100 95, 75 92 Z" fill="#FFFFFF" filter="blur(1px)" opacity="0.35"></path>
+<path d="M115 58 C135 50, 160 52, 172 65 C160 80, 130 82, 115 58 Z" fill="#FFFFFF" opacity="0.25"></path>
+<path d="M178 68 C195 62, 218 72, 222 92 C202 96, 188 88, 178 68 Z" fill="#FFFFFF" opacity="0.3"></path>
+<!-- Occlusal Fissure Anatomy (Grooves & Pits) -->
+<path d="M85 88 Q115 98, 140 95 T195 90" stroke="#1E293B" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M140 95 Q135 120, 138 135" stroke="#1E293B" stroke-linecap="round" stroke-width="2.2"></path>
+<path d="M110 96 Q105 115, 95 125" stroke="#1E293B" stroke-linecap="round" stroke-width="1.8"></path>
+<path d="M165 93 Q175 110, 188 120" stroke="#1E293B" stroke-linecap="round" stroke-width="1.8"></path>
+<!-- Suspected Early Enamel Caries Demarcation at Central Pit -->
+<circle cx="140" cy="96" fill="url(#cariesGlow)" r="10"></circle>
+<circle cx="140" cy="96" fill="#3D1D00" r="3"></circle>
+<!-- Subtle Wireframe Diagnostic Overlay Vectors (Toggled via JS) -->
+<g class="opacity-30 transition-opacity duration-300" id="mesh-wireframe">
+<line stroke="#38BDF8" stroke-dasharray="2 2" stroke-width="0.5" x1="50" x2="230" y1="120" y2="120"></line>
+<line stroke="#38BDF8" stroke-dasharray="2 2" stroke-width="0.5" x1="60" x2="220" y1="140" y2="140"></line>
+<line stroke="#38BDF8" stroke-dasharray="2 2" stroke-width="0.5" x1="80" x2="90" y1="60" y2="280"></line>
+<line stroke="#38BDF8" stroke-dasharray="2 2" stroke-width="0.5" x1="140" x2="140" y1="45" y2="170"></line>
+<line stroke="#38BDF8" stroke-dasharray="2 2" stroke-width="0.5" x1="200" x2="190" y1="60" y2="280"></line>
+</g>
+</svg>
+<!-- Interactive Diagnostic Marker Pointer -->
+<div class="absolute top-[28%] left-[51%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<span class="relative flex h-5 w-5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-tertiary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-5 w-5 bg-tertiary-container text-tertiary-fixed items-center justify-center font-code-md text-[10px] font-bold">1</span>
+</span>
+<div class="absolute left-6 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0F172A]/95 text-white font-label-sm text-label-sm whitespace-nowrap shadow-xl">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+<span>Central Occlusal Fissure Discolouration</span>
+</div>
+</div>
+<!-- Spatial Axis Indicator in Center Canvas -->
+<div class="absolute bottom-2 left-2 flex flex-col font-code-md text-code-md text-surface-dim/60">
+<span class="text-secondary-fixed-dim">X: +14.2° (Mesio-Buccal)</span>
+<span>Y: -02.8° (Tilt)</span>
+<span>Z: 1.00x (Scale)</span>
+</div>
+</div>
+</div>
+<!-- BOTTOM HUD: Mesh & Diagnostic Telemetry -->
+<div class="relative z-10 px-space-md py-2.5 bg-[#0F172A]/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-space-sm font-code-md text-code-md text-surface-dim">
+<div class="flex items-center gap-space-sm truncate">
+<span class="material-symbols-outlined text-[16px] text-secondary">deployed_code</span>
+<span class="truncate">Mesh: FDI_46_mandibular_molar.stl</span>
+<span class="text-outline-variant/40 hidden sm:inline">|</span>
+<span class="hidden sm:inline">Vertices: 142,800</span>
+<span class="text-outline-variant/40 hidden sm:inline">|</span>
+<span class="hidden sm:inline">Resolution: 50µm CT scan</span>
+</div>
+<div class="flex items-center gap-space-sm text-label-sm font-label-sm">
+<span class="inline-flex items-center gap-1 text-secondary-fixed">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+              GPU Renderer: WebGL 2.0
+            </span>
+<span class="text-outline-variant/40">|</span>
+<span>FPS: 60</span>
+</div>
+</div>
+</div>
+<!-- Secondary State Simulation Strip: Loading & Error Fallback Widgets -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- 1. Interactive Volumetric Mesh Loading State Banner -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs font-label-md text-label-md font-semibold text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[20px] animate-spin">sync</span>
+<span>Volumetric Mesh Stream</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-secondary">84%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 84%"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Loading high-resolution volumetric mesh...</span>
+<span class="font-code-md text-code-md">28.4 / 33.8 MB</span>
+</div>
+</div>
+<!-- 2. Diagnostic Fallback & Resilience State Box -->
+<div class="bg-error-container/30 p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0 mt-0.5">warning</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-error-container">Simulated Fallback Alert</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+                Mesh failed to load: WebGL buffer timeout. Texture fallback ready.
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs justify-end pt-1">
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+              Switch to Wireframe
+            </button>
+<button class="px-2.5 py-1 rounded bg-error text-on-error hover:bg-error/90 font-label-sm text-label-sm shadow-sm transition-colors" type="button">
+              Reload Mesh
+            </button>
+</div>
+</div>
+</div>
+<!-- Radiographic Cross-Reference Card -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-16 h-16 rounded-lg bg-[#0F172A] flex items-center justify-center text-white shrink-0 overflow-hidden relative shadow-inner">
+<img class="w-full h-full object-cover opacity-80" data-alt="High-contrast dental bitewing radiograph slice exhibiting tooth 46 with distinct crown enamel density, clear dentinoenamel junction, and root canal outlines in grayscale clinical imaging style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdUMAtjIRPu-JHCp1zG8YP5-LAbEPkDkbOMlGkdpiLVwyrKDqV_ldw11g7PV_b-FQMLKrhq347wGXm4Je0ZOS8TgiQ2IKwGV_RDnKwR-IDnUoo03cpHxEhwc8WWIHJe79B4en-8ogKAQIP0Vb5TJoT-iBrJXOqm6UwiQoPUmQuvCXdqN_vXkZK5d1fjyXK9v3KftoYtjcWcX6RiJGzS52C1et26kjK__9wdaczzluh"/>
+<span class="absolute bottom-0.5 right-1 font-code-md text-[9px] text-surface-dim">BW-46</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Bitewing Radiograph Slice (R-04)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Confirmed depth within outer 1/3 of dentin. Alveolar crest height intact at 1.4mm from CEJ.</p>
+</div>
+</div>
+<button class="shrink-0 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span>Compare Radiograph</span>
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- RIGHT 1/3: Clinical Vignette & Resident Assessment Panel -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Patient Dossier Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<!-- Panel Header -->
+<div class="bg-surface-container-high p-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Clinical Dossier</span>
+<span class="font-code-md text-code-md text-on-surface-variant">Rec #D-88219</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Patient Clinical Vignette</h2>
+<!-- Demographic Summary Badges -->
+<div class="grid grid-cols-2 gap-2 mt-space-sm font-label-sm text-label-sm">
+<div class="bg-surface-container-lowest/80 p-2 rounded">
+<span class="text-on-surface-variant">Age / Gender:</span>
+<span class="font-semibold text-on-surface ml-1">28 / Female</span>
+</div>
+<div class="bg-surface-container-lowest/80 p-2 rounded">
+<span class="text-on-surface-variant">ASA Class:</span>
+<span class="font-semibold text-secondary ml-1">Class I (Normal)</span>
+</div>
+<div class="bg-surface-container-lowest/80 p-2 rounded col-span-2">
+<span class="text-on-surface-variant">Occupation:</span>
+<span class="font-semibold text-on-surface ml-1">Software Architect</span>
+</div>
+</div>
+</div>
+<!-- Vignette Narrative Body -->
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- Section 1: Chief Complaint -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+<span>1. Chief Complaint</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg font-body-md text-body-md text-on-surface italic">
+              "Patient reports dull, intermittent aching in the lower right jaw when drinking iced coffee or chewing hard foods for the past 3 weeks."
+            </div>
+</div>
+<!-- Section 2: History of Present Illness & Symptoms -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>2. History of Present Illness</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              No spontaneous nocturnal pain. Cold stimulus lingers for approx 4–5 seconds before subsiding. No swelling, bleeding upon flossing, or reported systemic fever.
+            </p>
+</div>
+<!-- Section 3: Clinical Examination Notes -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">stethoscope</span>
+<span>3. Clinical Examination Notes</span>
+</div>
+<div class="space-y-1.5 font-body-sm text-body-sm text-on-surface">
+<div class="flex items-start gap-2 bg-surface-container-low/60 p-2 rounded">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<span><strong>Occlusal Inspection:</strong> Tooth 46 shows faint discolouration along the central occlusal fissure.</span>
+</div>
+<div class="flex items-start gap-2 bg-surface-container-low/60 p-2 rounded">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<span><strong>Mobility:</strong> Grade 0 (Physiologic). Percussion test: negative.</span>
+</div>
+<div class="flex items-start gap-2 bg-surface-container-low/60 p-2 rounded">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">check_circle</span>
+<span><strong>Periodontal Status:</strong> Probing depths 2–3mm across all 6 sites. No bleeding on probing (BOP-).</span>
+</div>
+</div>
+</div>
+<!-- Section 4: Diagnostic Question & Objective -->
+<div class="bg-primary/5 p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">psychology_alt</span>
+<span>4. Diagnostic Objective</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium">
+              Identify the primary pathology site on the 3D surface model and assess whether restorative intervention is indicated.
+            </p>
+</div>
+</div>
+<!-- Sticky Action & Interactive Decision Callout -->
+<div class="p-space-md bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span>Clinical Phase: Step 2 of 4</span>
+<span class="font-code-md text-code-md text-secondary">AI Differential Ready</span>
+</div>
+<!-- Primary CTA Button -->
+<button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-[#163756] text-on-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-space-sm shadow-md transition-all active:scale-[0.99]" type="button">
+<span>Start Evaluate the AI exercise</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Secondary Viva History Button -->
+<button class="w-full py-2.5 px-space-md rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md font-medium flex items-center justify-center gap-space-xs transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">record_voice_over</span>
+<span>Review Voice Viva History</span>
+</button>
+</div>
+</div>
+<!-- Quick Differential Reference Mini-Card -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">lightbulb</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Need a Differential Hint?</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Compare Reversible vs Irreversible Pulpitis</span>
+</div>
+</div>
+<button class="text-primary hover:text-primary-container p-1 rounded font-label-sm text-label-sm font-semibold" type="button">
+          Open Guide
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic Simulation Timer Incrementer
+  let totalSeconds = 252; // 04:12 starting point
+  const timerElement = document.getElementById('session-timer');
+  if (timerElement) {
+    setInterval(() => {
+      totalSeconds++;
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      timerElement.textContent = `${minutes}:${seconds}`;
+    }, 1000);
+  }
+
+  // Wireframe Viewport Toggle Interaction
+  const wireframeBtn = document.getElementById('toggle-wireframe');
+  const wireframeMesh = document.getElementById('mesh-wireframe');
+  if (wireframeBtn && wireframeMesh) {
+    wireframeBtn.addEventListener('click', () => {
+      const isHidden = wireframeMesh.classList.contains('opacity-0');
+      if (isHidden) {
+        wireframeMesh.classList.remove('opacity-0');
+        wireframeMesh.classList.add('opacity-30');
+        wireframeBtn.classList.add('text-secondary-fixed');
+      } else {
+        wireframeMesh.classList.remove('opacity-30');
+        wireframeMesh.classList.add('opacity-0');
+        wireframeBtn.classList.remove('text-secondary-fixed');
+      }
+    });
+  }
+
+  // Reset Camera View Button Feedback
+  const resetBtn = document.getElementById('reset-view');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      resetBtn.classList.add('rotate-180');
+      setTimeout(() => {
+        resetBtn.classList.remove('rotate-180');
+      }, 350);
+    });
+  }
+</script></div></main><footer class="w-full bg-surface-container-low mt-space-xl py-space-lg"><div class="max-w-[1440px] mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-label-sm text-label-sm"><div>© 2025 Odonto Clinical Simulation Engine. ISO-13485 &amp; FDI Standard Compliant.</div><div class="flex items-center gap-space-lg"><span class="font-code-md text-code-md">Build v4.2.1-ClinicalCore</span><span class="text-outline-variant">•</span><span>Station: Diagnostic Lab Suite 4</span></div></div></footer></body></html>

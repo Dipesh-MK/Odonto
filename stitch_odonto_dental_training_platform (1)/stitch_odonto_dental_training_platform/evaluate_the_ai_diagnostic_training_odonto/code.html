@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Odonto - Dental Simulation &amp; Viva</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#ffdcc3", "surface-dim": "#cbdbf5", "outline-variant": "#c2c7d0", "outline": "#72777f", "error": "#ba1a1a", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "on-error": "#ffffff", "inverse-primary": "#a0cafc", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#a0cafc", "primary-container": "#1f4e79", "secondary-fixed-dim": "#6bd8cb", "secondary": "#006a61", "surface-container": "#e5eeff", "on-tertiary-fixed-variant": "#6e3900", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-tint": "#35618d", "surface-variant": "#d3e4fe", "on-tertiary-container": "#ffa85e", "primary": "#00375e", "tertiary": "#542a00", "on-secondary-container": "#006f66", "on-secondary-fixed": "#00201d", "on-tertiary-fixed": "#2f1500", "surface": "#f8f9ff", "secondary-container": "#86f2e4", "secondary-fixed": "#89f5e7", "tertiary-fixed-dim": "#ffb77d", "on-primary-container": "#95bff1", "primary-fixed": "#d1e4ff", "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "inverse-surface": "#213145", "on-background": "#0b1c30", "on-primary-fixed-variant": "#184974", "tertiary-container": "#753d00", "on-error-container": "#93000a", "surface-container-highest": "#d3e4fe", "on-primary-fixed": "#001d35", "on-secondary-fixed-variant": "#005049", "on-surface-variant": "#42474f", "surface-container-low": "#eff4ff", "on-surface": "#0b1c30", "on-primary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-mobile": "1rem", "space-md": "1rem", "space-xl": "2.5rem", "margin": "2rem", "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "gutter": "1.25rem" }, "fontFamily": { "body-lg": [ "Inter" ], "display-lg-mobile": [ "Inter" ], "code-md": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "headline-sm": [ "Inter" ], "label-lg": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "Inter" ], "label-sm": [ "Inter" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "headline-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-lg-mobile": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "code-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "display-lg": [ "36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-sm": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-lg-mobile": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-sm"><img alt="Odonto Dental Simulator Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xz2Gh9LQJSYpx5DYeh6WcNJ0uRCUd_gITN5s7XQBeaspVny4lZ61Qp_1i9E7cCkiYkJ7wTSLNi66fBWVRfMFo2oIJclGh3_z3UpX7dHtA8QADd49E5YRSmmroSkXqkEZsjd1mYTwQI4pThpWbRAmmXTPbCqQj7ug5I4l5xdA1654jbUIaMwxcHKm084oNP-4yEBb_M2HbRiuq8TDAe8Fpc4UEgiYN9HezHSh8mXTMz6A"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Odonto</span></div><div class="h-5 w-px bg-outline-variant/50 hidden sm:block"></div><span class="hidden md:inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Dental Simulation &amp; Viva</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary rounded-lg font-label-md text-label-md"><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="case-library" href="#">Case Library</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="3d-viewer-and-sim" href="#">3D Viewer &amp; Sim</a><a aria-current="page" class="px-3 py-1.5 transition-colors bg-primary text-on-primary rounded-lg font-label-md text-label-md" data-path="evaluate-the-ai" href="#">Evaluate the AI</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="voice-viva-session" href="#">Voice Viva Session</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="results-and-performance" href="#">Results &amp; Performance</a></nav><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-lg"><span class="font-label-sm text-label-sm text-on-surface-variant">Mode:</span><span class="font-label-sm text-label-sm text-primary font-semibold">Resident Trainee</span><span class="text-outline-variant">•</span><span class="font-code-md text-code-md text-secondary font-medium">FDI ISO-3950</span></div><button aria-label="Notifications" class="relative p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Dr. Sarah Patel</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">DMD Candidate</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASlRfyXYAG3Z7oplZPsgWd1SCjSd46Mr_Nqep-PyAvgZfLJB10HIbnZVbXRGvNU9CHnTuWgTz4aejhspVmHws8aS0V_aJq3aDMj9dQE7XdlZU3j27INBk-4uTqoopPWyVfigQuj9KEWI1HIye-E4BCTBdNh_xgtOZsomhIfVYbVsAEliGddOJVwp66DgKGY-ClNT-eIeq7sI-n5h4kDo_0IT6SkSnjq03-X6rfQ4sK"/></div></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-[1440px] mx-auto px-gutter py-space-md"><div class="flex flex-col w-full">
+<!-- Stepper Header Container -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-space-md mb-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-code-md text-code-md bg-surface-container text-primary font-semibold px-2 py-0.5 rounded">CASE #409-CAR</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Trainee Diagnostic Audit</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Evaluate the AI Diagnostic Engine</h1>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-code-md text-code-md text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          FDI #46 Occlusal • Premolar-Molar Protocol
+        </span>
+</div>
+</div>
+<!-- Interactive Clinical Stepper -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm relative">
+<!-- Step 1 Tab -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-primary-container text-on-primary shadow-sm transition-all duration-200 cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-on-primary text-primary flex items-center justify-center font-headline-sm text-headline-sm shrink-0 font-bold">1</div>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-semibold truncate text-on-primary">1. Mark Anomaly</div>
+<div class="font-label-sm text-label-sm text-on-primary-container truncate">Locate occlusal fissure defect</div>
+</div>
+<span class="material-symbols-outlined ml-auto text-[20px] text-secondary-fixed">radio_button_checked</span>
+</div>
+<!-- Step 2 Tab -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm shrink-0 font-bold">2</div>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-semibold truncate text-on-surface">2. Compare with AI</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant truncate">Volumetric concordance &amp; heatmap</div>
+</div>
+<span class="material-symbols-outlined ml-auto text-[20px] text-outline">tune</span>
+</div>
+<!-- Step 3 Tab -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm shrink-0 font-bold">3</div>
+<div class="min-w-0">
+<div class="font-label-md text-label-md font-semibold truncate text-on-surface">3. Judge &amp; Rationalize</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant truncate">Clinical critique &amp; reasoning score</div>
+</div>
+<span class="material-symbols-outlined ml-auto text-[20px] text-outline">fact_check</span>
+</div>
+</div>
+</div>
+<!-- UPPER SECTION: Active Step 1 Workbench -->
+<section class="mb-space-xl bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
+<!-- Instruction Banner -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm p-space-sm mb-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-[24px] text-primary shrink-0">touch_app</span>
+<div class="font-body-md text-body-md text-on-surface">
+<strong class="font-semibold text-primary">Target Selection:</strong> Click on the tooth surface where you think the cavity is. Mark the central pit or fissure defect.
+        </div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0 self-end sm:self-center">
+<span class="font-code-md text-code-md text-secondary bg-surface-container px-2 py-0.5 rounded font-medium">STL Mesh Loaded</span>
+<span class="font-code-md text-code-md text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">FPS: 60</span>
+</div>
+</div>
+<!-- 3D Tooth Viewer Viewport Container -->
+<div class="relative w-full h-[460px] bg-inverse-surface rounded-xl overflow-hidden shadow-inner flex flex-col justify-between p-space-md select-none group">
+<!-- Ambient Studio Grid & Illumination Background -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-container-high/10 via-transparent to-black/80 pointer-events-none"></div>
+<!-- Top HUD Overlay -->
+<div class="relative z-10 flex items-center justify-between w-full">
+<!-- Floating Surface Identifier Badge -->
+<div class="flex items-center gap-space-xs bg-inverse-surface/90 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm text-inverse-on-surface">
+<span class="font-code-md text-code-md bg-primary text-on-primary px-1.5 py-0.5 rounded font-bold">46</span>
+<span class="font-label-md text-label-md font-medium text-surface-bright">Permanent Mandibular Right First Molar</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed">Occlusal Aspect</span>
+</div>
+<!-- 3D Transform Tools -->
+<div class="flex items-center gap-1 bg-inverse-surface/90 backdrop-blur-md p-1 rounded-lg shadow-sm text-inverse-on-surface">
+<button class="p-1.5 rounded hover:bg-surface-container-high/20 text-inverse-on-surface transition-colors" title="Rotate Axis" type="button">
+<span class="material-symbols-outlined text-[18px]">3d_rotation</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high/20 text-inverse-on-surface transition-colors" title="Pan Mesh" type="button">
+<span class="material-symbols-outlined text-[18px]">pan_tool</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high/20 text-inverse-on-surface transition-colors" title="Zoom Calibration" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high/20 text-inverse-on-surface transition-colors" title="Reset Camera View" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Center 3D Anatomical Molar Simulation Scene -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-auto">
+<!-- Anatomical Molar 3D Render Representation -->
+<div class="relative w-80 h-80 flex items-center justify-center">
+<img class="w-72 h-72 object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.6)] select-none pointer-events-none" data-alt="High resolution photorealistic anatomical 3D render of an isolated permanent human mandibular first molar tooth viewed directly from the occlusal biting surface with pristine anatomical fissures, developmental grooves, cusps of carabelli, soft matte studio lighting on grey background, clinical dental simulation style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7jbxymguA8ZwEsHFSdgTTdsKtwxzOxsNdPtOJmPnV2BfbFC0Rkia0n0qLYyrN5HyRmJt6-yHP0UeyHO-e1jEbGRCLsNYhs6qczSDF_ED19kZftVl2y7wmE_1Ly_iBihhE5xYcGF51aW9j40ekPl4EFIcuRuLwx71LUjsaW245dMZotZPKXn27a_JSbMNup_LE9YvaHjxnhQWWOa8OULLwyUb81sbeS-i1OT1nMTg9"/>
+<!-- Dynamic Pinpoint Marker with Animated Ripple and Coordinates -->
+<div class="absolute top-[48%] left-[51%] -translate-x-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+<!-- Ripple Wave 1 -->
+<span class="absolute w-12 h-12 -inset-3 rounded-full bg-error/30 animate-ping opacity-75"></span>
+<!-- Ripple Wave 2 -->
+<span class="absolute w-7 h-7 -inset-0.5 rounded-full bg-error/40 animate-pulse"></span>
+<!-- Center Red Pinpoint Core -->
+<div class="relative w-4 h-4 rounded-full bg-error shadow-[0_0_12px_rgba(186,26,26,1)] flex items-center justify-center">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-bright"></span>
+</div>
+<!-- Floating Marker Label with Realtime Coordinates -->
+<div class="absolute left-6 -top-5 whitespace-nowrap bg-inverse-surface/95 backdrop-blur-md px-2.5 py-1 rounded-md shadow-md flex flex-col text-left pointer-events-auto transition-transform hover:scale-105">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-error shrink-0"></span>
+<span class="font-label-sm text-label-sm font-semibold text-inverse-on-surface">Marked Point: Central Pit</span>
+</div>
+<span class="font-code-md text-code-md text-error-container tracking-tight">X: 14.2   Y: 8.7   Z: -2.1</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Floating Overlay HUD / Micro Status -->
+<div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm w-full">
+<div class="flex items-center gap-space-sm bg-inverse-surface/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-inverse-on-surface">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">straighten</span>
+<span class="font-label-sm text-label-sm">Curvature Depth: <strong class="font-code-md text-surface-bright">1.42 mm</strong></span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm">Cavitation Risk: <strong class="text-tertiary-fixed-dim">Moderate</strong></span>
+</div>
+<div class="text-right bg-inverse-surface/90 backdrop-blur-md px-3 py-1 rounded-lg">
+<span class="font-code-md text-code-md text-outline-variant">Cursor Raycast: Surface Intersected</span>
+</div>
+</div>
+</div>
+<!-- Step 1 Bottom Action Row -->
+<div class="mt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[22px]">info</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Marker saved to local buffer. Confirm coordinates or readjust by clicking on the mesh.</span>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<!-- Secondary Action: Clear mark -->
+<button class="flex-1 sm:flex-none inline-flex items-center justify-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px] text-error">delete</span>
+          Clear mark
+        </button>
+<!-- Primary Action: Submit my mark -->
+<button class="flex-1 sm:flex-none inline-flex items-center justify-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary transition-colors shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Submit my mark
+        </button>
+</div>
+</div>
+</section>
+<!-- MIDDLE SECTION: Step 2 Comparison State -->
+<section class="mb-space-xl bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative">
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md mb-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary font-bold">INSPECTION FRAME</span>
+<span class="font-code-md text-code-md text-secondary">Spatial Co-Registration Active</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Step 2: Dual Overlay Comparison &amp; Algorithmic Concordance</h2>
+</div>
+<!-- Live Toggle & Opacity Controls Bar -->
+<div class="flex flex-wrap items-center gap-space-md bg-surface-container-low px-space-md py-2 rounded-xl">
+<!-- Toggle Switch: Show AI prediction -->
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="ai-toggle" type="checkbox"/>
+<div class="w-10 h-5 bg-outline-variant rounded-full peer peer-checked:bg-primary-container transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-surface-bright after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Show AI prediction</span>
+</label>
+<div class="h-4 w-px bg-outline-variant/40 hidden sm:block"></div>
+<!-- Heatmap Opacity Slider -->
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Heatmap Opacity</span>
+<input class="w-24 h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="100" min="0" type="range" value="75"/>
+<span class="font-code-md text-code-md text-on-surface font-semibold">75%</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/40 hidden sm:block"></div>
+<!-- Marker Distance Callout -->
+<div class="flex items-center gap-1.5 font-code-md text-code-md bg-surface-container px-2.5 py-1 rounded text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px] text-primary">distance</span>
+          Marker Distance: 0.8mm
+        </div>
+</div>
+</div>
+<!-- Bento Dual Split: 3D Dual Overlay Viewer & Score A Card -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- 3D Dual Viewer Canvas (8 Cols) -->
+<div class="lg:col-span-8 bg-inverse-surface rounded-xl overflow-hidden shadow-inner relative h-[420px] flex flex-col justify-between p-space-md">
+<!-- Top HUD Legend -->
+<div class="relative z-10 flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm bg-inverse-surface/90 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm">
+<!-- Student Mark Legend Item -->
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-primary-fixed ring-2 ring-inverse-primary"></span>
+<span class="font-label-sm text-label-sm text-surface-bright font-medium">Student's Mark</span>
+</div>
+<span class="text-outline-variant">•</span>
+<!-- AI Prediction Legend Item -->
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim ring-2 ring-tertiary-container"></span>
+<span class="font-label-sm text-label-sm text-surface-bright font-medium">AI Heatmap Area</span>
+<span class="font-code-md text-code-md text-on-tertiary-container bg-tertiary-container px-1 py-0.2 rounded font-bold">94.2% Conf</span>
+</div>
+</div>
+<div class="font-code-md text-code-md bg-inverse-surface/80 text-inverse-on-surface px-2.5 py-1 rounded">
+            Projection: Co-Registered STL-Voxel
+          </div>
+</div>
+<!-- Central Visualization Canvas -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative w-80 h-80 flex items-center justify-center">
+<!-- Anatomical Molar Base Image -->
+<img class="w-72 h-72 object-contain opacity-80 select-none pointer-events-none" data-alt="Dark clinical inspection view of an anatomical lower right first molar tooth showing subtle pit and fissure grooves under surgical diagnostic lighting with a dark navy background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyxX9KJchkYRCD60kBPnMHN8f5NjHmi7zUZVqDrUj-Z8Ru5o-tJS5AKwpbNIvOjafwuXWQcoyCUohEneOtN9vis0Pyk_izei55aOGWvWIEmNw8AoUp6azF-e6bk7yVZ0wEa7M2NQJZDiX9Vb8F-96eDQKtDeronJREM8ECPxm9ghatWPagNxip1_18gO3PWZnJNHByz_jY4oWKzifCrL-Sn1cAJaojztUxV-odTYu4"/>
+<!-- Soft Amber Volumetric Heatmap Gradient (AI Prediction Overlay on Distal Occlusal Pit) -->
+<div class="absolute top-[45%] left-[54%] -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-on-tertiary-container/85 via-tertiary-fixed-dim/40 to-transparent blur-md pointer-events-none mix-blend-screen animate-pulse"></div>
+<!-- AI Centroid Point Indicator -->
+<div class="absolute top-[46%] left-[53%] -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-tertiary-container/80 flex items-center justify-center shadow-lg">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container ring-1 ring-surface-bright"></span>
+</div>
+<!-- Student's Mark: Bright Blue Circular Target Point -->
+<div class="absolute top-[49%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+<span class="absolute w-8 h-8 rounded-full bg-inverse-primary/30 animate-ping"></span>
+<div class="w-5 h-5 rounded-full bg-primary-fixed-dim shadow-[0_0_15px_rgba(160,202,252,1)] flex items-center justify-center ring-2 ring-primary">
+<span class="w-2 h-2 rounded-full bg-surface-container-lowest"></span>
+</div>
+</div>
+<!-- Inter-Centroid Delta Measurement Vector Line (SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 320 320">
+<!-- Dashed connection line between (160, 157) and (170, 147) -->
+<line stroke="#86f2e4" stroke-dasharray="3,3" stroke-width="2" x1="160" x2="170" y1="157" y2="147"></line>
+<!-- Distance text label -->
+<rect fill="#0b1c30" fill-opacity="0.9" height="18" rx="4" width="46" x="175" y="142"></rect>
+<text fill="#89f5e7" font-family="JetBrains Mono" font-size="10" font-weight="600" x="178" y="155">0.8mm</text>
+</svg>
+</div>
+</div>
+<!-- Bottom Heatmap Scale HUD -->
+<div class="relative z-10 flex items-center justify-between w-full bg-inverse-surface/90 backdrop-blur-md px-3 py-2 rounded-lg text-inverse-on-surface">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-surface-dim">Probability Gradient:</span>
+<div class="w-28 h-2 rounded-full bg-gradient-to-r from-surface-variant via-tertiary-fixed-dim to-on-tertiary-container shadow-inner"></div>
+<span class="font-code-md text-code-md text-surface-bright">0.0 → 1.0</span>
+</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+            Voxel Overlap: High Agreement
+          </div>
+</div>
+</div>
+<!-- Right Side Bento Card: Score A (Spatial Concordance) (4 Cols) -->
+<div class="lg:col-span-4 bg-surface-container-low rounded-xl p-space-lg flex flex-col justify-between shadow-sm">
+<div>
+<!-- Title & Subtitle -->
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-primary">Concordance Analysis</span>
+<span class="font-code-md text-code-md bg-secondary-container text-on-secondary-container font-semibold px-2 py-0.5 rounded">PASSED</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-md">Score A: Spatial Concordance</h3>
+<!-- Prominent Radial Progress Visualization -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm mb-space-md flex items-center gap-space-md">
+<!-- Inline SVG Donut Chart -->
+<div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+<svg class="w-24 h-24 transform -rotate-90" viewbox="0 0 100 100">
+<!-- Track -->
+<circle class="text-surface-container" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="10"></circle>
+<!-- Progress (88% = 251.32 * 0.88 = 221.16) -->
+<circle class="text-secondary" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.32" stroke-dashoffset="30.16" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface leading-none">88%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Overlap</span>
+</div>
+</div>
+<!-- Score Headline Callout -->
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm font-semibold text-secondary">High Accuracy</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">Both markers coincide within acceptable 1.0mm clinical margin.</div>
+</div>
+</div>
+<!-- Quantitative Breakdown List -->
+<div class="space-y-space-sm">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">gps_fixed</span>
+<span class="font-body-sm text-body-sm text-on-surface">Centroid distance</span>
+</div>
+<div class="flex items-center gap-1.5 font-code-md text-code-md font-semibold text-secondary">
+<span>0.8 mm</span>
+<span class="text-secondary font-bold">(≤ 1.0 mm)</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">crop_square</span>
+<span class="font-body-sm text-body-sm text-on-surface">Margin precision</span>
+</div>
+<div class="flex items-center gap-1.5 font-code-md text-code-md font-semibold text-on-surface">
+<span>91%</span>
+<span class="text-secondary text-[11px] font-bold">Optimal</span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">layers</span>
+<span class="font-body-sm text-body-sm text-on-surface">Depth agreement</span>
+</div>
+<div class="flex items-center gap-1.5 font-code-md text-code-md font-semibold text-on-surface">
+<span>84%</span>
+<span class="text-secondary text-[11px] font-bold">Fissural Tier 2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Status Footer Note -->
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Validated against Consensus Gold Standard</span>
+<span class="font-code-md text-code-md text-secondary font-semibold">ISO/TS 13485</span>
+</div>
+</div>
+</div>
+</section>
+<!-- BOTTOM SECTION: Step 3 Judgment & Rationalization -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative">
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md mb-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary font-bold">AUDIT COGNITION</span>
+<span class="font-code-md text-code-md text-on-surface-variant">Module 3 of 3</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Step 3: Student Clinical Judgment &amp; AI Audit</h2>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-primary">rate_review</span>
+        Synthesize radiologic and surface findings
+      </div>
+</div>
+<!-- Main Content Layout: Left Evaluation Flow & Right Score B Card -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column: Judgment Actions + Explanation + Student Rationale (8 Cols) -->
+<div class="lg:col-span-8 space-y-space-md">
+<!-- Clinical Verdict Prompt & Action Buttons -->
+<div>
+<label class="block font-label-md text-label-md font-semibold text-on-surface mb-space-xs">
+            Clinical Judgment: Do you corroborate the algorithm's pathology localization?
+          </label>
+<!-- 3 Judgment Buttons -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+<!-- Button 1: AI was correct (Active selected state with green/teal check) -->
+<button class="flex items-center justify-center gap-space-sm p-space-md rounded-xl bg-secondary-container/40 text-on-secondary-container shadow-sm transition-all duration-150 transform scale-[1.01]" type="button">
+<div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="text-left">
+<div class="font-headline-sm text-headline-sm font-bold text-on-secondary-container leading-tight">AI was correct</div>
+<div class="font-label-sm text-label-sm text-on-secondary-container/80">Full concordant findings</div>
+</div>
+</button>
+<!-- Button 2: AI was partly correct -->
+<button class="flex items-center justify-center gap-space-sm p-space-md rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high shadow-sm transition-all duration-150" type="button">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</div>
+<div class="text-left">
+<div class="font-headline-sm text-headline-sm font-semibold text-on-surface leading-tight">AI was partly correct</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Boundary mismatch</div>
+</div>
+</button>
+<!-- Button 3: AI was wrong -->
+<button class="flex items-center justify-center gap-space-sm p-space-md rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high shadow-sm transition-all duration-150" type="button">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</div>
+<div class="text-left">
+<div class="font-headline-sm text-headline-sm font-semibold text-on-surface leading-tight">AI was wrong</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">False positive / artifact</div>
+</div>
+</button>
+</div>
+</div>
+<!-- Explanation Text Card with AI Badge -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-tertiary-container">auto_awesome</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Algorithmic Diagnostic Differential</span>
+</div>
+<span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-0.5 rounded-full font-semibold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+              AI-written explanation
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            The model detected subtle subsurface demineralisation along the central developmental groove of <strong class="text-primary font-semibold">Tooth 46</strong>, consistent with an <strong class="text-on-surface font-semibold">ICDAS Code 2/3 early occlusal caries lesion</strong> without structural cavitational collapse. Your annotation correctly prioritized the deepest central fissure.
+          </p>
+<div class="mt-space-sm pt-space-xs flex flex-wrap items-center gap-space-md font-code-md text-code-md text-on-surface-variant">
+<span>Radiolucency Depth: <strong class="text-on-surface">0.45mm into enamel</strong></span>
+<span>•</span>
+<span>Dentin Involvement: <strong class="text-secondary">Negative (Stage D0)</strong></span>
+<span>•</span>
+<span>Histology Baseline: <strong class="text-on-surface">Incipient Fissural Caries</strong></span>
+</div>
+</div>
+<!-- Student Rationale Input Textarea -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="student-rationale">
+              Your Clinical Rationale &amp; Proposed Treatment Protocol:
+            </label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Min. 25 characters required</span>
+</div>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-space-sm rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-primary-container resize-none" id="student-rationale" placeholder="State your clinical reasoning for this tooth surface. Detail whether minimally invasive remineralization (fluoride varnish/resin infiltration) or preventative sealant is warranted..." rows="4">The central fissure displays optical opalescence and subtle brown staining with intact enamel anatomy. Spatial concord with AI confirmed. I recommend preventative sealant application and topical fluoridation rather than invasive operative bur intervention.</textarea>
+<div class="absolute bottom-2.5 right-3 font-code-md text-code-md text-on-surface-variant bg-surface-container-lowest/90 px-1.5 py-0.5 rounded">
+              248 / 500 chars
+            </div>
+</div>
+</div>
+<!-- Finalize Case CTA -->
+<div class="pt-space-xs flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary">verified_user</span>
+            Submission permanently logged in Resident Portfolio and OSCE grading ledger.
+          </div>
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-space-xl py-3 rounded-lg bg-primary-container text-on-primary font-headline-sm text-headline-sm hover:bg-primary transition-all duration-200 shadow-md active:scale-95" type="button">
+<span>Finalize Case Assessment</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Score B (Diagnostic Reasoning) Card (4 Cols) -->
+<div class="lg:col-span-4 bg-surface-container-low rounded-xl p-space-lg flex flex-col justify-between shadow-sm">
+<div>
+<!-- Title & Badges -->
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-primary">Cognitive Evaluation</span>
+<span class="font-code-md text-code-md bg-secondary-fixed text-on-secondary-fixed font-semibold px-2 py-0.5 rounded">EXEMPLARY</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-md">Score B: Diagnostic Reasoning</h3>
+<!-- Prominent Score Showcase Box -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm mb-space-md">
+<div class="flex items-baseline gap-space-xs mb-1">
+<span class="font-display-lg text-display-lg font-bold text-primary">95%</span>
+<span class="font-headline-sm text-headline-sm text-secondary font-semibold">Score B</span>
+</div>
+<div class="font-body-md text-body-md font-medium text-on-surface mb-2">
+              Excellent diagnostic critique
+            </div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-space-sm overflow-hidden">
+<div class="bg-secondary h-2 rounded-full" style="width: 95%"></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Demonstrated precise synthesis of anatomical landmarks, ICDAS criteria, and algorithmic validation without over-reliance on machine inference.
+            </p>
+</div>
+<!-- Evaluation Criterion Rubric -->
+<div class="space-y-space-sm">
+<!-- Criterion 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-on-surface font-medium">Pathology Differentiation</span>
+<span class="font-code-md text-code-md text-secondary font-bold">10 / 10</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Criterion 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-on-surface font-medium">Over-reliance Mitigation</span>
+<span class="font-code-md text-code-md text-secondary font-bold">9.5 / 10</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-1.5 rounded-full" style="width: 95%"></div>
+</div>
+</div>
+<!-- Criterion 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-2.5 shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-on-surface font-medium">Treatment Plan Alignment</span>
+<span class="font-code-md text-code-md text-secondary font-bold">9.0 / 10</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-1.5 rounded-full" style="width: 90%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Composite Performance Stamp -->
+<div class="mt-space-md pt-space-md bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">military_tech</span>
+</div>
+<div class="min-w-0">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Composite Case Rating</div>
+<div class="font-headline-sm text-headline-sm font-bold text-primary">Rank: 91.5% (Tier 1 Honors)</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div></div></main><footer class="w-full bg-surface-container-low mt-space-xl py-space-lg"><div class="max-w-[1440px] mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-label-sm text-label-sm"><div>© 2025 Odonto Clinical Simulation Engine. ISO-13485 &amp; FDI Standard Compliant.</div><div class="flex items-center gap-space-lg"><span class="font-code-md text-code-md">Build v4.2.1-ClinicalCore</span><span class="text-outline-variant">•</span><span>Station: Diagnostic Lab Suite 4</span></div></div></footer></body></html>

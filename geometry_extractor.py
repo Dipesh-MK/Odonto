@@ -78,11 +78,16 @@ def extract_anomaly_geometry(binary_mask, img_shape=None):
     relative_radius = float(radius / min_dim)
     relative_centroid = [float(cx / img_w), float(cy / img_h)]
 
-    # 3. Contour extraction
+    # 3. Contour extraction (supports multi-facet wear bands as well as single pits)
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
-        largest_contour = max(contours, key=cv2.contourArea)
-        x_box, y_box, w_box, h_box = cv2.boundingRect(largest_contour)
+        min_comp_area = max(4.0, 0.01 * area)
+        valid_contours = [c for c in contours if cv2.contourArea(c) >= min_comp_area]
+        if not valid_contours:
+            valid_contours = [max(contours, key=cv2.contourArea)]
+        largest_contour = max(valid_contours, key=cv2.contourArea)
+        all_points = np.vstack(valid_contours)
+        x_box, y_box, w_box, h_box = cv2.boundingRect(all_points)
         bbox = [int(x_box), int(y_box), int(w_box), int(h_box)]
         bbox_w = float(w_box)
         bbox_h = float(h_box)
@@ -91,29 +96,31 @@ def extract_anomaly_geometry(binary_mask, img_shape=None):
         bbox_w = 0.0
         bbox_h = 0.0
         largest_contour = None
+        all_points = None
 
-    # 4. Aspect ratio & orientation via fitted ellipse or minAreaRect
+    # 4. Aspect ratio & orientation via second-order central moments (inertia tensor)
+    # Works for single cavities, elongated cracks, and multi-facet abrasion bands alike.
     major_axis = bbox_w
     minor_axis = bbox_h
     aspect_ratio = 1.0
     angle = 0.0
 
-    if largest_contour is not None and len(largest_contour) >= 5:
-        try:
-            ellipse = cv2.fitEllipse(largest_contour)
-            (e_cx, e_cy), (d1, d2), e_angle = ellipse
-            major = max(d1, d2)
-            minor = min(d1, d2)
-            if minor > 0:
-                major_axis = float(major)
-                minor_axis = float(minor)
-                aspect_ratio = float(major / minor)
-                angle = float(e_angle)
-        except Exception:
-            pass
+    if moments["m00"] > 0:
+        mu20 = moments["mu20"] / moments["m00"]
+        mu02 = moments["mu02"] / moments["m00"]
+        mu11 = moments["mu11"] / moments["m00"]
+        diff = mu20 - mu02
+        disc = math.sqrt(diff * diff + 4.0 * mu11 * mu11)
+        lambda1 = max(0.0, (mu20 + mu02 + disc) / 2.0)
+        lambda2 = max(0.0, (mu20 + mu02 - disc) / 2.0)
+        if lambda2 > 1e-6:
+            major_axis = float(4.0 * math.sqrt(lambda1))
+            minor_axis = float(4.0 * math.sqrt(lambda2))
+            aspect_ratio = float(major_axis / minor_axis)
+            angle = float(0.5 * math.degrees(math.atan2(2.0 * mu11, diff)))
 
-    if aspect_ratio == 1.0 and largest_contour is not None and len(largest_contour) >= 3:
-        rect = cv2.minAreaRect(largest_contour)
+    if aspect_ratio == 1.0 and all_points is not None and len(all_points) >= 3:
+        rect = cv2.minAreaRect(all_points)
         (r_cx, r_cy), (rw, rh), r_angle = rect
         major = max(rw, rh)
         minor = min(rw, rh)
@@ -125,7 +132,6 @@ def extract_anomaly_geometry(binary_mask, img_shape=None):
     # Simplified contour representation (JSON-serializable)
     contour_points = []
     if largest_contour is not None:
-        # Approximate contour for compact storage
         epsilon = 0.005 * cv2.arcLength(largest_contour, True)
         approx = cv2.approxPolyDP(largest_contour, epsilon, True)
         contour_points = approx.reshape(-1, 2).tolist()

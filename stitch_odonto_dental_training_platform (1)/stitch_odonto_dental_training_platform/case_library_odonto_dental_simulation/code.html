@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Odonto - Dental Simulation &amp; Viva</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#ffdcc3", "surface-dim": "#cbdbf5", "outline-variant": "#c2c7d0", "outline": "#72777f", "error": "#ba1a1a", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "on-error": "#ffffff", "inverse-primary": "#a0cafc", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#a0cafc", "primary-container": "#1f4e79", "secondary-fixed-dim": "#6bd8cb", "secondary": "#006a61", "surface-container": "#e5eeff", "on-tertiary-fixed-variant": "#6e3900", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-tint": "#35618d", "surface-variant": "#d3e4fe", "on-tertiary-container": "#ffa85e", "primary": "#00375e", "tertiary": "#542a00", "on-secondary-container": "#006f66", "on-secondary-fixed": "#00201d", "on-tertiary-fixed": "#2f1500", "surface": "#f8f9ff", "secondary-container": "#86f2e4", "secondary-fixed": "#89f5e7", "tertiary-fixed-dim": "#ffb77d", "on-primary-container": "#95bff1", "primary-fixed": "#d1e4ff", "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "inverse-surface": "#213145", "on-background": "#0b1c30", "on-primary-fixed-variant": "#184974", "tertiary-container": "#753d00", "on-error-container": "#93000a", "surface-container-highest": "#d3e4fe", "on-primary-fixed": "#001d35", "on-secondary-fixed-variant": "#005049", "on-surface-variant": "#42474f", "surface-container-low": "#eff4ff", "on-surface": "#0b1c30", "on-primary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-mobile": "1rem", "space-md": "1rem", "space-xl": "2.5rem", "margin": "2rem", "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "gutter": "1.25rem" }, "fontFamily": { "body-lg": [ "Inter" ], "display-lg-mobile": [ "Inter" ], "code-md": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "headline-sm": [ "Inter" ], "label-lg": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "Inter" ], "label-sm": [ "Inter" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "headline-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-lg-mobile": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "code-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "display-lg": [ "36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-sm": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-lg-mobile": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-sm"><img alt="Odonto Dental Simulator Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xz2Gh9LQJSYpx5DYeh6WcNJ0uRCUd_gITN5s7XQBeaspVny4lZ61Qp_1i9E7cCkiYkJ7wTSLNi66fBWVRfMFo2oIJclGh3_z3UpX7dHtA8QADd49E5YRSmmroSkXqkEZsjd1mYTwQI4pThpWbRAmmXTPbCqQj7ug5I4l5xdA1654jbUIaMwxcHKm084oNP-4yEBb_M2HbRiuq8TDAe8Fpc4UEgiYN9HezHSh8mXTMz6A"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Odonto</span></div><div class="h-5 w-px bg-outline-variant/50 hidden sm:block"></div><span class="hidden md:inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Dental Simulation &amp; Viva</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary rounded-lg font-label-md text-label-md"><a aria-current="page" class="px-3 py-1.5 transition-colors bg-primary text-on-primary rounded-lg font-label-md text-label-md" data-path="case-library" href="#">Case Library</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="3d-viewer-and-sim" href="#">3D Viewer &amp; Sim</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="evaluate-the-ai" href="#">Evaluate the AI</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="voice-viva-session" href="#">Voice Viva Session</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="results-and-performance" href="#">Results &amp; Performance</a></nav><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-lg"><span class="font-label-sm text-label-sm text-on-surface-variant">Mode:</span><span class="font-label-sm text-label-sm text-primary font-semibold">Resident Trainee</span><span class="text-outline-variant">•</span><span class="font-code-md text-code-md text-secondary font-medium">FDI ISO-3950</span></div><button aria-label="Notifications" class="relative p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Dr. Sarah Patel</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">DMD Candidate</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASlRfyXYAG3Z7oplZPsgWd1SCjSd46Mr_Nqep-PyAvgZfLJB10HIbnZVbXRGvNU9CHnTuWgTz4aejhspVmHws8aS0V_aJq3aDMj9dQE7XdlZU3j27INBk-4uTqoopPWyVfigQuj9KEWI1HIye-E4BCTBdNh_xgtOZsomhIfVYbVsAEliGddOJVwp66DgKGY-ClNT-eIeq7sI-n5h4kDo_0IT6SkSnjq03-X6rfQ4sK"/></div></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-[1440px] mx-auto px-gutter py-space-md"><div class="flex flex-col w-full pb-space-xl">
+<!-- Page Header Row -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-md mb-space-lg">
+<div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider mb-1">
+<span>Diagnostic Suite</span>
+<span>/</span>
+<span class="text-secondary font-code-md">ISO-3950 Compliant</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-background tracking-tight">Case Library</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">Choose a patient simulation case or synthesize a customized procedural prompt</p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="inline-flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant transition-colors font-label-md text-label-md shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>Past Vivas</span>
+</button>
+<button class="inline-flex items-center gap-2 px-space-lg py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container active:scale-[0.98] transition-all font-label-md text-label-md shadow-sm" id="btn-generate-case" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="font-semibold">Generate new case</span>
+</button>
+</div>
+</div>
+<!-- Clinical Workbench 2-Column Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-[288px_1fr] gap-space-lg items-start">
+<!-- Left Sidebar Clinical Filters -->
+<aside class="w-full flex flex-col gap-space-md bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<!-- Search Field -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1.5" for="filter-search">Search Registry</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm placeholder:text-outline focus:outline-none focus:bg-surface-container transition-colors" id="filter-search" placeholder="Case ID, tooth, age..." type="text"/>
+</div>
+</div>
+<!-- Tooth Selector & FDI Quadrants -->
+<div class="pt-space-xs">
+<div class="flex items-center justify-between mb-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Tooth Selector (FDI)</label>
+<span class="font-code-md text-code-md text-secondary">ISO 3950</span>
+</div>
+<!-- Quadrant Quick Selector -->
+<div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-lg mb-2">
+<button class="py-1 rounded text-center font-code-md text-code-md font-semibold text-on-surface hover:bg-surface-container-high transition-colors" type="button">Q1</button>
+<button class="py-1 rounded text-center font-code-md text-code-md font-semibold text-on-surface hover:bg-surface-container-high transition-colors" type="button">Q2</button>
+<button class="py-1 rounded text-center font-code-md text-code-md font-semibold bg-primary text-on-primary shadow-xs" type="button">Q3</button>
+<button class="py-1 rounded text-center font-code-md text-code-md font-semibold text-on-surface hover:bg-surface-container-high transition-colors" type="button">Q4</button>
+</div>
+<!-- Custom Dropdown Selector -->
+<div class="relative">
+<select class="w-full h-10 px-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm appearance-none focus:outline-none cursor-pointer">
+<option>All Quadrants (Tooth 46, 36, 11...)</option>
+<option>FDI 46 - Mandibular Right 1st Molar</option>
+<option>FDI 36 - Mandibular Left 1st Molar</option>
+<option>FDI 11 - Maxillary Right Central Incisor</option>
+<option>FDI 24 - Maxillary Left 1st Premolar</option>
+<option>FDI 48 - Mandibular Right 3rd Molar</option>
+<option>FDI 12 - Maxillary Right Lateral Incisor</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+<!-- FDI Micro-Diagram Reference -->
+<div class="mt-2 p-2 rounded-lg bg-surface-container-low flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">grid_view</span>
+<span class="font-label-sm text-label-sm">FDI Grid Guide</span>
+</div>
+<span class="font-code-md text-code-md text-secondary font-medium">18-48 Active</span>
+</div>
+</div>
+<!-- Anomaly Type Filters -->
+<div class="pt-space-xs">
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Anomaly Presentation</label>
+<div class="flex flex-col gap-2">
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Cavity / Caries</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">14</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Crowding</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">8</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Diastema</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">4</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Rotation</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">3</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Missing tooth / Agenesis</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">5</span>
+</label>
+<label class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 bg-surface-container-highest cursor-pointer accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Periapical Lesion</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-md text-code-md text-on-surface-variant">2</span>
+</label>
+</div>
+</div>
+<!-- Difficulty Level Selection -->
+<div class="pt-space-xs">
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Simulated Rigor</label>
+<div class="flex flex-wrap gap-1.5">
+<button class="px-3 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm hover:bg-surface-container transition-colors" type="button">Beginner</button>
+<button class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-xs font-semibold" type="button">Intermediate</button>
+<button class="px-3 py-1 rounded-full bg-surface-container-low text-on-surface font-label-sm text-label-sm hover:bg-surface-container transition-colors" type="button">Advanced</button>
+</div>
+</div>
+<!-- Reset Action -->
+<div class="pt-space-xs mt-1">
+<button class="w-full py-2 rounded-lg text-center text-error hover:bg-error-container/30 font-label-md text-label-md transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Clear all filters</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex flex-col gap-space-md min-w-0">
+<!-- Top Active Filter Bar & Summary Counter -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-lowest p-space-sm px-space-md rounded-xl shadow-sm">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant mr-1">Active Filters:</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span>Anomaly: Cavity</span>
+<button aria-label="Remove cavity filter" class="text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span>FDI: Posterior Molars</span>
+<button aria-label="Remove tooth filter" class="text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span>Status: Unsolved</span>
+<button aria-label="Remove status filter" class="text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface font-medium">Showing 6 simulated cases</span>
+</div>
+</div>
+<!-- Grid of Case Cards (3 Columns Desktop) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md">
+<!-- Case #1042 (Primary active case) -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<!-- Active Highlight Indicator -->
+<div class="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-pulse"></span>
+<span>Current Primary</span>
+</div>
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 46
+          </div>
+<!-- 3D Tooth Thumbnail Graphic Window -->
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Technical shaded 3D computer-graphics model of mandibular right first molar tooth FDI 46, isolated on clinical dark charcoal grid background with dental coordinate axis indicators, subtle blue ambient edge light, showing realistic anatomical occlusal fissures and grooves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB53a_RUncToWdGf3oLEVEPtvMFYcP2i4gAnL2RwsgZyCfMqoApqiQMvBRkeGTYymtdoKkQ9lnkJH9mAhrw9ffKFYBlzystXVZN5JTAxv_ogASOaN714tBVIWx9epeDDZt3s4gGdo1ibemk9PnxLiW32mTz6K7AOZzmrCUMRKOC2XwsejYFPXGkQk4pAxi9iSXjTvg84ANYq-DvJzzJuFLuCWt5RG_nPn6eBnVFH69V"/>
+<!-- Axis HUD overlay -->
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-surface-variant bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-secondary-fixed-dim">screen_rotation</span>
+<span>XYZ: 0.04°</span>
+</div>
+</div>
+<!-- Card Body -->
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1042</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Level: Resident</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 46</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Lower right first molar • Crown section</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">emergency</span>
+                  Occlusal cavity
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  28 yo female
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 shadow-sm transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Case #1043 -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 11
+          </div>
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Monochrome volumetric render of maxillary right central incisor tooth FDI 11, visible anterior arch spacing, surgical 3D wireframe mesh overlay, clinical lighting against dark navy backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAp6HUdcjWRr1viSnMVOqjVO2evDSfvJeiZ_eyjMVENhMJZjxjMx4ameQd7wBFL6sFc0wwGoBPe9zKTEhbuyXAIeBINRS1RtJpW4WWk-m-Yr1l7cZ0iD3VwwiX___TOMlrrWNCLHu_ocSM0XfFGVnX1OCS5f_u1hsLZNONziGkxZU5Z5PeJpDRneMqX_kxJcCPP6x7sX1UxpGpkCCkUCgir_B04n03VtKbomxRQBB"/>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-surface-variant bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-tertiary-fixed-dim">straighten</span>
+<span>GAP: 2.4mm</span>
+</div>
+</div>
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1043</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Level: General</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 11</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Maxillary central incisor • Midline</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">space_bar</span>
+                  Diastema (2.4mm)
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  34 yo male
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Case #1044 -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 36
+          </div>
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Precise 3D dental reconstruction render of lower left first molar tooth FDI 36 with deep carious lesion highlighted in amber radiolucent cross section, medical visualization grade, dark studio scene" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR53wk04YdiXwVNmtzmmkhqiERchk4HmPFaV22q9M7JRUGaXyvy-TomBpxxRWpvKreiBM8DitLuU20Kmm4SUWDvYS3fYCsRsZkqz_Wv7q0gev3fhYJxTwxwQc_XKaTfhg9V-7p605MiTw2s_0FHXNOOZEHlIvpJGAeiuNRtNz4RvOliM5Od60uJLKVjacFRYUEJDaF3LpELXeB4T-9uk3TKMVe88PCeXqAs40tMHCm"/>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-error-container bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-error">warning</span>
+<span>Pulp Proximity</span>
+</div>
+</div>
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1044</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Level: Advanced</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 36</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Lower left first molar • Pulpal margin</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">radio_button_checked</span>
+                  Deep dentinal caries
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  45 yo female
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Case #1045 -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 24
+          </div>
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Technical 3D anatomical render of upper left first premolar FDI 24 rotated by 35 degrees out of arch alignment, showing orthodontic vectors and dental roots, slate clinical shading" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXYDGg2HRkQNLVURamXwC0ADIRO9w6N6ZQmR2ww2ARPuGXNoP5h3_XgGs9ixAGmpsAHACOk9J4qxI14SVH25aLO5fkXXupaUCoy3urlQDhZpJo1yZN80M_0L9KpMYs-fn962Cu4HpLeVzzKpyS5Vne1J9PYNuaQlBURyaGDpLhxqYWW-qHzbCCNq-yOVQfO-QP-o8tXeb2vKYJiwLu5AGG7N1wBJVvbASSeySTFYyF"/>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-surface-variant bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-secondary">rotate_right</span>
+<span>θ: 35.0°</span>
+</div>
+</div>
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1045</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Level: Ortho</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 24</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Upper left first premolar • Malocclusion</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">refresh</span>
+                  Rotation (35 deg)
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  19 yo student
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Case #1046 -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 48
+          </div>
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="High resolution 3D volumetric dental CT scan model of impacted mandibular right third molar wisdom tooth FDI 48 wedged against ramus, anatomical bone rendering in cool grey clinical tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKeIpELULwlxKc3wG1wYTdHrAsri87ugm7pB8NyA6Ehr0pBcM_Z8DF25_WvTPxr8Ye0WwCBwEZ9o8nyKEPS_fUH0JmeqgrsARk8ThSP0Tz32e_cW8UJ53wTFC0NTEN5XuqnjHGxI-8KfoRxFoJlfXbcUlVqdwNNWuESP_igjPyCImA9AAj31kCPATPNtv4BebAnv0IOdfjS6FvFmFK6vV3EU28HxuFrVN1lHUTxoEZ"/>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-tertiary-fixed-dim bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-tertiary">vertical_align_bottom</span>
+<span>Impacted Class II</span>
+</div>
+</div>
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1046</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Level: Surgical</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 48</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Impacted wisdom tooth • Retromolar pad</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">layers</span>
+                  Partial eruption
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  22 yo male
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Case #1047 -->
+<article class="flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+<div class="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-md bg-inverse-surface/80 text-inverse-on-surface font-code-md text-code-md backdrop-blur-xs">
+            FDI 12
+          </div>
+<div class="relative w-full h-44 bg-inverse-surface overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Monochromatic 3D anatomical dental scan representing congenital agenesis with missing maxillary right lateral incisor tooth FDI 12, empty alveolar ridge slot visualization with measurement scales" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmuu6csqxnJDRwW0P56bI9gcGi6esprojkGYqLbV4IMF3w4GKOTmaQMKR4srXzIA05kkKjqsP16DadRyefzH7m5L9nn-WAqKwJvep6GNos9jh_F_BTkRMnpM4OxpjAT1Tes8fDrAOzIl7WlWJMhHP5tpSuYuJmbX6MtD-_QqqrdB5PGlgPhMhYUSUiweVOgOM2EikzXHxhzCYu1PiXsEwrg_Yh3rKxLRrhs71vV0Hk"/>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 font-code-md text-code-md text-surface-variant bg-inverse-surface/70 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] text-outline-variant">block</span>
+<span>Agenesis</span>
+</div>
+</div>
+<div class="p-space-md flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-code-md text-code-md text-on-surface-variant">Case #1047</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Level: Prostho</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tooth FDI 12</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mb-3">Lateral incisor • Alveolar space</div>
+<div class="flex flex-wrap items-center gap-1.5 mb-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[13px]">visibility_off</span>
+                  Missing tooth / Agenesis
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">person</span>
+                  16 yo female
+                </span>
+</div>
+</div>
+<a class="w-full py-2.5 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-variant font-label-md text-label-md font-semibold text-center flex items-center justify-center gap-1.5 transition-colors" data-path="3d-viewer-and-sim" href="#">
+<span>Open case</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</article>
+</div>
+<!-- Empty State Variant Preview Card / Bottom Module -->
+<div class="mt-space-sm bg-surface-container-low rounded-xl p-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md shadow-xs">
+<div class="flex items-center gap-space-md text-left">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[28px]">dentistry</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Empty State Variant Simulator</span>
+<span class="px-2 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-code-md text-code-md">Sandbox Mode</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Need a blank clinical state or specialized scenario? Synthesize a procedural patient chart on demand.</p>
+</div>
+</div>
+<button class="shrink-0 px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container hover:text-primary transition-colors font-label-md text-label-md font-semibold flex items-center gap-2 shadow-xs" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">bolt</span>
+<span>Quick Generate Demo Case</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+<script>
+  // Simple reactive filter chip removal simulation
+  document.querySelectorAll('button[aria-label^="Remove"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.currentTarget.parentElement.remove();
+    });
+  });
+
+  const generateBtn = document.getElementById('btn-generate-case');
+  if (generateBtn) {
+    generateBtn.addEventListener('click', () => {
+      const originalText = generateBtn.innerHTML;
+      generateBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>Synthesizing...</span>';
+      setTimeout(() => {
+        generateBtn.innerHTML = originalText;
+      }, 1200);
+    });
+  }
+</script></div></main><footer class="w-full bg-surface-container-low mt-space-xl py-space-lg"><div class="max-w-[1440px] mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-label-sm text-label-sm"><div>© 2025 Odonto Clinical Simulation Engine. ISO-13485 &amp; FDI Standard Compliant.</div><div class="flex items-center gap-space-lg"><span class="font-code-md text-code-md">Build v4.2.1-ClinicalCore</span><span class="text-outline-variant">•</span><span>Station: Diagnostic Lab Suite 4</span></div></div></footer></body></html>

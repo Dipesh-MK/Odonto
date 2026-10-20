@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Odonto - Dental Simulation &amp; Viva</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#ffdcc3", "surface-dim": "#cbdbf5", "outline-variant": "#c2c7d0", "outline": "#72777f", "error": "#ba1a1a", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "error-container": "#ffdad6", "on-error": "#ffffff", "inverse-primary": "#a0cafc", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#a0cafc", "primary-container": "#1f4e79", "secondary-fixed-dim": "#6bd8cb", "secondary": "#006a61", "surface-container": "#e5eeff", "on-tertiary-fixed-variant": "#6e3900", "on-secondary": "#ffffff", "surface-container-high": "#dce9ff", "surface-tint": "#35618d", "surface-variant": "#d3e4fe", "on-tertiary-container": "#ffa85e", "primary": "#00375e", "tertiary": "#542a00", "on-secondary-container": "#006f66", "on-secondary-fixed": "#00201d", "on-tertiary-fixed": "#2f1500", "surface": "#f8f9ff", "secondary-container": "#86f2e4", "secondary-fixed": "#89f5e7", "tertiary-fixed-dim": "#ffb77d", "on-primary-container": "#95bff1", "primary-fixed": "#d1e4ff", "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "inverse-surface": "#213145", "on-background": "#0b1c30", "on-primary-fixed-variant": "#184974", "tertiary-container": "#753d00", "on-error-container": "#93000a", "surface-container-highest": "#d3e4fe", "on-primary-fixed": "#001d35", "on-secondary-fixed-variant": "#005049", "on-surface-variant": "#42474f", "surface-container-low": "#eff4ff", "on-surface": "#0b1c30", "on-primary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-mobile": "1rem", "space-md": "1rem", "space-xl": "2.5rem", "margin": "2rem", "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "gutter": "1.25rem" }, "fontFamily": { "body-lg": [ "Inter" ], "display-lg-mobile": [ "Inter" ], "code-md": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "headline-sm": [ "Inter" ], "label-lg": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "Inter" ], "label-sm": [ "Inter" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "headline-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-lg-mobile": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "code-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "display-lg": [ "36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-sm": [ "16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-lg-mobile": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-sm"><img alt="Odonto Dental Simulator Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xz2Gh9LQJSYpx5DYeh6WcNJ0uRCUd_gITN5s7XQBeaspVny4lZ61Qp_1i9E7cCkiYkJ7wTSLNi66fBWVRfMFo2oIJclGh3_z3UpX7dHtA8QADd49E5YRSmmroSkXqkEZsjd1mYTwQI4pThpWbRAmmXTPbCqQj7ug5I4l5xdA1654jbUIaMwxcHKm084oNP-4yEBb_M2HbRiuq8TDAe8Fpc4UEgiYN9HezHSh8mXTMz6A"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Odonto</span></div><div class="h-5 w-px bg-outline-variant/50 hidden sm:block"></div><span class="hidden md:inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Dental Simulation &amp; Viva</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary rounded-lg font-label-md text-label-md"><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="case-library" href="#">Case Library</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="3d-viewer-and-sim" href="#">3D Viewer &amp; Sim</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="evaluate-the-ai" href="#">Evaluate the AI</a><a aria-current="page" class="px-3 py-1.5 transition-colors bg-primary text-on-primary rounded-lg font-label-md text-label-md" data-path="voice-viva-session" href="#">Voice Viva Session</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-colors" data-path="results-and-performance" href="#">Results &amp; Performance</a></nav><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-lg"><span class="font-label-sm text-label-sm text-on-surface-variant">Mode:</span><span class="font-label-sm text-label-sm text-primary font-semibold">Resident Trainee</span><span class="text-outline-variant">•</span><span class="font-code-md text-code-md text-secondary font-medium">FDI ISO-3950</span></div><button aria-label="Notifications" class="relative p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="h-6 w-px bg-outline-variant/40"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Dr. Sarah Patel</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">DMD Candidate</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASlRfyXYAG3Z7oplZPsgWd1SCjSd46Mr_Nqep-PyAvgZfLJB10HIbnZVbXRGvNU9CHnTuWgTz4aejhspVmHws8aS0V_aJq3aDMj9dQE7XdlZU3j27INBk-4uTqoopPWyVfigQuj9KEWI1HIye-E4BCTBdNh_xgtOZsomhIfVYbVsAEliGddOJVwp66DgKGY-ClNT-eIeq7sI-n5h4kDo_0IT6SkSnjq03-X6rfQ4sK"/></div></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-[1440px] mx-auto px-gutter py-space-md"><div class="flex flex-col w-full">
+<!-- Top Real-Time Clinical Banner -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md mb-space-md shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[24px]">record_voice_over</span>
+</div>
+<div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-code-md text-code-md px-2 py-0.5 rounded bg-surface-container text-primary font-semibold tracking-wide">CASE #1042</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">Interactive Patient Viva &amp; Oral Examination</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Endodontic Diagnostic Track • Simulated Clinical Encounter Standard ISO-13485</p>
+</div>
+</div>
+<!-- Live Telemetry & Audio Spectrogram -->
+<div class="flex items-center gap-space-md bg-surface-container-lowest px-space-md py-2.5 rounded-xl shadow-sm">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-error font-semibold uppercase tracking-wider">Live Recording</span>
+<span class="font-code-md text-code-md text-on-surface font-semibold tracking-tight" id="sessionTimer">03:45</span>
+</div>
+</div>
+<div class="h-8 w-px bg-surface-variant"></div>
+<!-- Inline Audio Waveform Visualizer SVG -->
+<div class="flex items-center gap-1.5 h-7 px-1">
+<span class="w-1 bg-secondary rounded-full animate-[pulse_1s_ease-in-out_infinite] h-3"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_0.8s_ease-in-out_infinite_0.1s] h-5"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_1.2s_ease-in-out_infinite_0.2s] h-7"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.3s] h-4"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_1.1s_ease-in-out_infinite_0.15s] h-6"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_0.9s_ease-in-out_infinite_0.25s] h-3"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_1.3s_ease-in-out_infinite_0.05s] h-5"></span>
+<span class="w-1 bg-secondary rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.35s] h-2"></span>
+</div>
+<div class="hidden sm:flex items-center gap-1.5 pl-2">
+<span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded">Viva Sync Stable</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main 3-Column Diagnostic Stage -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md mb-space-xl">
+<!-- LEFT PANEL: Virtual Patient (w-80 approx col-span-3) -->
+<div class="lg:col-span-3 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col items-center text-center relative overflow-hidden">
+<!-- Patient Ambient Backlight -->
+<div class="absolute -top-16 -left-16 w-44 h-44 rounded-full bg-secondary-container/30 blur-2xl pointer-events-none"></div>
+<div class="w-full flex items-center justify-between mb-space-md z-10">
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Virtual Patient</span>
+<span class="font-code-md text-code-md px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-medium">SIM-HUMAN v2</span>
+</div>
+<!-- Avatar Ring with Pulsating Feedback -->
+<div class="relative mb-space-sm group">
+<div class="absolute inset-0 rounded-full bg-secondary/20 animate-ping"></div>
+<div class="w-28 h-28 rounded-full p-1.5 bg-gradient-to-tr from-secondary via-secondary-fixed-dim to-primary relative shadow-md">
+<img class="w-full h-full rounded-full object-cover" data-alt="High-resolution clinical simulation portrait of Maya Lin, a 28-year-old East Asian female patient in a dental clinic setting, natural ambient lighting, neutral attentive expression with slight discomfort, photorealistic dental education portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgZlaKyL11gV-PhAff4ZJwBAzCPVgRsweRR9C2vmk3nFQe5x5VEzV-Cln2b8la3YCdjkNLIOoKrI6GoztqrVDDt-AVQgGGBwpsa-Qg1Dos0ADWdhguBKz9VpDhXreMMOZfSpL9Xf3RbcE0fu-2pWWFOLX-CcksYUUlU18lBzK7rmc5otlZSCj9RBfdPdH0xbG99UaVnSdeD2Id4IF6tYbX7qsoEMPsYYEoKn183Lld"/>
+</div>
+<!-- Live Speaking Indicator Dot -->
+<div class="absolute bottom-1 right-2 w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-md ring-2 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[14px]">volume_up</span>
+</div>
+</div>
+<div class="z-10 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Maya Lin, 28</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Outpatient • Primary Care Intake</p>
+</div>
+<!-- Patient Status Pill -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/50 text-on-secondary-container font-label-sm text-label-sm font-semibold my-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>Listening to examiner...</span>
+</div>
+<!-- Main Push-to-Talk Recording Button -->
+<div class="my-space-md flex flex-col items-center">
+<div class="relative">
+<div class="absolute inset-0 rounded-full bg-error/30 animate-ping"></div>
+<button aria-label="Toggle Oral viva microphone" class="relative w-20 h-20 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all focus:outline-none" id="micToggleBtn" type="button">
+<span class="material-symbols-outlined text-[36px] text-surface-bright">mic</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold mt-2.5">Hold or Click to Speak</span>
+<span class="font-code-md text-code-md text-on-surface-variant">Hot-key: [SPACEBAR]</span>
+</div>
+<!-- Audio Device Selector Dropdown -->
+<div class="w-full text-left bg-surface-container-low rounded-lg p-2.5 mt-space-xs">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">settings_voice</span> Audio Input Device
+          </label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest font-body-sm text-body-sm text-on-surface rounded-md py-1.5 px-2.5 appearance-none focus:outline-none focus:ring-1 focus:ring-primary shadow-sm cursor-pointer pr-7">
+<option selected="">Default - Headset Mic (Realtek HD Audio)</option>
+<option>Studio USB Cardioid Podcaster (24-bit/48kHz)</option>
+<option>Virtual Audio Cable (Sim Core Stream)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-[16px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Fallback Manual Text Input Module -->
+<div class="w-full text-left bg-surface-container-low rounded-lg p-2.5 mt-space-sm">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Mic unavailable?</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold hover:underline cursor-pointer">Switch to Typing</span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest font-body-sm text-body-sm text-on-surface rounded-md py-1.5 pl-2.5 pr-8 placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" placeholder="Type clinical probe or diagnostic viva question..." type="text"/>
+<button class="absolute right-1.5 top-1.5 text-primary hover:text-secondary transition-colors" title="Send Question">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Observation Mini-Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-2 mb-2 text-primary font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span>Simulation Persona Profile</span>
+</div>
+<div class="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex justify-between">
+<span>Anxiety Level:</span>
+<span class="text-on-surface font-medium">Mild / Cooperative</span>
+</div>
+<div class="flex justify-between">
+<span>Pain Score (VAS):</span>
+<span class="text-error font-medium">4 / 10 intermittent</span>
+</div>
+<div class="flex justify-between">
+<span>Speech Cadence:</span>
+<span class="text-on-surface font-medium">Conversational, precise</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CENTRE PANEL: Live Continuous Speech-To-Text (w-fluid col-span-6) -->
+<div class="lg:col-span-6 flex flex-col">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
+<!-- Live Header Bar -->
+<div class="px-space-md py-3.5 bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">forum</span>
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Live Viva Transcript</span>
+<span class="font-code-md text-code-md bg-secondary-container/40 text-on-secondary-container px-2 py-0.5 rounded-full font-medium">Audio Synced (99.4%)</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container transition-colors" title="Export Transcript">
+<span class="material-symbols-outlined text-[18px]">ios_share</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container transition-colors" title="Search Dialogue">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</button>
+</div>
+</div>
+<!-- Chat Stream Canvas -->
+<div class="p-space-md flex-1 overflow-y-auto space-y-space-md max-h-[560px]">
+<!-- Turn 1: Patient -->
+<div class="flex gap-space-sm items-start max-w-[88%]">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+              ML
+            </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Maya Lin</span>
+<span class="font-code-md text-code-md text-outline">09:14:02 AM</span>
+<span class="font-label-sm text-label-sm px-1.5 rounded bg-surface-container text-on-surface-variant text-[10px]">Patient</span>
+</div>
+<div class="p-3.5 rounded-xl rounded-tl-sm bg-surface-container text-on-surface font-body-md text-body-md shadow-sm">
+                Good morning doctor. I've had this nagging pain on my bottom right tooth whenever I drink something cold or bite down on granola.
+              </div>
+</div>
+</div>
+<!-- Turn 2: Resident / Doctor -->
+<div class="flex gap-space-sm items-start max-w-[88%] ml-auto flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-sm">
+              SP
+            </div>
+<div class="text-right">
+<div class="flex items-center justify-end gap-2 mb-1">
+<span class="font-label-sm text-label-sm px-1.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-semibold">Resident</span>
+<span class="font-code-md text-code-md text-outline">09:14:18 AM</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Dr. Patel (You)</span>
+</div>
+<div class="p-3.5 rounded-xl rounded-tr-sm bg-primary text-on-primary font-body-md text-body-md text-left shadow-sm">
+                Hello Maya. Does the pain linger after you finish your cold drink, or does it stop immediately?
+              </div>
+</div>
+</div>
+<!-- Turn 3: Patient -->
+<div class="flex gap-space-sm items-start max-w-[88%]">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+              ML
+            </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Maya Lin</span>
+<span class="font-code-md text-code-md text-outline">09:14:26 AM</span>
+<span class="font-label-sm text-label-sm px-1.5 rounded bg-surface-container text-on-surface-variant text-[10px]">Patient</span>
+</div>
+<div class="p-3.5 rounded-xl rounded-tl-sm bg-surface-container text-on-surface font-body-md text-body-md shadow-sm">
+                It usually lingers for about 4 or 5 seconds, then goes away. No throbbing at night so far.
+              </div>
+<div class="mt-1 flex items-center gap-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold">
+<span class="material-symbols-outlined text-[13px]">check_circle</span> Clinical finding registered: Transient thermal provocation (&lt;10s)
+                </span>
+</div>
+</div>
+</div>
+<!-- Turn 4: Resident / Doctor -->
+<div class="flex gap-space-sm items-start max-w-[88%] ml-auto flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-sm">
+              SP
+            </div>
+<div class="text-right">
+<div class="flex items-center justify-end gap-2 mb-1">
+<span class="font-label-sm text-label-sm px-1.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-semibold">Resident</span>
+<span class="font-code-md text-code-md text-outline">09:14:41 AM</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Dr. Patel (You)</span>
+</div>
+<div class="p-3.5 rounded-xl rounded-tr-sm bg-primary text-on-primary font-body-md text-body-md text-left shadow-sm">
+                Have you noticed any swelling in your gums or a bad taste in your mouth?
+              </div>
+</div>
+</div>
+<!-- Turn 5: Patient -->
+<div class="flex gap-space-sm items-start max-w-[88%]">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+              ML
+            </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Maya Lin</span>
+<span class="font-code-md text-code-md text-outline">09:14:49 AM</span>
+<span class="font-label-sm text-label-sm px-1.5 rounded bg-surface-container text-on-surface-variant text-[10px]">Patient</span>
+</div>
+<div class="p-3.5 rounded-xl rounded-tl-sm bg-surface-container text-on-surface font-body-md text-body-md shadow-sm">
+                No swelling at all, just sensitivity in that specific molar.
+              </div>
+</div>
+</div>
+</div>
+<!-- Live Real-Time Speech Input Status Banner -->
+<div class="p-space-sm bg-surface-container-low mt-auto">
+<div class="flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-2.5 rounded-lg shadow-sm">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px] animate-pulse">mic</span>
+<span class="font-label-sm text-label-sm font-semibold">Examiner Live Mic:</span>
+</div>
+<div class="flex-1 truncate font-code-md text-code-md text-on-surface italic">
+              “Okay, I am going to inspect tooth 46...”
+            </div>
+<div class="flex items-center gap-1 shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0.2s]"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:0.4s]"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT SIDEBAR: Vignette & Checklist (col-span-3) -->
+<div class="lg:col-span-3 flex flex-col gap-space-md">
+<!-- Collapsible Case Vignette Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-container">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-primary">clinical_notes</span>
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Case Vignette</span>
+</div>
+<span class="font-code-md text-code-md px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-bold">FDI 46</span>
+</div>
+<div class="space-y-2.5 font-body-sm text-body-sm text-on-surface">
+<div class="p-2.5 rounded-lg bg-surface-container-low">
+<div class="font-label-sm text-label-sm text-on-surface-variant font-medium">Chief Complaint</div>
+<div class="font-semibold text-primary mt-0.5">Cold sensitivity &amp; masticatory discomfort, lower right quadrant</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="bg-surface-container-low p-2 rounded">
+<span class="text-on-surface-variant block">Target Tooth:</span>
+<span class="font-bold text-on-surface font-code-md">46 (Mand. R 1st Molar)</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="text-on-surface-variant block">Mobility:</span>
+<span class="font-bold text-secondary font-code-md">Grade 0 (Physiological)</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="text-on-surface-variant block">Periodontal PD:</span>
+<span class="font-bold text-on-surface font-code-md">2-3 mm (Normal)</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="text-on-surface-variant block">Electric Pulp:</span>
+<span class="font-bold text-secondary font-code-md">Positive / Responsive</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical Viva Objectives Checklist -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex-1 flex flex-col">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">checklist</span>
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Viva Competencies</span>
+</div>
+<span class="font-code-md text-code-md text-secondary font-bold">3/4 Done</span>
+</div>
+<div class="space-y-2.5 flex-1">
+<!-- Objective 1 -->
+<div class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">check_box</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold line-through decoration-outline">Symptom Onset Verification</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Established stimulus-dependent pain onset.</div>
+</div>
+</div>
+<!-- Objective 2 -->
+<div class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">check_box</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold line-through decoration-outline">Provoking &amp; Relieving Factors</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Cold drinks identified as thermal trigger.</div>
+</div>
+</div>
+<!-- Objective 3 -->
+<div class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">check_box</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold line-through decoration-outline">Pain Duration &amp; Latency</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Transient 4-5s duration verified (&lt;10s).</div>
+</div>
+</div>
+<!-- Objective 4 (Pending) -->
+<div class="flex items-start gap-2.5 p-2 rounded-lg bg-surface-container-high/60">
+<span class="material-symbols-outlined text-outline text-[20px] shrink-0 mt-0.5">check_box_outline_blank</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Medical History &amp; Allergies</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Query systemic contraindications / medications.</div>
+</div>
+</div>
+</div>
+<!-- Prominent Finish & Grade Action CTA -->
+<div class="pt-space-md mt-space-md border-t border-surface-container">
+<button class="w-full py-3 px-space-md rounded-lg bg-primary-container text-on-primary hover:bg-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]" id="finishVivaBtn" type="button">
+<span class="material-symbols-outlined text-[22px]">school</span>
+<span>Finish and get graded</span>
+</button>
+<p class="font-body-sm text-body-sm text-center text-on-surface-variant mt-2 text-[11px]">
+            Locks session audio and generates AI rubrics
+          </p>
+</div>
+</div>
+</div>
+</div>
+<!-- LOWER SECTION: Post-Session Examiner Grade Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-md p-space-lg mb-space-md relative overflow-hidden">
+<!-- Top Decorative Gradient Band -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-secondary to-tertiary-fixed-dim"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-md border-b border-surface-container">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed text-on-primary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[28px]">assignment_turned_in</span>
+</div>
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<h2 class="font-headline-lg text-headline-lg text-primary font-bold">Examiner Grade Card - Case #1042</h2>
+<!-- Warm Amber Draft Tag -->
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold shadow-xs">
+<span class="material-symbols-outlined text-[14px]">pending_actions</span>
+              First-pass draft, to be confirmed by faculty
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Automated Clinical viva proctoring engine • Evaluation ISO/FDI Standard</p>
+</div>
+</div>
+<!-- High Pass Tier Badge -->
+<div class="flex items-center gap-space-md bg-surface-container-low px-space-md py-space-sm rounded-xl">
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase font-medium">Session Score</span>
+<span class="font-headline-lg text-headline-lg text-secondary font-bold tracking-tight">89%</span>
+</div>
+<div class="h-10 w-px bg-surface-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Classification</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">Grade: High Pass (A-)</span>
+</div>
+</div>
+</div>
+<!-- Rubric Score Metric Bars -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg my-space-lg">
+<!-- Metric 1: History Taking -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">1. History Taking</span>
+<span class="font-code-md text-code-md font-bold text-secondary">92%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+            Thorough exploration of triggers, chronicity, and pain characteristics with targeted follow-ups.
+          </p>
+</div>
+<div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 92%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1 text-[11px] font-label-sm text-on-surface-variant">
+<span>Threshold: 75%</span>
+<span class="text-secondary font-medium">Exemplary</span>
+</div>
+</div>
+</div>
+<!-- Metric 2: Diagnosis Reasoning -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">2. Diagnosis Reasoning</span>
+<span class="font-code-md text-code-md font-bold text-primary">86%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+            Accurately correlated reversible pulpitis symptoms with occlusal caries and transient hyperalgesia.
+          </p>
+</div>
+<div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 86%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1 text-[11px] font-label-sm text-on-surface-variant">
+<span>Threshold: 70%</span>
+<span class="text-primary font-medium">Competent</span>
+</div>
+</div>
+</div>
+<!-- Metric 3: Patient Communication -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">3. Patient Communication</span>
+<span class="font-code-md text-code-md font-bold text-secondary">90%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">
+            Empathetic bedside manner, eliminated high-density clinical jargon, and used active reassurance.
+          </p>
+</div>
+<div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 90%;"></div>
+</div>
+<div class="flex justify-between items-center mt-1 text-[11px] font-label-sm text-on-surface-variant">
+<span>Threshold: 75%</span>
+<span class="text-secondary font-medium">Exemplary</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Proctor AI Narrative Assessment & Action Submission -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm max-w-3xl">
+<div class="w-9 h-9 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold mb-1">
+            AI Viva Proctor Summary Feedback
+          </div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            Candidate demonstrated disciplined triage by isolating the transient thermal hypersensitivity to Tooth 46, steering clear of unwarranted premature invasive pulpectomy recommendations. Recommend completing the systemic medical check before final restorative planning (Indirect pulp capping vs. composite restoration).
+          </p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-space-sm shrink-0">
+<button class="px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-lg text-label-lg font-medium hover:bg-surface-container transition-colors shadow-sm flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Review Audio Stems</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg font-semibold hover:bg-primary/90 transition-all shadow-sm flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">send_time_extension</span>
+<span>Submit to Faculty Review Queue</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for Viva Audio Record toggle & Timer tick
+  (function initVivaAudio() {
+    let seconds = 225; // 03:45 in seconds
+    const timerEl = document.getElementById('sessionTimer');
+    const micBtn = document.getElementById('micToggleBtn');
+    let isRecording = true;
+
+    // Tick session timer
+    setInterval(() => {
+      if (isRecording && timerEl) {
+        seconds++;
+        const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const secs = String(seconds % 60).padStart(2, '0');
+        timerEl.textContent = `${mins}:${secs}`;
+      }
+    }, 1000);
+
+    // Toggle Mic state
+    if (micBtn) {
+      micBtn.addEventListener('click', () => {
+        isRecording = !isRecording;
+        if (!isRecording) {
+          micBtn.classList.remove('bg-primary-container');
+          micBtn.classList.add('bg-outline');
+          const pingEl = micBtn.previousElementSibling;
+          if (pingEl) pingEl.style.display = 'none';
+        } else {
+          micBtn.classList.remove('bg-outline');
+          micBtn.classList.add('bg-primary-container');
+          const pingEl = micBtn.previousElementSibling;
+          if (pingEl) pingEl.style.display = 'block';
+        }
+      });
+    }
+
+    // Finish viva button feedback
+    const finishBtn = document.getElementById('finishVivaBtn');
+    if (finishBtn) {
+      finishBtn.addEventListener('click', () => {
+        finishBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">sync</span> Grading Finalized`;
+        finishBtn.classList.add('opacity-90');
+      });
+    }
+  })();
+</script></div></main><footer class="w-full bg-surface-container-low mt-space-xl py-space-lg"><div class="max-w-[1440px] mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-label-sm text-label-sm"><div>© 2025 Odonto Clinical Simulation Engine. ISO-13485 &amp; FDI Standard Compliant.</div><div class="flex items-center gap-space-lg"><span class="font-code-md text-code-md">Build v4.2.1-ClinicalCore</span><span class="text-outline-variant">•</span><span>Station: Diagnostic Lab Suite 4</span></div></div></footer></body></html>
