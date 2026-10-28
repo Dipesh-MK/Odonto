@@ -74,6 +74,7 @@ from db import (
     update_attempt_viva_turn,
     verify_password,
 )
+from anomaly_classifier import classify_anomaly, classify_anomaly_from_preset
 from geometry_extractor import extract_anomaly_geometry
 from parameter_converter import convert_2d_geometry_to_3d_params
 from sam2_segmenter import SAM2AnomalySegmenter
@@ -231,8 +232,8 @@ PRESETS: Dict[str, Dict[str, Any]] = {
     "case_05": {
         "name": "Sample 4: Enamel Defect / Fissure (DentalAI 1018)",
         "path": "data/dentalai/train/1018_jpg.rf.aabbf1107ffd09f3e6e0d1e7804d8eb9.jpg",
-        "default_anomaly": "Cavity",
-        "default_type": "Cavity",
+        "default_anomaly": "Crack",
+        "default_type": "Crack",
         "default_fdi": 33,
         "default_surface": "buccal",
         "default_box": [180, 140, 260, 220],
@@ -349,8 +350,13 @@ def build_threejs_mesh_payload(
             gt_peak_vertex_3d = [0.0, 0.0, 0.0]
 
         t = inf[:, None]
-        if str(anomaly_type).lower().startswith("abrasion"):
+        anomaly_str = str(anomaly_type).lower()
+        if anomaly_str.startswith("abrasion") or "wear" in anomaly_str:
             lesion_tint = np.array([0.85, 0.42, 0.08], dtype=np.float32)
+        elif "crack" in anomaly_str or "fracture" in anomaly_str or "fissure" in anomaly_str:
+            lesion_tint = np.array([0.25, 0.14, 0.08], dtype=np.float32)
+        elif "erosion" in anomaly_str or "cervical" in anomaly_str:
+            lesion_tint = np.array([0.88, 0.72, 0.40], dtype=np.float32)
         else:
             lesion_tint = np.array([0.86, 0.15, 0.15], dtype=np.float32)
         heatmap_colors = enamel_base * (1.0 - t) + lesion_tint * t
@@ -390,6 +396,16 @@ def execute_validated_carve(
         surface=surface,
     )
 
+    mask_2d = None
+    raw_mask_path = geometry.get("raw_mask_path")
+    if raw_mask_path and os.path.exists(raw_mask_path):
+        try:
+            m_img = cv2.imread(raw_mask_path, cv2.IMREAD_GRAYSCALE)
+            if m_img is not None and m_img.size > 20:
+                mask_2d = m_img
+        except Exception:
+            mask_2d = None
+
     carved_mesh, gt_cavity = carve_cavity(
         target_tooth_mesh,
         center_idx=carve_params["center_idx"],
@@ -399,6 +415,9 @@ def execute_validated_carve(
         orientation=carve_params["orientation"],
         profile=carve_params.get("profile", "cavity"),
         tangent_u=carve_params.get("tangent_u"),
+        mask_2d=mask_2d,
+        mask_proj_u=carve_params.get("tangent_u"),
+        mask_proj_v=carve_params.get("tangent_v"),
     )
 
     carved_verts = np.asarray(carved_mesh.vertices, dtype=np.float64)
@@ -474,11 +493,14 @@ def build_dynamic_case_record(
     cp = carve_result["carve_params"]
 
     surf_label = "Cervical-middle labial face" if tooth_meta["surface"] == "labial_facial" else "Central occlusal fossa"
-    badge_label = (
-        f"Labial abrasion ({cp['depth']:.2f}mm)"
-        if canonical_anomaly == "Abrasion"
-        else f"{'Labial' if tooth_meta['surface'] == 'labial_facial' else 'Occlusal'} cavity ({cp['depth']:.2f}mm)"
-    )
+    if canonical_anomaly == "Abrasion":
+        badge_label = f"Labial abrasion ({cp['depth']:.2f}mm)"
+    elif canonical_anomaly == "Crack":
+        badge_label = f"Enamel crack / fracture ({cp['depth']:.2f}mm)"
+    elif canonical_anomaly == "Erosion":
+        badge_label = f"Cervical erosion ({cp['depth']:.2f}mm)"
+    else:
+        badge_label = f"{'Labial' if tooth_meta['surface'] == 'labial_facial' else 'Occlusal'} cavity ({cp['depth']:.2f}mm)"
 
     p_name = (patient_name or "").strip() or f"Patient #{case_seq_num}"
     if canonical_anomaly == "Abrasion":
@@ -489,6 +511,24 @@ def build_dynamic_case_record(
         hpi = (
             "Sensitivity started about 3 weeks ago. Uses a firm manual toothbrush with horizontal strokes. "
             "Pain lasts 3 to 4 seconds after cold contact and never wakes the patient at night."
+        )
+    elif canonical_anomaly == "Crack":
+        cc = (
+            f"I feel a sharp, piercing pain on my {tooth_meta['short_name'].lower()} (Tooth #{tooth_fdi}) "
+            "whenever I bite down on food or release chewing pressure."
+        )
+        hpi = (
+            "Sharp pain on mastication (rebound tenderness) started 10 days ago. "
+            "Mild transient sensitivity to cold liquids. No continuous nocturnal throbbing or facial swelling."
+        )
+    elif canonical_anomaly == "Erosion":
+        cc = (
+            f"I've noticed a smooth hollow and sensitivity near the gumline of my {tooth_meta['short_name'].lower()} "
+            f"(Tooth #{tooth_fdi})."
+        )
+        hpi = (
+            "Frequent consumption of acidic citrus juices and carbonated beverages. "
+            "Smooth, saucer-shaped enamel loss at cervical third with mild cold sensitivity lasting 2-3 seconds."
         )
     else:
         cc = (
@@ -702,7 +742,10 @@ def api_create_room():
         geom = spec.get("geometry")
         if not geom:
             preset_id = spec.get("preset_id") or (
-                "case_09" if v_info["anomaly_type"] == "Abrasion" else "case_01"
+                "case_05" if v_info["anomaly_type"] == "Crack"
+                else "case_04" if v_info["anomaly_type"] == "Erosion"
+                else "case_09" if v_info["anomaly_type"] == "Abrasion"
+                else "case_01"
             )
             geom = extract_geometry_from_preset(preset_id)
 
@@ -759,7 +802,10 @@ def api_add_case_to_room(room_id: int):
     geometry = data.get("geometry")
     if not geometry:
         preset_id = data.get("preset_id") or (
-            "case_09" if validation_info["anomaly_type"] == "Abrasion" else "case_01"
+            "case_05" if validation_info["anomaly_type"] == "Crack"
+            else "case_04" if validation_info["anomaly_type"] == "Erosion"
+            else "case_09" if validation_info["anomaly_type"] == "Abrasion"
+            else "case_01"
         )
         geometry = extract_geometry_from_preset(preset_id)
 
@@ -1133,19 +1179,39 @@ def segment():
     # Automatic FDI tooth classification based on spatial position and anatomy
     identified_tooth = classify_tooth(image_id, geometry, (h, w))
 
+    # Automatic Dental Anomaly Classification based on mask geometry + color features
+    detected_anomaly = classify_anomaly(mask, img, geometry)
+    if image_id in PRESETS and PRESETS[image_id].get("default_anomaly"):
+        preset_info = classify_anomaly_from_preset(image_id, geometry)
+        if preset_info and preset_info.get("anomaly_type"):
+            detected_anomaly["preset_ground_truth"] = preset_info["anomaly_type"]
+            if not data.get("force_cv_only", False):
+                detected_anomaly["anomaly_type"] = preset_info["anomaly_type"]
+                detected_anomaly["confidence"] = max(detected_anomaly["confidence"], preset_info["confidence"])
+                detected_anomaly["reasoning"] = preset_info["reasoning"]
+
     rgba_mask = np.zeros((h, w, 4), dtype=np.uint8)
     rgba_mask[mask > 0] = [16, 185, 129, 180]
 
-    mask_fname = f"mask_{image_id}_{uuid.uuid4().hex[:6]}.png"
+    unique_tag = uuid.uuid4().hex[:6]
+    mask_fname = f"mask_{image_id}_{unique_tag}.png"
     mask_p = RENDER_DIR / mask_fname
     cv2.imwrite(str(mask_p), rgba_mask)
+
+    raw_mask_fname = f"raw_mask_{image_id}_{unique_tag}.png"
+    raw_mask_p = RENDER_DIR / raw_mask_fname
+    cv2.imwrite(str(raw_mask_p), mask)
+    geometry["raw_mask_path"] = str(raw_mask_p)
+    geometry["raw_mask_url"] = f"/static/renders/{raw_mask_fname}"
 
     return jsonify(
         {
             "mask_url": f"/static/renders/{mask_fname}",
+            "raw_mask_url": f"/static/renders/{raw_mask_fname}",
             "confidence": round(conf, 4),
             "geometry": geometry,
             "identified_tooth": identified_tooth,
+            "detected_anomaly": detected_anomaly,
         }
     )
 

@@ -474,6 +474,18 @@
             <span class="px-2 py-0.5 rounded bg-secondary text-white font-code-md text-[10px] font-bold uppercase">Auto-Matched</span>
           </div>
 
+          <!-- Auto-Detected Dental Anomaly Banner (anomaly_classifier.py) -->
+          <div id="pipe-auto-anomaly-banner" class="hidden px-3 py-2 rounded-lg bg-primary-fixed/40 border border-primary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">biotech</span>
+              <div>
+                <span id="pipe-auto-anomaly-title" class="font-bold text-on-surface">Auto-Detected Anomaly: Cavity / Caries</span>
+                <span id="pipe-auto-anomaly-meta" class="block font-code-md text-[11px] text-on-surface-variant">Deterministic CV Extraction • 88% Confidence</span>
+              </div>
+            </div>
+            <span id="pipe-auto-anomaly-badge" class="px-2 py-0.5 rounded bg-primary text-white font-code-md text-[10px] font-bold uppercase">CV Classified</span>
+          </div>
+
           <!-- Interactive 32-Tooth FDI Odontogram Arch Selector -->
           <div class="bg-surface-container-low p-2.5 rounded-lg space-y-1.5">
             <div class="flex items-center justify-between">
@@ -589,8 +601,9 @@
                 class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <option value="Cavity">Cavity / Caries</option>
                 <option value="Abrasion">Abrasion (Anterior Labial)</option>
-                <option value="Cervical">Class V Cervical Notch (Custom)</option>
-                <option value="Crack">Structural Crack / Fissure (Custom)</option>
+                <option value="Crack">Structural Crack / Fissure</option>
+                <option value="Erosion">Cervical Erosion / Defect</option>
+                <option value="Cervical">Class V Cervical Notch</option>
               </select>
             </div>
             <div class="sm:col-span-4">
@@ -2568,6 +2581,29 @@
       onPipelineWhitelistCheck(false);
     }
 
+    // Display Automatic Dental Anomaly Classification from anomaly_classifier.py
+    if (data.detected_anomaly && data.detected_anomaly.anomaly_type) {
+      const anomObj = data.detected_anomaly;
+      const anomType = anomObj.anomaly_type;
+      const anomBanner = document.getElementById('pipe-auto-anomaly-banner');
+      if (anomBanner) {
+        anomBanner.classList.remove('hidden');
+        document.getElementById('pipe-auto-anomaly-title').textContent =
+          `Auto-Detected Anomaly: ${anomType} (${Math.round((anomObj.confidence || 0.8) * 100)}% Confidence)`;
+        document.getElementById('pipe-auto-anomaly-meta').textContent =
+          `${anomObj.reasoning || 'Deterministic CV classification via mask shape + color analysis'}`;
+      }
+      const anomSel = document.getElementById('pipe-anomaly-select');
+      if (anomSel) {
+        if (Array.from(anomSel.options).some(o => o.value === anomType)) {
+          anomSel.value = anomType;
+        } else if (anomType === 'Erosion' && Array.from(anomSel.options).some(o => o.value === 'Cervical')) {
+          anomSel.value = 'Cervical';
+        }
+      }
+      onPipelineWhitelistCheck(false);
+    }
+
     const mImg = new Image();
     mImg.onload = () => {
       pipeMaskObj = mImg;
@@ -2598,17 +2634,17 @@
 
     if (isPosterior && anom === 'Abrasion') {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-error-container text-on-error-container text-xs flex items-center justify-between';
-      txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Posterior Abrasion on FDI #${fdi} is excluded from Room Cases (use Method B for custom preview).`;
+      txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Posterior Abrasion on FDI #${fdi} is excluded from Room Cases (anterior teeth only).`;
       btnCarve.disabled = true;
       btnPub.disabled = true;
-    } else if (anom === 'Cervical' || anom === 'Crack') {
-      banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-primary-fixed/60 text-primary text-xs flex items-center justify-between';
-      txt.textContent = `CUSTOM 3D GENERATOR MODE: Click "Method B: Direct 3D" to sculpt ${anom} on FDI #${fdi}.`;
-      btnCarve.disabled = false;
-      btnPub.disabled = false;
+    } else if (isPosterior && (anom === 'Cervical' || anom === 'Erosion')) {
+      banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-error-container text-on-error-container text-xs flex items-center justify-between';
+      txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Cervical Erosion on posterior FDI #${fdi} is excluded from Room Cases (anterior teeth only).`;
+      btnCarve.disabled = true;
+      btnPub.disabled = true;
     } else {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex items-center justify-between';
-      txt.textContent = `UNCONDITIONAL GO: FDI #${fdi} + ${anom} is Phase 0 Whitelisted.`;
+      txt.textContent = `UNCONDITIONAL GO: FDI #${fdi} + ${anom} is Phase 0 Whitelisted for 3D Carving.`;
       btnCarve.disabled = false;
       btnPub.disabled = false;
     }
@@ -2619,9 +2655,6 @@
     const fdi = Number(document.getElementById('pipe-fdi-select').value);
     const anomaly = document.getElementById('pipe-anomaly-select').value;
     const surface = document.getElementById('pipe-surface-select')?.value || '';
-    if (anomaly === 'Cervical' || anomaly === 'Crack') {
-      return runPipelineCustomCarve();
-    }
     document.getElementById('pipe-status-badge').textContent = `Carving 3D Tooth (#${fdi} ${anomaly})...`;
 
     const payload = { tooth_fdi: fdi, anomaly_type: anomaly, geometry: pipeGeometry };

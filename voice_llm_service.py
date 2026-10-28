@@ -26,8 +26,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import requests
-from faster_whisper import WhisperModel
-from piper.voice import PiperVoice
+try:
+    from faster_whisper import WhisperModel
+except ImportError:
+    WhisperModel = None
+
+try:
+    from piper.voice import PiperVoice
+except ImportError:
+    PiperVoice = None
 
 BASE_DIR = Path(__file__).resolve().parent
 AUDIO_DIR = BASE_DIR / "static" / "audio"
@@ -39,19 +46,24 @@ _WHISPER_SINGLETON: Optional[WhisperModel] = None
 _PIPER_SINGLETON: Optional[PiperVoice] = None
 
 
-def get_whisper_model() -> WhisperModel:
+def get_whisper_model():
     global _WHISPER_SINGLETON
-    if _WHISPER_SINGLETON is None:
-        _WHISPER_SINGLETON = WhisperModel("tiny.en", device="cpu", compute_type="int8")
+    if _WHISPER_SINGLETON is None and WhisperModel is not None:
+        try:
+            _WHISPER_SINGLETON = WhisperModel("tiny.en", device="cpu", compute_type="int8")
+        except Exception:
+            _WHISPER_SINGLETON = None
     return _WHISPER_SINGLETON
 
 
-def get_piper_voice() -> PiperVoice:
+def get_piper_voice():
     global _PIPER_SINGLETON
-    if _PIPER_SINGLETON is None:
-        if not PIPER_MODEL_PATH.exists():
-            raise FileNotFoundError(f"Piper ONNX model not found at {PIPER_MODEL_PATH}")
-        _PIPER_SINGLETON = PiperVoice.load(str(PIPER_MODEL_PATH))
+    if _PIPER_SINGLETON is None and PiperVoice is not None:
+        if PIPER_MODEL_PATH.exists():
+            try:
+                _PIPER_SINGLETON = PiperVoice.load(str(PIPER_MODEL_PATH))
+            except Exception:
+                _PIPER_SINGLETON = None
     return _PIPER_SINGLETON
 
 
@@ -127,6 +139,8 @@ def synthesize_speech_to_url(text: str, prefix: str = "tts") -> str:
     fname = f"{prefix}_{uuid.uuid4().hex[:10]}.wav"
     out_path = AUDIO_DIR / fname
     voice = get_piper_voice()
+    if voice is None:
+        return ""
     with wave.open(str(out_path), "wb") as wf:
         voice.synthesize_wav(clean_text, wf)
     return f"/static/audio/{fname}"

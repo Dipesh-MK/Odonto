@@ -128,7 +128,15 @@ def classify_tooth(image_id, geometry, img_shape):
         total_pixels = max(1, img_w * img_h)
         area_ratio = area / total_pixels
 
-        # Classify by anatomical morphology:
+        # Classify by anatomical morphology and surface:
+        if rel_y > 0.70:
+            surface = "cervical"
+        elif aspect > 1.7 or (norm_w < 0.12 and area_ratio < 0.03):
+            surface = "buccal"
+        else:
+            # Check if photo view is occlusal (square/circular tooth) or buccal
+            surface = "occlusal" if aspect < 1.35 else "buccal"
+
         if aspect > 1.7 or (norm_w < 0.12 and area_ratio < 0.03):
             # Anterior Incisor / Canine
             if abs(rel_x - 0.5) < 0.15:
@@ -144,16 +152,14 @@ def classify_tooth(image_id, geometry, img_shape):
             if not is_upper:
                 # Convert to lower arch (add 20 to FDI)
                 fdi += 20
-            surface = "buccal"
             conf = 0.88
 
         elif norm_w > 0.20 or area_ratio > 0.05:
-            # Broad occlusal table -> Molar (1st or 2nd)
+            # Broad molar (1st or 2nd)
             if is_upper:
                 fdi = 26 if is_patient_left else 16
             else:
                 fdi = 36 if is_patient_left else 46
-            surface = "occlusal"
             conf = 0.91
 
         else:
@@ -162,7 +168,6 @@ def classify_tooth(image_id, geometry, img_shape):
                 fdi = 24 if is_patient_left else 14
             else:
                 fdi = 34 if is_patient_left else 44
-            surface = "occlusal"
             conf = 0.89
 
     # Determine Quadrant

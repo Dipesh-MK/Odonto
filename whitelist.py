@@ -1,7 +1,7 @@
 """
 whitelist.py
 
-Single Source of Truth for Phase 0 Validated Tooth × Anomaly Combinations
+Single Source of Truth for Validated Tooth × Anomaly Combinations
 in the Odonto Phase A/B Room & Diagnostic Simulation Platform.
 
 Enforces the strict distinction between numerical mesh integrity and clinical shape validity:
@@ -14,15 +14,19 @@ Enforces the strict distinction between numerical mesh integrity and clinical sh
   2. Anterior / Labial Abrasion ONLY on validated anterior tooth types:
      - Incisors (#11, #12, #21, #22, #31, #32, #41, #42) -> labial_facial
      - Canines  (#13, #23, #33, #43)                     -> labial_facial
+  3. Crack (Enamel Fracture) across all 4 validated tooth types:
+     - All teeth (#11-#17, #21-#27, #31-#37, #41-#47) -> same surface as Cavity
+     Cracks use a narrow V-groove carving profile with high aspect ratio.
+  4. Erosion (Cervical Erosion) on anterior teeth only:
+     - Incisors (#11, #12, #21, #22, #31, #32, #41, #42) -> labial_facial
+     - Canines  (#13, #23, #33, #43)                     -> labial_facial
+     Erosion uses a cervical profile with smooth, rounded defect morphology.
 
-- Explicitly Excluded / Blocked in Phase A/B:
-  - Posterior Abrasion on premolars (#14, #15, #24, #25, #34, #35, #44, #45) and
-    molars (#16-#18, #26-#28, #36-#38, #46-#48): Radial inward displacement on
-    posterior occlusal/cuspal surfaces creates saucer-like depressions rather than
-    planar wear facets. Tracked as a separate future engineering task (planar half-space clipping).
-  - Third molars (#18, #28, #38, #48): Excluded due to sparse scan representation in Teeth3DS+
-    (7-11 scans) and unvalidated status in Phase 0.
-  - Unvalidated anomaly categories (Crack, Crowding, Diastema, Rotation, Agenesis,
+- Explicitly Excluded / Blocked:
+  - Posterior Abrasion on premolars and molars: inward radial displacement produces
+    saucer-like depressions rather than planar wear facets.
+  - Third molars (#18, #28, #38, #48): sparse scan representation in Teeth3DS+.
+  - Unvalidated anomaly categories (Crowding, Diastema, Rotation, Agenesis,
     Periapical Lesion, Plaque, Other): Not silently relabeled or substituted.
 """
 
@@ -53,7 +57,7 @@ SUPPORTED_ANOMALIES: Dict[str, Dict[str, Any]] = {
     },
     "Abrasion": {
         "canonical": "Abrasion",
-        "aliases": ["abrasion", "cervical abrasion", "labial abrasion", "anterior abrasion"],
+        "aliases": ["abrasion", "cervical abrasion", "labial abrasion", "anterior abrasion", "attrition", "wear"],
         "label": "Abrasion (Anterior Labial)",
         "allowed_tooth_types": ["incisor", "canine"],
         "allowed_surfaces": {
@@ -63,42 +67,70 @@ SUPPORTED_ANOMALIES: Dict[str, Dict[str, Any]] = {
         "profile": "abrasion",
         "description": "Horizontal saucer-shaped cervical/labial wear facet on anterior teeth (incisors and canines only).",
     },
+    "Crack": {
+        "canonical": "Crack",
+        "aliases": ["crack", "craze line", "enamel crack", "fracture line", "fissure", "cracked tooth", "enamel fracture"],
+        "label": "Crack / Enamel Fracture",
+        "allowed_tooth_types": ["incisor", "canine", "premolar", "molar"],
+        "allowed_surfaces": {
+            "incisor": "labial_facial",
+            "canine": "labial_facial",
+            "premolar": "occlusal_table",
+            "molar": "occlusal_table",
+        },
+        "profile": "crack",
+        "description": "Narrow V-groove enamel fracture line. High aspect ratio, minimal width, sharp depth profile.",
+    },
+    "Erosion": {
+        "canonical": "Erosion",
+        "aliases": ["erosion", "cervical erosion", "acid erosion", "chemical erosion", "dental erosion", "enamel erosion", "cervical", "class v cervical notch"],
+        "label": "Erosion (Cervical)",
+        "allowed_tooth_types": ["incisor", "canine", "premolar", "molar"],
+        "allowed_surfaces": {
+            "incisor": "labial_facial",
+            "canine": "labial_facial",
+            "premolar": "cervical",
+            "molar": "cervical",
+        },
+        "profile": "cervical",
+        "description": "Smooth, rounded cervical tooth structure loss from chemical/acid exposure. Broad shallow defect with irregular margins.",
+    },
 }
 
 # Explicit registry of all 28 approved FDI permanent teeth (excluding 3rd molars 18, 28, 38, 48)
 APPROVED_FDI_TEETH: Dict[int, Dict[str, Any]] = {
     # Q1: Maxillary Right
-    11: {"fdi": 11, "name": "Maxillary Right Central Incisor", "short_name": "Upper R Central Incisor", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    12: {"fdi": 12, "name": "Maxillary Right Lateral Incisor", "short_name": "Upper R Lateral Incisor", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    13: {"fdi": 13, "name": "Maxillary Right Canine", "short_name": "Upper R Canine", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 33},
-    14: {"fdi": 14, "name": "Maxillary Right First Premolar", "short_name": "Upper R 1st Premolar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 14},
-    15: {"fdi": 15, "name": "Maxillary Right Second Premolar", "short_name": "Upper R 2nd Premolar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 15},
-    16: {"fdi": 16, "name": "Maxillary Right First Molar", "short_name": "Upper R 1st Molar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
-    17: {"fdi": 17, "name": "Maxillary Right Second Molar", "short_name": "Upper R 2nd Molar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
+    11: {"fdi": 11, "name": "Maxillary Right Central Incisor", "short_name": "Upper R Central Incisor", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    12: {"fdi": 12, "name": "Maxillary Right Lateral Incisor", "short_name": "Upper R Lateral Incisor", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    13: {"fdi": 13, "name": "Maxillary Right Canine", "short_name": "Upper R Canine", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 33},
+    14: {"fdi": 14, "name": "Maxillary Right First Premolar", "short_name": "Upper R 1st Premolar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 14},
+    15: {"fdi": 15, "name": "Maxillary Right Second Premolar", "short_name": "Upper R 2nd Premolar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 15},
+    16: {"fdi": 16, "name": "Maxillary Right First Molar", "short_name": "Upper R 1st Molar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
+    17: {"fdi": 17, "name": "Maxillary Right Second Molar", "short_name": "Upper R 2nd Molar", "quadrant": "Q1", "arch": "Maxillary Right (Q1)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
     # Q2: Maxillary Left
-    21: {"fdi": 21, "name": "Maxillary Left Central Incisor", "short_name": "Upper L Central Incisor", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    22: {"fdi": 22, "name": "Maxillary Left Lateral Incisor", "short_name": "Upper L Lateral Incisor", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    23: {"fdi": 23, "name": "Maxillary Left Canine", "short_name": "Upper L Canine", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 33},
-    24: {"fdi": 24, "name": "Maxillary Left First Premolar", "short_name": "Upper L 1st Premolar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 24},
-    25: {"fdi": 25, "name": "Maxillary Left Second Premolar", "short_name": "Upper L 2nd Premolar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 25},
-    26: {"fdi": 26, "name": "Maxillary Left First Molar", "short_name": "Upper L 1st Molar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
-    27: {"fdi": 27, "name": "Maxillary Left Second Molar", "short_name": "Upper L 2nd Molar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
+    21: {"fdi": 21, "name": "Maxillary Left Central Incisor", "short_name": "Upper L Central Incisor", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    22: {"fdi": 22, "name": "Maxillary Left Lateral Incisor", "short_name": "Upper L Lateral Incisor", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    23: {"fdi": 23, "name": "Maxillary Left Canine", "short_name": "Upper L Canine", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 33},
+    24: {"fdi": 24, "name": "Maxillary Left First Premolar", "short_name": "Upper L 1st Premolar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 24},
+    25: {"fdi": 25, "name": "Maxillary Left Second Premolar", "short_name": "Upper L 2nd Premolar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 25},
+    26: {"fdi": 26, "name": "Maxillary Left First Molar", "short_name": "Upper L 1st Molar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
+    27: {"fdi": 27, "name": "Maxillary Left Second Molar", "short_name": "Upper L 2nd Molar", "quadrant": "Q2", "arch": "Maxillary Left (Q2)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
     # Q3: Mandibular Left
-    31: {"fdi": 31, "name": "Mandibular Left Central Incisor", "short_name": "Lower L Central Incisor", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    32: {"fdi": 32, "name": "Mandibular Left Lateral Incisor", "short_name": "Lower L Lateral Incisor", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    33: {"fdi": 33, "name": "Mandibular Left Canine", "short_name": "Lower L Canine", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 33},
-    34: {"fdi": 34, "name": "Mandibular Left First Premolar", "short_name": "Lower L 1st Premolar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 34},
-    35: {"fdi": 35, "name": "Mandibular Left Second Premolar", "short_name": "Lower L 2nd Premolar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 35},
-    36: {"fdi": 36, "name": "Mandibular Left First Molar", "short_name": "Lower L 1st Molar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
-    37: {"fdi": 37, "name": "Mandibular Left Second Molar", "short_name": "Lower L 2nd Molar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
+    31: {"fdi": 31, "name": "Mandibular Left Central Incisor", "short_name": "Lower L Central Incisor", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    32: {"fdi": 32, "name": "Mandibular Left Lateral Incisor", "short_name": "Lower L Lateral Incisor", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    33: {"fdi": 33, "name": "Mandibular Left Canine", "short_name": "Lower L Canine", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 33},
+    34: {"fdi": 34, "name": "Mandibular Left First Premolar", "short_name": "Lower L 1st Premolar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 34},
+    35: {"fdi": 35, "name": "Mandibular Left Second Premolar", "short_name": "Lower L 2nd Premolar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 35},
+    36: {"fdi": 36, "name": "Mandibular Left First Molar", "short_name": "Lower L 1st Molar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
+    37: {"fdi": 37, "name": "Mandibular Left Second Molar", "short_name": "Lower L 2nd Molar", "quadrant": "Q3", "arch": "Mandibular Left (Q3)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
     # Q4: Mandibular Right
-    41: {"fdi": 41, "name": "Mandibular Right Central Incisor", "short_name": "Lower R Central Incisor", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    42: {"fdi": 42, "name": "Mandibular Right Lateral Incisor", "short_name": "Lower R Lateral Incisor", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 31},
-    43: {"fdi": 43, "name": "Mandibular Right Canine", "short_name": "Lower R Canine", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion"], "phase0_exemplar": 33},
-    44: {"fdi": 44, "name": "Mandibular Right First Premolar", "short_name": "Lower R 1st Premolar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 44},
-    45: {"fdi": 45, "name": "Mandibular Right Second Premolar", "short_name": "Lower R 2nd Premolar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 45},
-    46: {"fdi": 46, "name": "Mandibular Right First Molar", "short_name": "Lower R 1st Molar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
-    47: {"fdi": 47, "name": "Mandibular Right Second Molar", "short_name": "Lower R 2nd Molar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity"], "phase0_exemplar": 36},
+    41: {"fdi": 41, "name": "Mandibular Right Central Incisor", "short_name": "Lower R Central Incisor", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    42: {"fdi": 42, "name": "Mandibular Right Lateral Incisor", "short_name": "Lower R Lateral Incisor", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "incisor", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 31},
+    43: {"fdi": 43, "name": "Mandibular Right Canine", "short_name": "Lower R Canine", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "canine", "anatomical_group": "anterior", "surface": "labial_facial", "allowed_anomalies": ["Cavity", "Abrasion", "Crack", "Erosion"], "phase0_exemplar": 33},
+    44: {"fdi": 44, "name": "Mandibular Right First Premolar", "short_name": "Lower R 1st Premolar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 44},
+    45: {"fdi": 45, "name": "Mandibular Right Second Premolar", "short_name": "Lower R 2nd Premolar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "premolar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 45},
+    46: {"fdi": 46, "name": "Mandibular Right First Molar", "short_name": "Lower R 1st Molar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
+    47: {"fdi": 47, "name": "Mandibular Right Second Molar", "short_name": "Lower R 2nd Molar", "quadrant": "Q4", "arch": "Mandibular Right (Q4)", "tooth_type": "molar", "anatomical_group": "posterior", "surface": "occlusal_table", "allowed_anomalies": ["Cavity", "Crack", "Erosion"], "phase0_exemplar": 36},
 }
 
 EXCLUDED_COMBINATION_NOTES: Dict[str, str] = {
@@ -231,6 +263,8 @@ def get_whitelist_payload() -> Dict[str, Any]:
             "total_approved_teeth": len(APPROVED_FDI_TEETH),
             "cavity_supported_tooth_types": ["incisor", "canine", "premolar", "molar"],
             "abrasion_supported_tooth_types": ["incisor", "canine"],
+            "crack_supported_tooth_types": ["incisor", "canine", "premolar", "molar"],
+            "erosion_supported_tooth_types": ["incisor", "canine"],
             "posterior_abrasion_enabled": False,
         },
     }
