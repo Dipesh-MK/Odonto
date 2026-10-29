@@ -76,6 +76,7 @@ def transcribe_audio_file(audio_path: str | Path) -> Dict[str, Any]:
     Normalizes any container format to 16kHz mono PCM WAV via ffmpeg, loads the
     float32 waveform via soundfile, and runs WhisperModel.transcribe(audio_np).
     """
+    import imageio_ffmpeg
     import soundfile as sf
 
     src_path = Path(audio_path)
@@ -84,7 +85,7 @@ def transcribe_audio_file(audio_path: str | Path) -> Dict[str, Any]:
 
     wav_path = AUDIO_DIR / f"norm_{uuid.uuid4().hex[:8]}.wav"
     cmd = [
-        "ffmpeg",
+        imageio_ffmpeg.get_ffmpeg_exe(),
         "-y",
         "-i",
         str(src_path),
@@ -107,6 +108,8 @@ def transcribe_audio_file(audio_path: str | Path) -> Dict[str, Any]:
         duration_sec = float(len(audio_np)) / float(sr or 16000)
 
         model = get_whisper_model()
+        if model is None:
+            raise RuntimeError("faster-whisper is unavailable or its model could not be initialized.")
         segments, info = model.transcribe(audio_np, beam_size=3, vad_filter=False)
         seg_list = [s.text.strip() for s in segments if s.text.strip()]
         transcript = " ".join(seg_list).strip()

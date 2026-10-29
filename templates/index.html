@@ -272,6 +272,12 @@
           Overview
         </button>
 
+        <button onclick="switchTab('sam2-pipeline')" id="nav-sam2-pipeline"
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">precision_manufacturing</span>
+          <span>Create a case</span>
+        </button>
+
         <button onclick="switchTab('case-library')" id="nav-case-library"
           class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
           Practise
@@ -285,12 +291,6 @@
         <button onclick="switchTab('teacher-ai-evaluation')" id="nav-teacher-ai-evaluation"
           class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
           AI Evaluation
-        </button>
-
-        <button onclick="switchTab('sam2-pipeline')" id="nav-sam2-pipeline"
-          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
-          <span class="material-symbols-outlined text-[16px]">precision_manufacturing</span>
-          <span>Case Studio</span>
         </button>
 
         <button onclick="switchTab('3d-viewer-and-sim')" id="nav-3d-viewer-and-sim"
@@ -414,16 +414,15 @@
           </div>
           <div>
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-code-md text-code-md px-2 py-0.5 rounded bg-surface-container text-primary font-semibold">SAM2 + TEETH3DS+</span>
-              <h1 class="font-headline-md text-headline-md text-primary font-bold">Interactive 2D Photo Segmentation &rarr; 3D Mesh Carving Studio</h1>
+              <h1 class="font-headline-md text-headline-md text-primary font-bold">Create a case from a photo</h1>
             </div>
             <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              Select a clinical photo or upload your own, click or box the lesion to run SAM2, inspect the 3D carved tooth, and publish directly into any Simulation Room.
+              Choose a photo, mark the area to practise, preview the 3D tooth, then add it to a room.
             </p>
           </div>
         </div>
         <div id="pipe-status-badge" class="px-3.5 py-1.5 rounded-lg font-code-md text-code-md font-semibold bg-surface-container-lowest text-primary shadow-sm">
-          Step 1: Click Point or Drag Box on Photo
+          Step 1 of 3 · Choose a photo
         </div>
       </div>
 
@@ -434,14 +433,14 @@
           <div class="flex items-center justify-between border-b border-surface-container pb-2.5">
             <div class="flex items-center gap-1.5">
               <span class="material-symbols-outlined text-primary text-[20px]">image_search</span>
-              <h2 class="font-headline-sm text-headline-sm text-on-surface">1. Clinical Photo &amp; SAM2 Prompting</h2>
+              <h2 class="font-headline-sm text-headline-sm text-on-surface">1. Choose a photo</h2>
             </div>
             <span class="font-code-md text-code-md text-secondary font-semibold">Interactive Canvas</span>
           </div>
 
           <div class="flex flex-wrap items-end gap-2.5">
             <div class="flex-1 min-w-[220px]">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Clinical Sample Preset (8 Validated Photos):</label>
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Or start with a sample photo</label>
               <select id="pipe-preset-select" onchange="loadPipelinePreset(this.value)"
                 class="w-full rounded-lg bg-surface-container-low border border-outline-variant/40 text-xs font-semibold py-2 px-3">
                 <option value="case_01">Sample 1: Caries 1 — Occlusal Molar (AlphaDent p001_002)</option>
@@ -456,32 +455,32 @@
             </div>
             <label class="px-3.5 py-2 rounded-lg bg-inverse-surface text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer hover:opacity-90">
               <span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
-              <span>Upload Clinical Photo</span>
+              <span>Upload a photo</span>
               <input type="file" id="pipe-file-upload" accept="image/*" class="hidden" onchange="handlePipelinePhotoUpload(event)"/>
             </label>
           </div>
 
-          <!-- Prompt Mode Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-surface-container-low p-2 rounded-lg">
-            <div class="flex items-center gap-1.5">
-              <span class="font-label-sm text-label-sm text-on-surface-variant mr-1">Mode:</span>
-              <button type="button" id="pipe-mode-point" onclick="setPipelinePromptMode('point')"
-                class="px-3 py-1 rounded-md text-xs font-bold bg-primary text-white">
-                + Click Point
-              </button>
-              <button type="button" id="pipe-mode-box" onclick="setPipelinePromptMode('box')"
-                class="px-3 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-on-surface">
-                &#9634; Draw Box
-              </button>
-              <button type="button" onclick="clearPipelinePrompts()"
-                class="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-error">
-                Clear
-              </button>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="font-label-sm text-label-sm text-on-surface-variant">Mask Opacity</span>
-              <input type="range" id="pipe-opacity-slider" min="0.1" max="0.95" step="0.05" value="0.6" oninput="redrawPipelineCanvas()" class="w-20 accent-primary"/>
-            </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-surface-container-low p-2.5 rounded-lg">
+            <p class="text-sm font-semibold text-on-surface">2. Click the area you want students to practise.</p>
+            <details class="text-xs text-on-surface-variant">
+              <summary class="cursor-pointer font-semibold">More marking options</summary>
+              <div class="flex flex-wrap items-center gap-2 mt-2">
+                <button type="button" id="pipe-mode-point" onclick="setPipelinePromptMode('point')"
+                  class="px-3 py-1 rounded-md text-xs font-bold bg-primary text-white">
+                  Click an area
+                </button>
+                <button type="button" id="pipe-mode-box" onclick="setPipelinePromptMode('box')"
+                  class="px-3 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-on-surface">
+                  Draw a box
+                </button>
+                <button type="button" onclick="clearPipelinePrompts()"
+                  class="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-error">
+                  Clear mark
+                </button>
+                <label for="pipe-opacity-slider">Outline visibility</label>
+                <input type="range" id="pipe-opacity-slider" min="0.1" max="0.95" step="0.05" value="0.6" oninput="redrawPipelineCanvas()" class="w-20 accent-primary"/>
+              </div>
+            </details>
           </div>
 
           <!-- Interactive 2D Canvas -->
@@ -493,29 +492,29 @@
             <button type="button" id="btn-pipe-segment" onclick="runPipelineSAM2()"
               class="px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container flex items-center gap-1.5">
               <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
-              <span>Run SAM2 Segmentation</span>
+              <span>Find the marked area</span>
             </button>
             <span id="pipe-prompt-coords-label" class="font-code-md text-code-md text-on-surface-variant">
-              Click on the lesion or drag a box to guide SAM2.
+              Click the affected area in the photo to highlight it.
             </span>
           </div>
 
           <!-- HITL Validation Gate -->
           <div id="pipe-validation-bar" class="hidden p-3.5 rounded-xl bg-surface-container-low border-l-4 border-secondary space-y-2">
             <div class="flex items-center justify-between">
-              <span class="font-label-md text-label-md font-bold text-on-surface">Human-in-the-Loop Mask Validation</span>
-              <span id="pipe-sam2-conf" class="font-code-md text-code-md font-bold text-secondary">Confidence: —</span>
+              <span class="font-label-md text-label-md font-bold text-on-surface">Check the highlighted area</span>
+              <span id="pipe-sam2-conf" class="font-code-md text-code-md font-bold text-secondary">Match: —</span>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="acceptPipelineSegmentation()"
                 class="px-3.5 py-1.5 rounded-lg bg-secondary text-white text-xs font-bold flex items-center gap-1">
                 <span class="material-symbols-outlined text-[15px]">check_circle</span>
-                <span>Accept &amp; Carve 3D Mesh</span>
+                <span>Use this area</span>
               </button>
               <button type="button" onclick="resegmentPipeline()"
                 class="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest text-error border border-error/30 text-xs font-bold flex items-center gap-1">
                 <span class="material-symbols-outlined text-[15px]">refresh</span>
-                <span>Re-Segment</span>
+                <span>Try again</span>
               </button>
             </div>
           </div>
@@ -526,9 +525,8 @@
           <div class="flex items-center justify-between border-b border-surface-container pb-2.5">
             <div class="flex items-center gap-1.5">
               <span class="material-symbols-outlined text-primary text-[20px]">view_in_ar</span>
-              <h2 class="font-headline-sm text-headline-sm text-on-surface">2. 3D Tooth Reconstruction &amp; Room Publisher</h2>
+              <h2 class="font-headline-sm text-headline-sm text-on-surface">3. Preview and add the case</h2>
             </div>
-            <span class="font-code-md text-code-md px-2 py-0.5 rounded bg-secondary-container/50 text-on-secondary-container font-semibold">Phase 0 Whitelist</span>
           </div>
 
           <!-- Auto-Identified Tooth Classification Banner (tooth_classifier.py) -->
@@ -555,6 +553,8 @@
             <span id="pipe-auto-anomaly-badge" class="px-2 py-0.5 rounded bg-primary text-white font-code-md text-[10px] font-bold uppercase">CV Classified</span>
           </div>
 
+          <details class="bg-surface-container-low rounded-lg">
+            <summary class="cursor-pointer p-2.5 text-sm font-semibold text-primary">Choose from the tooth chart</summary>
           <!-- Interactive 32-Tooth FDI Odontogram Arch Selector -->
           <div class="bg-surface-container-low p-2.5 rounded-lg space-y-1.5">
             <div class="flex items-center justify-between">
@@ -606,8 +606,12 @@
             </div>
           </div>
 
+          </details>
+
+          <details class="bg-surface-container-low rounded-lg">
+            <summary class="cursor-pointer p-2.5 text-xs font-semibold text-on-surface-variant">Image measurements</summary>
           <!-- 6-Metric 2D Geometry Bar -->
-          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 bg-surface-container-low p-2 rounded-lg text-center">
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 p-2 text-center">
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Centroid</span><span id="pipe-m-centroid" class="font-code-md text-code-md font-bold">—</span></div>
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Area</span><span id="pipe-m-area" class="font-code-md text-code-md font-bold">—</span></div>
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Radius</span><span id="pipe-m-radius" class="font-code-md text-code-md font-bold text-primary">—</span></div>
@@ -616,10 +620,12 @@
             <div><span class="font-label-sm text-label-sm text-on-surface-variant block">Angle</span><span id="pipe-m-angle" class="font-code-md text-code-md font-bold text-secondary">—</span></div>
           </div>
 
-          <!-- Method A (Photo-Guided) + Method B (Direct Custom 3D Pathology Generator) -->
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 bg-surface-container-low p-3 rounded-lg">
-            <div class="sm:col-span-4">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Target FDI Tooth (#11–#48):</label>
+          </details>
+
+          <!-- Photo-guided case creation and optional advanced settings -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-surface-container-low p-3 rounded-lg">
+            <div>
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Tooth</label>
               <select id="pipe-fdi-select" onchange="onPipelineWhitelistCheck(true)"
                 class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <optgroup label="Molars (Occlusal Table — Cavity Only)">
@@ -664,8 +670,8 @@
                 </optgroup>
               </select>
             </div>
-            <div class="sm:col-span-4">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Anomaly / Pathology Type:</label>
+            <div>
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Finding</label>
               <select id="pipe-anomaly-select" onchange="onPipelineWhitelistCheck(false)"
                 class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <option value="Cavity">Cavity / Caries</option>
@@ -675,8 +681,15 @@
                 <option value="Cervical">Class V Cervical Notch</option>
               </select>
             </div>
-            <div class="sm:col-span-4">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Anatomical Surface:</label>
+            <button type="button" id="btn-pipe-carve-preview" onclick="runPipelineCarvePreview()"
+              class="sm:col-span-2 w-full py-2.5 px-4 rounded-lg bg-primary text-white text-sm font-bold shadow-sm hover:bg-primary-container" title="Create the 3D practice case from the photo">
+              Create 3D preview
+            </button>
+            <details class="sm:col-span-2 rounded-lg bg-surface-container-lowest">
+              <summary class="cursor-pointer p-2 text-xs font-semibold text-on-surface-variant">Advanced shape options</summary>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2">
+            <div>
+              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Surface</label>
               <select id="pipe-surface-select"
                 class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-1.5 px-2">
                 <option value="">Auto (Anatomical Frame)</option>
@@ -689,43 +702,39 @@
             </div>
 
             <!-- Method B Direct Sliders + Method A / B Action Buttons -->
-            <div class="sm:col-span-3 flex flex-col justify-center">
+            <div class="flex flex-col justify-center">
               <div class="flex justify-between text-[10px] font-code-md text-on-surface-variant">
                 <span>Custom Radius</span><span id="pipe-custom-r-lbl" class="font-bold text-primary">1.8 mm</span>
               </div>
               <input type="range" id="pipe-custom-radius" min="0.8" max="3.6" step="0.1" value="1.8"
                 oninput="document.getElementById('pipe-custom-r-lbl').textContent = this.value + ' mm'" class="w-full accent-primary"/>
             </div>
-            <div class="sm:col-span-3 flex flex-col justify-center">
+            <div class="flex flex-col justify-center">
               <div class="flex justify-between text-[10px] font-code-md text-on-surface-variant">
                 <span>Custom Depth</span><span id="pipe-custom-d-lbl" class="font-bold text-secondary">1.1 mm</span>
               </div>
               <input type="range" id="pipe-custom-depth" min="0.3" max="2.5" step="0.1" value="1.1"
                 oninput="document.getElementById('pipe-custom-d-lbl').textContent = this.value + ' mm'" class="w-full accent-secondary"/>
             </div>
-            <div class="sm:col-span-3 flex items-end">
-              <button type="button" id="btn-pipe-carve-preview" onclick="runPipelineCarvePreview()"
-                class="w-full py-1.5 px-2.5 rounded-md bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container" title="Method A: Project 2D SAM2 Mask to 3D Tooth">
-                Method A: Photo &rarr; 3D
-              </button>
-            </div>
-            <div class="sm:col-span-3 flex items-end">
+            <div class="flex items-end">
               <button type="button" id="btn-pipe-carve-custom" onclick="runPipelineCustomCarve()"
-                class="w-full py-1.5 px-2.5 rounded-md bg-secondary text-white text-xs font-bold shadow-sm hover:opacity-95" title="Method B: Direct 3D Pathology Generator using Sliders">
-                Method B: Direct 3D
+                class="w-full py-1.5 px-2.5 rounded-md bg-secondary text-white text-xs font-bold shadow-sm hover:opacity-95" title="Create a 3D case using custom settings">
+                Custom 3D case
               </button>
             </div>
 
-            <div id="pipe-whitelist-banner" class="sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex flex-wrap items-center justify-between gap-2">
-              <span id="pipe-whitelist-text" class="font-semibold text-on-secondary-fixed-variant">UNCONDITIONAL GO: FDI #36 + Cavity is Whitelisted.</span>
+            <div id="pipe-whitelist-banner" class="sm:col-span-2 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex flex-wrap items-center justify-between gap-2">
+              <span id="pipe-whitelist-text" class="font-semibold text-on-secondary-fixed-variant">This tooth and finding can be used in a practice room.</span>
               <span id="pipe-3d-telemetry" class="font-code-md text-code-md text-primary font-bold"></span>
             </div>
+              </div>
+            </details>
           </div>
 
           <!-- Interactive Three.js Viewport -->
           <div class="relative w-full h-[270px] bg-[#0F172A] rounded-xl overflow-hidden flex flex-col justify-between shadow-inner">
             <div class="relative z-10 p-2.5 flex items-center justify-between text-xs text-white pointer-events-none">
-              <span id="pipe-3d-hud" class="bg-[#0F172A]/85 px-2.5 py-1 rounded font-code-md text-code-md">3D Carved Mesh Preview</span>
+              <span id="pipe-3d-hud" class="bg-[#0F172A]/85 px-2.5 py-1 rounded font-code-md text-code-md">3D case preview</span>
               <div class="flex items-center gap-1 bg-[#0F172A]/85 px-2 py-1 rounded pointer-events-auto font-code-md text-[11px]">
                 <button type="button" onclick="togglePipelineShaderMode()" id="btn-pipe-shader-mode" class="text-secondary-fixed font-bold hover:underline px-1">Shader: Clinical</button>
                 <span>•</span>
@@ -744,25 +753,28 @@
                 <a id="pipe-download-npz" href="#" download class="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white hidden">.NPZ</a>
                 <a id="pipe-download-obj" href="#" download class="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white hidden">.OBJ</a>
               </div>
-              <span id="pipe-carve-summary" class="text-secondary-fixed truncate">Click "Method A: Photo → 3D" or "Method B: Direct 3D" to inspect</span>
+              <span id="pipe-carve-summary" class="text-secondary-fixed truncate">Your 3D preview will appear here.</span>
             </div>
           </div>
 
           <!-- Publish to Room Bar -->
           <div class="p-3 rounded-lg bg-surface-container-low space-y-2">
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-              <div class="sm:col-span-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <label for="pipe-patient-name" class="block text-xs text-on-surface-variant mb-1">Patient name</label>
                 <input id="pipe-patient-name" type="text" value="Jordan Taylor" placeholder="Patient Name"
                   class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs py-1.5 px-2.5"/>
               </div>
-              <div class="sm:col-span-3">
+              <div>
+                <label for="pipe-case-rigor" class="block text-xs text-on-surface-variant mb-1">Difficulty</label>
                 <select id="pipe-case-rigor" class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs py-1.5 px-2">
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate" selected>Intermediate</option>
                   <option value="Advanced">Advanced</option>
                 </select>
               </div>
-              <div class="sm:col-span-5">
+              <div>
+                <label for="pipe-target-room-select" class="block text-xs text-on-surface-variant mb-1">Add to room</label>
                 <select id="pipe-target-room-select" class="w-full rounded-md bg-surface-container-lowest border border-outline-variant/40 text-xs font-bold text-primary py-1.5 px-2.5">
                   <option value="">Select Target Room...</option>
                 </select>
@@ -772,7 +784,7 @@
               <button type="button" id="btn-pipe-publish-room" onclick="publishPipelineCaseToRoom()"
                 class="px-4 py-2 rounded-lg bg-secondary text-white text-xs font-bold shadow-sm hover:opacity-95 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-[16px]">add_task</span>
-                <span>Add Custom Carved Case to Selected Room</span>
+                <span>Add case to room</span>
               </button>
               <span id="pipe-publish-feedback" class="font-code-md text-code-md font-bold text-primary"></span>
             </div>
@@ -797,13 +809,15 @@
             </div>
             <button type="button" onclick="switchTab('sam2-pipeline')"
               class="px-3 py-1.5 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
-              Case Studio
+              Create case from photo
             </button>
           </div>
 
-          <details class="space-y-3">
+          <p class="text-sm text-on-surface-variant">Create a room for your students, or build a case from a photo and add it to a room.</p>
+
+          <details class="space-y-3" open>
             <summary class="cursor-pointer rounded-lg bg-surface-container-low px-3 py-2.5 font-label-md text-label-md font-semibold text-primary">
-              Set up room details and stage cases
+              Room details and sample cases
             </summary>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -820,8 +834,8 @@
 
           <div class="p-3 rounded-xl bg-surface-container-low space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="font-label-sm text-label-sm text-primary">Stage Custom Samples (40 Whitelisted Combos)</span>
-              <button type="button" onclick="resetDefaultStagedSpecs()" class="text-xs text-primary font-semibold hover:underline">Reset Default Pair</button>
+              <span class="font-label-sm text-label-sm text-primary">Optional: add sample cases</span>
+              <button type="button" onclick="resetDefaultStagedSpecs()" class="text-xs text-primary font-semibold hover:underline">Restore examples</button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
               <div class="sm:col-span-3">
@@ -863,7 +877,7 @@
               <div class="sm:col-span-3">
                 <button type="button" onclick="addCustomSpecToStaging()"
                   class="w-full py-1.5 px-2.5 rounded-md bg-secondary text-white text-xs font-bold">
-                  + Add Sample
+                  + Add sample
                 </button>
               </div>
             </div>
@@ -878,7 +892,7 @@
           <button id="btn-create-room" onclick="submitCreateRoom()"
             class="mt-auto py-2.5 px-4 rounded-lg bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">meeting_room</span>
-            <span>Create Room and Add Cases</span>
+            <span>Create room</span>
           </button>
           </details>
         </div>
@@ -2438,7 +2452,7 @@
       'nav-teacher-ai-evaluation': isTeacher,
       'nav-case-library': true,
       'nav-results-and-performance': !isTeacher,
-      'nav-sam2-pipeline': false,
+      'nav-sam2-pipeline': isTeacher,
       'nav-3d-viewer-and-sim': false,
       'nav-evaluate-the-ai': false,
       'nav-voice-viva-session': false
@@ -2607,7 +2621,7 @@
 
       if (pipePromptMode === 'point') {
         pipePromptPoints = [[x, y]];
-        document.getElementById('pipe-prompt-coords-label').textContent = `Point: (${x}, ${y}) — Running SAM2...`;
+        document.getElementById('pipe-prompt-coords-label').textContent = 'Finding the marked area...';
         redrawPipelineCanvas();
         runPipelineSAM2();
       } else if (pipePromptMode === 'box') {
@@ -2636,7 +2650,7 @@
       if (pipeDrawingBox && pipePromptMode === 'box') {
         pipeDrawingBox = false;
         if (pipePromptBox) {
-          document.getElementById('pipe-prompt-coords-label').textContent = `Box: [${pipePromptBox.join(', ')}] — Running SAM2...`;
+          document.getElementById('pipe-prompt-coords-label').textContent = 'Finding the marked area...';
           runPipelineSAM2();
         }
         redrawPipelineCanvas();
@@ -2659,7 +2673,7 @@
     pipePromptBox = null;
     pipeMaskObj = null;
     document.getElementById('pipe-validation-bar').classList.add('hidden');
-    document.getElementById('pipe-prompt-coords-label').textContent = 'Prompts cleared. Click a point or drag a box on the photo.';
+    document.getElementById('pipe-prompt-coords-label').textContent = 'Click the affected area in the photo to highlight it.';
     redrawPipelineCanvas();
   }
 
@@ -2703,7 +2717,7 @@
     const img = new Image();
     img.onload = () => {
       pipeImageObj = img;
-      document.getElementById('pipe-status-badge').textContent = 'Custom Photo Loaded — Click or Box the Lesion';
+      document.getElementById('pipe-status-badge').textContent = 'Step 2 of 3 · Mark the area';
       redrawPipelineCanvas();
     };
     img.src = data.image_url;
@@ -2785,7 +2799,7 @@
 
   async function runPipelineSAM2() {
     if (!pipeActiveImageId) return;
-    document.getElementById('pipe-status-badge').textContent = 'Running SAM2 Segmentation...';
+    document.getElementById('pipe-status-badge').textContent = 'Finding the marked area...';
 
     const payload = { image_id: pipeActiveImageId };
     if (pipePromptPoints.length > 0) payload.points = pipePromptPoints;
@@ -2807,7 +2821,7 @@
     document.getElementById('pipe-m-aspect').textContent = `${g.aspect_ratio}`;
     document.getElementById('pipe-m-dims').textContent = `${g.width}×${g.height}`;
     document.getElementById('pipe-m-angle').textContent = `${g.orientation}°`;
-    document.getElementById('pipe-sam2-conf').textContent = `SAM2 Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+    document.getElementById('pipe-sam2-conf').textContent = `Match: ${(data.confidence * 100).toFixed(1)}%`;
 
     // Display Automatic FDI Tooth Identification from tooth_classifier.py
     if (data.identified_tooth && data.identified_tooth.fdi) {
@@ -2856,7 +2870,7 @@
       pipeMaskObj = mImg;
       redrawPipelineCanvas();
       document.getElementById('pipe-validation-bar').classList.remove('hidden');
-      document.getElementById('pipe-status-badge').textContent = 'Mask Predicted — Inspect or Carve 3D Tooth';
+      document.getElementById('pipe-status-badge').textContent = 'Area highlighted · Review it, then create the preview';
     };
     mImg.src = data.mask_url;
   }
@@ -2891,7 +2905,7 @@
       btnPub.disabled = true;
     } else {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex items-center justify-between';
-      txt.textContent = `UNCONDITIONAL GO: FDI #${fdi} + ${anom} is Phase 0 Whitelisted for 3D Carving.`;
+      txt.textContent = `FDI #${fdi} + ${anom} is ready to use in a practice room.`;
       btnCarve.disabled = false;
       btnPub.disabled = false;
     }

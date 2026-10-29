@@ -2,6 +2,8 @@ flask>=3.0.0
 flask-login>=0.6.3
 bcrypt>=4.0.0
 faster-whisper>=1.0.0
+soundfile
+imageio-ffmpeg
 piper-tts>=1.2.0
 requests>=2.31.0
 torch>=2.0.0
