@@ -432,7 +432,7 @@ def grade_diagnosis_and_generate_teachback(
     combined_diagnosis_text = (
         f"Written Rationale: {student_rationale}\n"
         f"Spoken Viva Diagnosis: {spoken_diagnosis_transcript}\n"
-        f"Student Verdict on AI: {student_verdict}\n"
+        f"Student's self-assessment of their own 3D mark: {student_verdict}\n"
         "Viva Dialogue:\n"
         + "\n".join(f"- {m.get('role')}: {m.get('text')}" for m in viva_transcript)
     ).strip()

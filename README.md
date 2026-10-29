@@ -75,16 +75,12 @@ flowchart TD
   - **Excluded / Blocked (`HTTP 422`)**:
     - **Posterior `Abrasion`** on premolars and molars (`POSTERIOR_ABRASION_EXCLUDED`): While numerically stable (`0` bleed-through), inward radial displacement produces concave saucer depressions rather than planar occlusal attrition facets. Left out of the room feature until planar half-space clipping is implemented.
     - **Third Molars (`#18, #28, #38, #48`)** and **unvalidated anomalies** (`Crack`, `Crowding`, `Diastema`, `Rotation`, `Agenesis`, etc.).
-- **Stitch `Clinical Precision` 5-View Room Interface (`templates/index.html`)**:
-  1. **Case Library**: Filterable by arch quadrant (`Q1–Q4`), tooth morphology, Phase 0 approved anomaly, and clinical rigor, plus the Teacher HITL `"Generate new case"` modal.
-  2. **3D Viewer & Sim**: Live Three.js WebGL tooth mesh (`OrbitControls`, wireframe, heatmap toggle, `.OBJ`/`.NPZ` export) paired with the Patient Clinical Vignette dossier.
-  3. **Evaluate the AI**: 3-step diagnostic training workflow (`Step 1: Blind 3D Raycast Anomaly Marking` $\rightarrow$ `Step 2: AI Heatmap Overlay & Clinical Rationale Audit` $\rightarrow$ `Step 3: Rule-Based Score A Spatial Concordance + LLM-Driven Score B Clinical Critique + Spoken Piper TTS Teach-Back`).
-  4. **Voice Viva Session**: Real-audio virtual patient dialogue (`Browser Mic / Audio Upload` $\rightarrow$ `faster-whisper STT` $\rightarrow$ `Anthropic Claude / Local Ollama LLM` $\rightarrow$ `Piper ONNX TTS WAV`) with dynamic 4-competency OSCE tracking (`Onset`, `Triggers`, `Duration`, `Medical History`).
-  5. **Results, Longitudinal Progress & Teacher Dashboard**:
-     - Role-authenticated (`Flask-Login` + `bcrypt`) Teacher and Student accounts with isolated room join codes (`OD-XXXXX`).
-     - Per-attempt persistent Student Report (3D spatial error, diagnosis grading, full voice transcript, spoken AI teach-back, elapsed time).
-     - Longitudinal Progress & Dynamic Whitelist Competency-Coverage matrix (`6` approved families, `40` FDI combinations).
-     - Teacher Dashboard with per-room student completion, class analytics, and single-attempt replay modal.
+- **Role-focused interface (`templates/index.html`)**:
+  - **Students** land on a concise Home page with their assigned featured case and actual progress, then use Practise to start the guided `Examine → Compare → Learn` exercise. The existing Three.js tooth marking, deterministic spatial score, clinical reasoning submission, LLM teach-back, and saved progress remain in place.
+  - The comparison displays the **validated case reference**, not a model prediction. SAM2 is used in the teacher's photo-guided case authoring pipeline; the current live student endpoint does not produce a separate CV model prediction. Model-level CV and LLM metrics therefore show “Not evaluated yet” until measured evaluation data is connected.
+  - **Teachers** have focused Overview, Cases, Student Attempts, and AI Evaluation navigation. Room creation, case authoring, review dashboards, and detailed attempt replay remain available to teachers.
+  - **Voice Viva** remains an optional patient interview, powered by the configured speech and LLM services; it is not required to complete the core exercise.
+  - Role-authenticated (`Flask-Login` + `bcrypt`) Teacher and Student accounts retain isolated room join codes (`OD-XXXXX`), persistent attempt reports, longitudinal progress, and dynamic whitelist competency coverage.
 
 ---
 
@@ -105,7 +101,7 @@ flowchart TD
 ├── models/
 │   └── piper/                       # Local Piper ONNX TTS voice model (en_US-lessac-low.onnx)
 ├── templates/
-│   └── index.html                   # Stitch Clinical Precision Multi-Role Room, Voice Viva & Teacher Dashboard UI
+│   └── index.html                   # Role-focused student exercise and teacher management UI
 ├── static/
 │   ├── audio/                       # Synthesized Piper TTS .wav responses and teach-back explanations
 │   └── renders/phase0/              # Pre-seeded Phase 0 validated .npz, .obj, and .png assets

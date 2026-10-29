@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Odonto — Clinical Dental Simulation, SAM2 2D→3D Studio &amp; Live Voice Viva</title>
+<title>Odonto — Guided Dental Learning</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -146,26 +146,26 @@
           </div>
           <div>
             <h1 class="text-xl font-extrabold tracking-tight leading-none">Odonto</h1>
-            <span class="text-[10px] font-mono uppercase tracking-widest text-secondary-fixed">Clinical Core v5.3 • Live Audio</span>
+            <span class="text-[10px] font-mono uppercase tracking-widest text-secondary-fixed">Guided dental learning</span>
           </div>
         </div>
 
         <h2 class="text-2xl font-extrabold mt-8 leading-snug">
-          SAM2 2D&rarr;3D Studio, Isolated Rooms &amp; Live Voice Viva
+          Practise with confidence
         </h2>
         <p class="text-xs text-primary-fixed mt-3 leading-relaxed">
-          Interactive SAM2 photo segmentation, Teeth3DS+ 3D carving, dynamic simulation rooms, rule-based 3D spatial grading, real-time streaming STT, and live spoken TTS.
+          Explore interactive 3D dental cases, test your clinical reasoning, and learn from clear feedback.
         </p>
       </div>
 
       <div class="space-y-2.5 pt-6 border-t border-white/15 text-xs">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-secondary-fixed text-base">verified_user</span>
-          <span><strong>Teachers:</strong> Carve custom 3D cases, create rooms, inspect &amp; test all cases</span>
+          <span><strong>Students:</strong> Work through guided cases and track your progress</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-secondary-fixed text-base">record_voice_over</span>
-          <span><strong>Live Voice Viva:</strong> Speak live with the Virtual Patient &amp; AI Examiner (Zero file uploads)</span>
+          <span><strong>Teachers:</strong> Manage cases and review student learning</span>
         </div>
       </div>
     </div>
@@ -185,7 +185,7 @@
 
       <h3 id="auth-form-title" class="text-xl font-extrabold text-on-surface">Sign in to your clinical account</h3>
       <p id="auth-form-sub" class="text-xs text-on-surface-variant mt-1">
-        Enter your credentials to access the SAM2 2D&rarr;3D Studio, Simulation Rooms, and Live Voice Viva.
+        Sign in to continue to your learning space.
       </p>
 
       <form id="auth-form" onsubmit="submitAuthForm(event)" class="space-y-4 mt-5">
@@ -214,14 +214,14 @@
               <input type="radio" name="auth-role" value="student" checked class="text-primary focus:ring-primary"/>
               <div>
                 <span class="text-xs font-bold text-on-surface block">Student / Resident</span>
-                <span class="text-[10px] text-on-surface-variant">Join rooms via code &amp; take live exams</span>
+                <span class="text-[10px] text-on-surface-variant">Practise cases and review your progress</span>
               </div>
             </label>
             <label class="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 cursor-pointer hover:border-primary">
               <input type="radio" name="auth-role" value="teacher" class="text-primary focus:ring-primary"/>
               <div>
                 <span class="text-xs font-bold text-on-surface block">Teacher / Faculty</span>
-                <span class="text-[10px] text-on-surface-variant">Create rooms, carve cases &amp; view analytics</span>
+                <span class="text-[10px] text-on-surface-variant">Manage cases and review student attempts</span>
               </div>
             </label>
           </div>
@@ -260,43 +260,58 @@
         </span>
       </div>
 
-      <!-- Stitch Pill Navigation Bar -->
-      <nav class="flex items-center gap-1 overflow-x-auto py-1">
-        <button onclick="switchTab('teacher-dashboard')" id="nav-teacher-dashboard"
+      <!-- Role-specific navigation -->
+      <nav class="flex items-center gap-1 overflow-x-auto py-1" aria-label="Main navigation">
+        <button onclick="switchTab('student-home')" id="nav-student-home"
           class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          Rooms &amp; Dashboard
+          Home
         </button>
 
-        <button onclick="switchTab('sam2-pipeline')" id="nav-sam2-pipeline"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
-          <span class="material-symbols-outlined text-[16px]">precision_manufacturing</span>
-          <span>2D&rarr;3D Studio</span>
+        <button onclick="switchTab('teacher-dashboard')" id="nav-teacher-dashboard"
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          Overview
         </button>
 
         <button onclick="switchTab('case-library')" id="nav-case-library"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          Case Library
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          Practise
+        </button>
+
+        <button onclick="switchTab('student-attempts')" id="nav-student-attempts"
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          Student Attempts
+        </button>
+
+        <button onclick="switchTab('teacher-ai-evaluation')" id="nav-teacher-ai-evaluation"
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          AI Evaluation
+        </button>
+
+        <button onclick="switchTab('sam2-pipeline')" id="nav-sam2-pipeline"
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">precision_manufacturing</span>
+          <span>Case Studio</span>
         </button>
 
         <button onclick="switchTab('3d-viewer-and-sim')" id="nav-3d-viewer-and-sim"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          3D Viewer &amp; Sim
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          3D Viewer
         </button>
 
         <button onclick="switchTab('evaluate-the-ai')" id="nav-evaluate-the-ai"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          Evaluate the AI
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          Exercise
         </button>
 
         <button onclick="switchTab('voice-viva-session')" id="nav-voice-viva-session"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1">
           <span class="material-symbols-outlined text-[16px]">record_voice_over</span>
           <span>Voice Viva Session</span>
         </button>
 
         <button onclick="switchTab('results-and-performance')" id="nav-results-and-performance"
-          class="nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          Results &amp; Performance
+          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
+          My Progress
         </button>
       </nav>
 
@@ -331,6 +346,60 @@
       </div>
     </div>
   </header>
+
+  <section id="view-student-home" class="pt-24 flex-1 hidden flex-col bg-background">
+    <div class="max-w-6xl w-full mx-auto px-gutter py-space-lg space-y-space-lg">
+      <div class="max-w-2xl">
+        <p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Your learning space</p>
+        <h1 class="font-headline-lg text-headline-lg text-primary mt-2">Welcome to Odonto</h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">
+          Practise dental diagnosis with interactive 3D cases and thoughtful AI-powered feedback.
+        </p>
+        <button onclick="switchTab('case-library')"
+          class="mt-5 py-3 px-5 rounded-xl bg-primary text-white font-label-lg text-label-lg font-semibold shadow-sm hover:bg-primary-container">
+          Start Practising
+        </button>
+      </div>
+
+      <div id="student-home-feedback" class="hidden p-4 rounded-xl bg-error-container text-on-error-container text-sm" role="status"></div>
+      <button id="student-home-retry" type="button" onclick="retryStudentData()"
+        class="hidden rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm font-semibold text-primary">
+        Try again
+      </button>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+        <article class="lg:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow overflow-hidden">
+          <div class="p-space-md border-b border-surface-container flex items-center justify-between gap-3">
+            <div>
+              <p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Featured case</p>
+              <h2 class="font-headline-md text-headline-md text-on-surface mt-1">Ready when you are</h2>
+            </div>
+            <span id="student-home-room" class="text-xs text-on-surface-variant text-right"></span>
+          </div>
+          <div id="student-home-featured" class="p-space-md"></div>
+        </article>
+        <aside class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow p-space-md">
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Your progress</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">A quick look at your completed learning.</p>
+          <div class="grid grid-cols-2 gap-3 mt-5">
+            <div class="rounded-xl bg-surface-container-low p-3">
+              <span class="block font-label-sm text-label-sm text-on-surface-variant">Completed</span>
+              <strong id="student-home-completed" class="block text-2xl font-bold text-primary mt-1">—</strong>
+              <span class="text-[11px] text-on-surface-variant">cases</span>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3">
+              <span class="block font-label-sm text-label-sm text-on-surface-variant">Average Score A</span>
+              <strong id="student-home-score" class="block text-2xl font-bold text-secondary mt-1">—</strong>
+              <span class="text-[11px] text-on-surface-variant">spatial score</span>
+            </div>
+          </div>
+          <p id="student-home-stats-status" class="mt-3 text-xs text-on-surface-variant" role="status"></p>
+          <button onclick="switchTab('results-and-performance')" class="mt-4 text-sm font-semibold text-primary hover:underline">
+            View My Progress
+          </button>
+        </aside>
+      </div>
+    </div>
+  </section>
 
   <!-- ======================================================================= -->
   <!-- VIEW 0: FULL INTERACTIVE SAM2 2D-TO-3D RECONSTRUCTION PIPELINE STUDIO   -->
@@ -723,15 +792,19 @@
         <div class="lg:col-span-6 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-sm">
           <div class="flex items-center justify-between">
             <div>
-              <span class="font-label-sm text-label-sm uppercase text-primary">Dynamic Room Creator</span>
-              <h2 class="font-headline-md text-headline-md text-on-surface">Create Simulation Room &amp; Custom Samples</h2>
+              <span class="font-label-sm text-label-sm uppercase text-primary">Case management</span>
+              <h2 class="font-headline-md text-headline-md text-on-surface">Create a room</h2>
             </div>
             <button type="button" onclick="switchTab('sam2-pipeline')"
               class="px-3 py-1.5 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
-              Open 2D&rarr;3D Studio
+              Case Studio
             </button>
           </div>
 
+          <details class="space-y-3">
+            <summary class="cursor-pointer rounded-lg bg-surface-container-low px-3 py-2.5 font-label-md text-label-md font-semibold text-primary">
+              Set up room details and stage cases
+            </summary>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Room Name</label>
@@ -805,8 +878,9 @@
           <button id="btn-create-room" onclick="submitCreateRoom()"
             class="mt-auto py-2.5 px-4 rounded-lg bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-container flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">meeting_room</span>
-            <span>Create Room, Carve Staged Samples &amp; Generate Join Code</span>
+            <span>Create Room and Add Cases</span>
           </button>
+          </details>
         </div>
 
         <!-- Teacher Rooms List (6 Cols) -->
@@ -851,7 +925,7 @@
             <div id="td-room-cases-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"></div>
           </div>
 
-          <div class="pt-3 border-t border-surface-container">
+          <div id="teacher-attempts-section" class="pt-3 border-t border-surface-container">
             <h4 class="font-label-md text-label-md font-bold uppercase text-on-surface-variant mb-2.5">Completed Student &amp; Faculty Test Attempts</h4>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
@@ -890,6 +964,34 @@
     </div>
   </section>
 
+  <section id="view-teacher-ai-evaluation" class="pt-24 flex-1 hidden flex-col bg-background">
+    <div class="max-w-5xl w-full mx-auto px-gutter py-space-lg space-y-space-md">
+      <div>
+        <p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Model quality</p>
+        <h1 class="font-headline-lg text-headline-lg text-primary mt-2">AI Evaluation</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-2">
+          Model validation is reported only when measured evaluation records are available. Student attempt scores are not model evaluation metrics.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+        <article class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow p-space-lg">
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Computer vision</span>
+          <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Not evaluated yet</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+            No validated model-level accuracy, IoU, or Dice evaluation is available through the current application.
+          </p>
+        </article>
+        <article class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow p-space-lg">
+          <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Language model</span>
+          <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Not evaluated yet</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+            The language model provides case-based feedback, but no faculty-reviewed model-level quality metrics are recorded.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- ======================================================================= -->
   <!-- VIEW 1: CASE LIBRARY (Stitch Clean Filter + Card Grid Layout)           -->
   <!-- ======================================================================= -->
@@ -914,7 +1016,7 @@
           </select>
         </div>
 
-        <div>
+        <div id="filter-anomaly-filter">
           <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1.5">Approved Anomaly</label>
           <select id="filter-anomaly-type" onchange="renderCaseLibrary()"
             class="w-full rounded-lg bg-surface-container-low border border-outline-variant/40 text-xs font-medium py-2 px-2.5">
@@ -924,7 +1026,7 @@
           </select>
         </div>
 
-        <div class="p-3 rounded-lg bg-error-container/35 text-xs space-y-1">
+        <div id="filter-whitelist-notice" class="p-3 rounded-lg bg-error-container/35 text-xs space-y-1">
           <div class="flex items-center justify-between font-bold text-on-error-container">
             <span>Posterior Abrasion</span>
             <span class="font-code-md text-[10px] bg-error text-white px-1.5 py-0.5 rounded">EXCLUDED</span>
@@ -940,11 +1042,11 @@
         <div class="bg-surface-container-low rounded-xl p-space-md flex flex-wrap items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2.5">
-              <h1 id="library-room-heading" class="font-headline-md text-headline-md text-primary font-bold">Room Case Library</h1>
+              <h1 id="library-room-heading" class="font-headline-md text-headline-md text-primary font-bold">Cases to practise</h1>
               <span id="library-count-badge" class="px-2.5 py-0.5 rounded-full font-code-md text-code-md font-bold bg-primary-fixed text-on-primary-fixed">0 Cases</span>
             </div>
             <p id="library-room-subheading" class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              Select a case to inspect in 3D or start a live evaluation &amp; Voice Viva session.
+              Choose a case to begin a guided 3D diagnosis exercise.
             </p>
           </div>
           <div class="flex items-center gap-2">
@@ -954,13 +1056,14 @@
               <span>Join Room by Code</span>
             </button>
             <button id="btn-lib-add-case" onclick="switchTab('sam2-pipeline')"
-              class="bg-primary text-white px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5">
+              class="hidden bg-primary text-white px-3.5 py-2 rounded-lg text-xs font-bold items-center gap-1.5">
               <span class="material-symbols-outlined text-[16px]">add_circle</span>
-              <span>Carve New Case in 2D&rarr;3D Studio</span>
+              <span>Create a case</span>
             </button>
           </div>
         </div>
 
+        <div id="case-load-status" class="hidden rounded-lg bg-surface-container-high px-3 py-2 text-sm text-primary" role="status"></div>
         <div id="case-library-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-md"></div>
       </div>
     </div>
@@ -1088,10 +1191,10 @@
           <div>
             <div class="flex items-center gap-2">
               <span id="eval-case-pill" class="font-code-md text-code-md px-2.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-bold">CASE</span>
-              <h1 id="eval-case-title" class="font-headline-md text-headline-md text-primary font-bold">Diagnostic Concordance &amp; Clinical Audit</h1>
+              <h1 id="eval-case-title" class="font-headline-md text-headline-md text-primary font-bold">Your guided case</h1>
             </div>
             <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              Blind 3D spatial lesion marking, rule-based Euclidean concordance, live spoken rationale, and live AI Examiner teach-back.
+              Examine the 3D tooth, compare your answer with the validated case reference, then learn from clinical feedback.
             </p>
           </div>
 
@@ -1101,8 +1204,8 @@
               class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-on-primary text-left shadow-sm transition-all">
               <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center font-code-md text-xs font-bold shrink-0">1</span>
               <div>
-                <div class="font-label-md text-label-md font-bold leading-tight">Mark Anomaly</div>
-                <div class="text-[10px] opacity-80">Blind 3D Raycast</div>
+                <div class="font-label-md text-label-md font-bold leading-tight">Examine</div>
+                  <div class="text-[10px] opacity-80">Your answer first</div>
               </div>
             </button>
 
@@ -1110,8 +1213,8 @@
               class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant text-left shadow-sm transition-all">
               <span class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center font-code-md text-xs font-bold shrink-0">2</span>
               <div>
-                <div class="font-label-md text-label-md font-bold leading-tight">Compare &amp; Judge</div>
-                <div class="text-[10px] opacity-80">Score A + Rationale</div>
+                <div class="font-label-md text-label-md font-bold leading-tight">Compare</div>
+                <div class="text-[10px] opacity-80">Review the reference</div>
               </div>
             </button>
 
@@ -1119,8 +1222,8 @@
               class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container-lowest text-on-surface-variant text-left shadow-sm transition-all">
               <span class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center font-code-md text-xs font-bold shrink-0">3</span>
               <div>
-                <div class="font-label-md text-label-md font-bold leading-tight">Report &amp; Teach-Back</div>
-                <div class="text-[10px] opacity-80">Live Voice Feedback</div>
+                <div class="font-label-md text-label-md font-bold leading-tight">Learn</div>
+                <div class="text-[10px] opacity-80">Feedback and next steps</div>
               </div>
             </button>
           </div>
@@ -1137,8 +1240,8 @@
               <span id="eval-viewport-instruction">Click directly on the 3D tooth surface to place your anomaly marker (Teal sphere).</span>
             </div>
             <div class="flex items-center gap-3 bg-[#0F172A]/90 backdrop-blur-md px-3 py-1.5 rounded-lg font-code-md text-code-md text-white shadow-sm">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#00d4c2]"></span>Student's Mark</span>
-              <span id="eval-ai-legend" class="flex items-center gap-1.5 opacity-40"><span class="w-2.5 h-2.5 rounded-full bg-[#ff3b30]"></span>GT Centroid</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#00d4c2]"></span>My answer</span>
+              <span id="eval-ai-legend" class="flex items-center gap-1.5 opacity-40"><span class="w-2.5 h-2.5 rounded-full bg-[#ff3b30]"></span>Validated reference</span>
             </div>
           </div>
 
@@ -1148,7 +1251,7 @@
           <!-- Bottom HUD Bar -->
           <div class="relative z-10 p-space-md flex flex-wrap items-center justify-between gap-2 pointer-events-none">
             <div class="bg-[#0F172A]/90 backdrop-blur-md px-3.5 py-2 rounded-lg font-code-md text-code-md text-white">
-              <span>3D MARK: </span>
+              <span>YOUR MARK: </span>
               <span id="eval-mark-coords" class="text-secondary-fixed font-bold">Not placed — click tooth surface</span>
             </div>
             <button onclick="resetEvalCamera()" class="pointer-events-auto bg-[#0F172A]/90 hover:bg-white/15 text-white px-3 py-2 rounded-lg font-code-md text-code-md transition-colors">
@@ -1163,20 +1266,26 @@
           <!-- STEP 1 PANEL: Blind 3D Mark -->
           <div id="eval-panel-step-1" class="flex flex-col gap-space-md flex-1">
             <div>
-              <span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary font-bold uppercase">Step 1 • Blind Spatial Localization</span>
-              <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Mark Suspected Pathology on 3D Mesh</h2>
+              <span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary font-bold uppercase">Examine • Step 1 of 3</span>
+              <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Examine the tooth</h2>
               <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">
-                Ground-truth coordinates and heatmaps are hidden in Step 1. Rotate the 3D scan, inspect the surface morphology, and click directly on the suspected lesion to place your marker.
+                Rotate the 3D scan and select the area where you suspect the finding is located. The validated reference stays hidden until you submit your mark.
               </p>
+            </div>
+
+            <div class="p-space-md rounded-xl bg-surface-container-low">
+              <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Patient presentation</span>
+              <p id="eval-case-vignette" class="font-body-sm text-body-sm text-on-surface mt-1 leading-relaxed"></p>
+              <p id="eval-case-history" class="font-body-sm text-body-sm text-on-surface-variant mt-2 leading-relaxed"></p>
             </div>
 
             <div class="p-space-md rounded-xl bg-surface-container-low space-y-2.5 font-body-sm text-body-sm">
               <div class="flex items-center justify-between">
-                <span class="text-on-surface-variant">Target Tooth &amp; Surface:</span>
+                <span class="text-on-surface-variant">Tooth number:</span>
                 <span id="eval-step1-tooth" class="font-code-md text-code-md font-bold text-primary">FDI #36</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-on-surface-variant">Selected 3D Voxel Point:</span>
+                <span class="text-on-surface-variant">Your selected area:</span>
                 <span id="eval-step1-coord-badge" class="font-code-md text-code-md font-semibold text-on-surface">Awaiting click on 3D tooth...</span>
               </div>
             </div>
@@ -1186,7 +1295,7 @@
             <button id="btn-confirm-step-1" onclick="submitLocationStep1()"
               class="mt-auto py-3 px-4 rounded-xl bg-primary text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md hover:bg-primary-container transition-all">
               <span class="material-symbols-outlined text-[18px]">check_circle</span>
-              <span>Submit my mark &amp; Reveal Concordance</span>
+              <span>Submit My Answer</span>
             </button>
           </div>
 
@@ -1195,10 +1304,10 @@
             <!-- Score A: Spatial Concordance Card (Stitch Donut) -->
             <div class="bg-surface-container-low rounded-xl p-space-md">
               <div class="flex items-center justify-between mb-2">
-                <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-primary">Score A: Spatial Concordance</span>
+                <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-primary">Your spatial score</span>
                 <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold">
                   <input type="checkbox" id="eval-toggle-ai" checked onchange="updateEvalHeatmapOverlay()" class="rounded text-primary"/>
-                  <span>Show AI Heatmap</span>
+                  <span>Show validated reference</span>
                 </label>
               </div>
 
@@ -1219,7 +1328,7 @@
                     <span id="eval-live-distance" class="font-code-md font-bold text-secondary">0.00 mm</span>
                   </div>
                   <p class="text-[11px] text-on-surface-variant">
-                    Computed deterministically from 3D Euclidean distance &amp; surface normal alignment.
+                    This score compares your mark with validated case geometry; it is not a separate AI prediction.
                   </p>
                 </div>
               </div>
@@ -1228,23 +1337,23 @@
             <!-- Stitch 3 Judgment Verdict Buttons -->
             <div>
               <label class="block font-label-md text-label-md font-semibold text-on-surface mb-1.5">
-                Clinical Judgment: Do you corroborate the pathology localization?
+                How close was your original mark to the validated reference?
               </label>
               <div class="grid grid-cols-3 gap-2">
                 <button type="button" id="verdict-btn-correct" onclick="selectEvalVerdict('correct')"
                   class="p-2.5 rounded-xl bg-secondary-container/50 border-2 border-secondary text-on-secondary-container text-left transition-all">
-                  <div class="font-label-md text-label-md font-bold">AI was correct</div>
-                  <div class="text-[10px] opacity-80">Concordant</div>
+                  <div class="font-label-md text-label-md font-bold">On target</div>
+                  <div class="text-[10px] opacity-80">My mark matched</div>
                 </button>
                 <button type="button" id="verdict-btn-partly" onclick="selectEvalVerdict('partly')"
                   class="p-2.5 rounded-xl bg-surface-container-low border-2 border-transparent text-on-surface text-left transition-all">
-                  <div class="font-label-md text-label-md font-bold">Partly correct</div>
-                  <div class="text-[10px] text-on-surface-variant">Margin offset</div>
+                  <div class="font-label-md text-label-md font-bold">Close</div>
+                  <div class="text-[10px] text-on-surface-variant">Near the target</div>
                 </button>
                 <button type="button" id="verdict-btn-wrong" onclick="selectEvalVerdict('wrong')"
                   class="p-2.5 rounded-xl bg-surface-container-low border-2 border-transparent text-on-surface text-left transition-all">
-                  <div class="font-label-md text-label-md font-bold">AI was wrong</div>
-                  <div class="text-[10px] text-on-surface-variant">False positive</div>
+                  <div class="font-label-md text-label-md font-bold">Missed target</div>
+                  <div class="text-[10px] text-on-surface-variant">My mark was off target</div>
                 </button>
               </div>
             </div>
@@ -1283,7 +1392,7 @@
             <button id="btn-submit-eval" onclick="submitFinalAttemptEvaluation()"
               class="mt-auto py-3 px-4 rounded-xl bg-primary text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md hover:bg-primary-container transition-all">
               <span class="material-symbols-outlined text-[18px]">psychology</span>
-              <span>Complete Case &amp; Speak AI Examiner Teach-Back</span>
+              <span>Submit Clinical Reasoning</span>
             </button>
           </div>
 
@@ -1307,10 +1416,15 @@
                 <p id="eval-score-a-dist" class="font-code-md text-code-md text-secondary"></p>
               </div>
               <div class="p-3 rounded-xl bg-surface-container-low">
-                <span class="font-label-sm text-label-sm uppercase text-secondary">Score B • Diagnosis &amp; Viva</span>
+                <span class="font-label-sm text-label-sm uppercase text-secondary">Clinical reasoning score</span>
                 <p id="eval-score-b-val" class="text-xl font-mono font-extrabold mt-0.5">0%</p>
                 <p id="eval-score-b-provider" class="font-code-md text-[11px] text-on-surface-variant"></p>
               </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-surface-container-low">
+              <span class="font-label-sm text-label-sm uppercase text-primary">Validated case finding</span>
+              <p id="eval-validated-finding" class="font-body-sm text-body-sm text-on-surface mt-1"></p>
             </div>
 
             <!-- Live Spoken AI Teach-Back Card (WebAudio + Host Live Voice Stream, Zero File Controls) -->
@@ -1318,7 +1432,7 @@
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse" id="teachback-live-dot"></span>
-                  <span class="font-label-sm text-label-sm font-bold uppercase text-primary" id="teachback-live-status">AI Examiner Live Teach-Back</span>
+                  <span class="font-label-sm text-label-sm font-bold uppercase text-primary" id="teachback-live-status">Learning explanation</span>
                 </div>
                 <div class="flex items-center gap-1.5">
                   <button type="button" onclick="playTeachBackAudioNow()"
@@ -1346,9 +1460,9 @@
               </div>
             </div>
 
-            <button onclick="switchTab('results-and-performance')"
+            <button onclick="startNextCase()"
               class="mt-auto py-2.5 px-4 rounded-xl bg-primary text-white text-xs font-bold">
-              View Longitudinal Progress &amp; Whitelist Coverage
+              Next Case
             </button>
           </div>
 
@@ -1891,12 +2005,8 @@
 <!-- Stitch Footer -->
 <footer class="w-full bg-surface-container-low mt-auto py-4 border-t border-outline-variant/20">
   <div class="max-w-[1440px] mx-auto px-gutter flex flex-col sm:flex-row items-center justify-between gap-2 text-on-surface-variant font-label-sm text-label-sm">
-    <div>© 2026 Odonto Clinical Simulation Engine. ISO-13485 &amp; FDI Standard Compliant.</div>
-    <div class="flex items-center gap-3">
-      <span class="font-code-md text-code-md">Build v5.3-LiveAudio</span>
-      <span>•</span>
-      <span>Live Whisper STT + WebSpeech + Live Piper Neural TTS</span>
-    </div>
+    <div>© 2026 Odonto</div>
+    <div>Interactive dental learning for students and educators.</div>
   </div>
 </footer>
 
@@ -1913,6 +2023,11 @@
   let ACTIVE_MESH_DATA = null;
   let ACTIVE_ATTEMPT = null;
   let STUDENT_MARK_3D = null;
+  let STUDENT_PROGRESS = null;
+  let LOCATION_SUBMITTED = false;
+  let ATTEMPT_COMPLETED = false;
+  let LOCATION_SUBMITTING = false;
+  let EVALUATION_SUBMITTING = false;
   let EVAL_VERDICT = 'correct';
   let REPLAY_TEACHBACK_URL = '';
   let REPLAY_TEACHBACK_TEXT = '';
@@ -2226,10 +2341,85 @@
     CURRENT_USER = null;
     ACTIVE_ROOM_ID = null;
     ROOM_CASES = [];
+    ROOMS_LIST = [];
     ACTIVE_CASE = null;
     ACTIVE_ATTEMPT = null;
+    STUDENT_PROGRESS = null;
+    LOCATION_SUBMITTED = false;
+    ATTEMPT_COMPLETED = false;
+    LOCATION_SUBMITTING = false;
+    EVALUATION_SUBMITTING = false;
     document.getElementById('auth-screen').classList.remove('hidden');
     document.getElementById('app-shell').classList.add('hidden');
+  }
+
+  function renderStudentHome() {
+    const featured = document.getElementById('student-home-featured');
+    const selectedRoom = ROOMS_LIST.find(room => Number(room.id) === Number(ACTIVE_ROOM_ID));
+    const completed = STUDENT_PROGRESS?.summary?.total_attempts
+      ?? ROOMS_LIST.reduce((total, room) => total + Number(room.my_completed_count || 0), 0);
+
+    document.getElementById('student-home-completed').textContent = String(completed);
+    document.getElementById('student-home-score').textContent = STUDENT_PROGRESS?.summary?.total_attempts
+      ? `${STUDENT_PROGRESS.summary.avg_location_score}%`
+      : '—';
+    document.getElementById('student-home-room').textContent = selectedRoom ? selectedRoom.name : '';
+    featured.replaceChildren();
+
+    if (!selectedRoom) {
+      const message = document.createElement('p');
+      message.className = 'font-body-sm text-body-sm text-on-surface-variant';
+      message.textContent = 'Join a class room with the code from your instructor to see assigned cases.';
+      const joinButton = document.createElement('button');
+      joinButton.type = 'button';
+      joinButton.className = 'mt-4 py-2.5 px-4 rounded-lg bg-secondary text-white text-sm font-semibold';
+      joinButton.textContent = 'Join a Room';
+      joinButton.addEventListener('click', openJoinRoomModal);
+      featured.append(message, joinButton);
+      return;
+    }
+
+    const featuredCase = ROOM_CASES.find(item => item.status !== 'Solved') || ROOM_CASES[0];
+    if (!featuredCase) {
+      const message = document.createElement('p');
+      message.className = 'font-body-sm text-body-sm text-on-surface-variant';
+      message.textContent = 'There are no cases in this room yet. Your instructor can add a validated case.';
+      featured.append(message);
+      return;
+    }
+
+    const layout = document.createElement('div');
+    layout.className = 'grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-4 items-center';
+    const image = document.createElement('img');
+    image.src = featuredCase.thumbnail_url;
+    image.alt = `3D tooth case, FDI ${featuredCase.tooth_fdi}`;
+    image.className = 'w-full h-36 object-cover rounded-xl bg-[#0F172A]';
+    const details = document.createElement('div');
+    const tooth = document.createElement('p');
+    tooth.className = 'font-label-sm text-label-sm uppercase tracking-wider text-secondary';
+    tooth.textContent = `FDI #${featuredCase.tooth_fdi} · ${featuredCase.tooth_type}`;
+    const title = document.createElement('h3');
+    title.className = 'font-headline-md text-headline-md text-on-surface mt-1';
+    title.textContent = featuredCase.tooth_name;
+    const vignette = document.createElement('p');
+    vignette.className = 'font-body-sm text-body-sm text-on-surface-variant mt-1';
+    vignette.textContent = featuredCase.patient?.chief_complaint || 'Explore this clinical case.';
+    const start = document.createElement('button');
+    start.type = 'button';
+    start.className = 'mt-4 py-2.5 px-4 rounded-lg bg-primary text-white text-sm font-semibold';
+    start.textContent = 'Start Featured Case';
+    start.addEventListener('click', () => openCaseAndStartAttempt(featuredCase.case_uid));
+    details.append(tooth, title, vignette, start);
+    layout.append(image, details);
+    featured.append(layout);
+
+    if (STUDENT_PROGRESS && Number(STUDENT_PROGRESS.summary.total_attempts) === 0) {
+      document.getElementById('student-home-stats-status').textContent =
+        'Complete a case to see your spatial score here.';
+    } else if (!STUDENT_PROGRESS) {
+      document.getElementById('student-home-stats-status').textContent =
+        'Your progress summary is unavailable right now. You can still practise assigned cases.';
+    }
   }
 
   async function enterAuthenticatedShell() {
@@ -2241,27 +2431,56 @@
     document.getElementById('header-role-pill').textContent = CURRENT_USER.role.toUpperCase();
 
     const isTeacher = CURRENT_USER.role === 'teacher';
-    document.getElementById('nav-teacher-dashboard').classList.toggle('hidden', !isTeacher);
+    const roleNav = {
+      'nav-student-home': !isTeacher,
+      'nav-teacher-dashboard': isTeacher,
+      'nav-student-attempts': isTeacher,
+      'nav-teacher-ai-evaluation': isTeacher,
+      'nav-case-library': true,
+      'nav-results-and-performance': !isTeacher,
+      'nav-sam2-pipeline': false,
+      'nav-3d-viewer-and-sim': false,
+      'nav-evaluate-the-ai': false,
+      'nav-voice-viva-session': false
+    };
+    Object.entries(roleNav).forEach(([id, visible]) => {
+      document.getElementById(id).classList.toggle('hidden', !visible);
+    });
+    document.getElementById('nav-case-library').textContent = isTeacher ? 'Cases' : 'Practise';
     document.getElementById('btn-header-join-room').classList.toggle('hidden', isTeacher);
     document.getElementById('btn-header-join-room').classList.toggle('flex', !isTeacher);
     document.getElementById('btn-lib-join-room').classList.toggle('hidden', isTeacher);
     document.getElementById('btn-lib-join-room').classList.toggle('flex', !isTeacher);
-
-    loadPipelinePreset('case_01');
+    document.getElementById('btn-lib-add-case').classList.toggle('hidden', !isTeacher);
+    document.getElementById('btn-lib-add-case').classList.toggle('flex', isTeacher);
+    document.getElementById('filter-anomaly-filter').classList.toggle('hidden', !isTeacher);
+    document.getElementById('filter-whitelist-notice').classList.toggle('hidden', !isTeacher);
 
     if (isTeacher) {
+      loadPipelinePreset('case_01');
       await loadTeacherRooms();
       switchTab('teacher-dashboard');
     } else {
       await loadStudentRooms();
       await loadStudentProgressView();
-      switchTab('case-library');
+      renderStudentHome();
+      switchTab('student-home');
     }
   }
 
   async function switchTab(tabId) {
+    if (!CURRENT_USER) return;
+    const isTeacher = CURRENT_USER.role === 'teacher';
+    const teacherTabs = ['teacher-dashboard', 'student-attempts', 'teacher-ai-evaluation', 'case-library', 'sam2-pipeline', '3d-viewer-and-sim', 'evaluate-the-ai', 'voice-viva-session'];
+    const studentTabs = ['student-home', 'case-library', 'results-and-performance', 'evaluate-the-ai', 'voice-viva-session'];
+    if (!(isTeacher ? teacherTabs : studentTabs).includes(tabId)) return;
+
+    const activeView = tabId === 'student-attempts' ? 'teacher-dashboard' : tabId;
     const views = [
+      'student-home',
       'teacher-dashboard',
+      'student-attempts',
+      'teacher-ai-evaluation',
       'sam2-pipeline',
       'case-library',
       '3d-viewer-and-sim',
@@ -2273,8 +2492,8 @@
       const el = document.getElementById(`view-${v}`);
       const nav = document.getElementById(`nav-${v}`);
       if (el) {
-        el.classList.toggle('hidden', v !== tabId);
-        el.classList.toggle('flex', v === tabId);
+        el.classList.toggle('hidden', v !== activeView);
+        el.classList.toggle('flex', v === activeView);
       }
       if (nav && !nav.classList.contains('hidden')) {
         const base = 'nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1 ';
@@ -2285,10 +2504,14 @@
     });
 
     if (tabId === 'evaluate-the-ai' || tabId === 'voice-viva-session' || tabId === '3d-viewer-and-sim') {
-      await ensureActiveAttemptReady();
+      if (!await ensureActiveAttemptReady()) return;
     }
     if (tabId === 'results-and-performance') {
       await loadStudentProgressView();
+    }
+    if (tabId === 'student-home') renderStudentHome();
+    if (tabId === 'student-attempts') {
+      setTimeout(() => document.getElementById('teacher-attempts-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     }
 
     setTimeout(() => {
@@ -2303,21 +2526,43 @@
 
   async function ensureActiveAttemptReady() {
     if (!ACTIVE_CASE && ROOM_CASES.length > 0) {
-      await selectActiveCase(ROOM_CASES[0].case_uid);
+      if (!await selectActiveCase(ROOM_CASES[0].case_uid)) return false;
+    }
+    if (!ACTIVE_CASE) {
+      const st = document.getElementById('eval-step1-status');
+      st.textContent = 'Choose a case before starting the exercise.';
+      st.classList.remove('hidden');
+      return false;
     }
     if (ACTIVE_CASE && (!ACTIVE_ATTEMPT || ACTIVE_ATTEMPT.case_id !== ACTIVE_CASE.db_id)) {
-      const res = await fetch('/api/attempts/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ case_uid: ACTIVE_CASE.case_uid })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        ACTIVE_ATTEMPT = data.attempt;
-        STUDENT_MARK_3D = ACTIVE_ATTEMPT.student_mark_3d;
-        populateAttemptHeaderAndViva();
+      let res;
+      try {
+        res = await fetch('/api/attempts/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ case_uid: ACTIVE_CASE.case_uid })
+        });
+      } catch (error) {
+        if (!(error instanceof TypeError)) throw error;
+        const st = document.getElementById('eval-step1-status');
+        st.textContent = 'The exercise service is unavailable. Please try again.';
+        st.classList.remove('hidden');
+        return false;
       }
+      const data = await res.json();
+      if (!res.ok) {
+        const st = document.getElementById('eval-step1-status');
+        st.textContent = data.error || 'The exercise could not be started. Please try again.';
+        st.classList.remove('hidden');
+        return false;
+      }
+      ACTIVE_ATTEMPT = data.attempt;
+      STUDENT_MARK_3D = ACTIVE_ATTEMPT.student_mark_3d;
+      LOCATION_SUBMITTED = Boolean(ACTIVE_ATTEMPT.gt_centroid_3d);
+      ATTEMPT_COMPLETED = ACTIVE_ATTEMPT.status === 'completed';
+      populateAttemptHeaderAndViva();
     }
+    return true;
   }
 
   function populateAttemptHeaderAndViva() {
@@ -2326,11 +2571,13 @@
     const p = c.patient;
     const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    document.getElementById('eval-case-pill').textContent = `CASE #${c.case_number} • FDI #${c.tooth_fdi}`;
-    document.getElementById('eval-case-title').textContent = `${c.tooth_name} — ${c.anomaly_badge}`;
-    document.getElementById('eval-step1-tooth').textContent = `FDI #${c.tooth_fdi} (${c.target_surface})`;
+    document.getElementById('eval-case-pill').textContent = `FDI #${c.tooth_fdi}`;
+    document.getElementById('eval-case-title').textContent = `${c.tooth_name} — FDI #${c.tooth_fdi}`;
+    document.getElementById('eval-step1-tooth').textContent = `FDI #${c.tooth_fdi}`;
+    document.getElementById('eval-case-vignette').textContent = p.chief_complaint || 'No patient presentation was recorded for this case.';
+    document.getElementById('eval-case-history').textContent = p.hpi || '';
 
-    document.getElementById('viva-banner-case-pill').textContent = `CASE #${c.case_number} • FDI #${c.tooth_fdi}`;
+    document.getElementById('viva-banner-case-pill').textContent = `FDI #${c.tooth_fdi}`;
     document.getElementById('viva-patient-name').textContent = `${p.name}`;
     document.getElementById('viva-patient-tag').textContent = `${p.summary_tag} • ${p.asa_class}`;
     document.getElementById('viva-avatar-initials').textContent = initials;
@@ -3143,7 +3390,14 @@
   // ===========================================================================
   async function loadStudentRooms() {
     const res = await fetch('/api/student/rooms');
-    if (!res.ok) return;
+    if (!res.ok) {
+      const feedback = document.getElementById('student-home-feedback');
+      feedback.textContent = 'Your rooms could not be loaded. Please retry or sign in again.';
+      feedback.classList.remove('hidden');
+      document.getElementById('student-home-retry').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('student-home-retry').classList.add('hidden');
     const data = await res.json();
     ROOMS_LIST = data.rooms || [];
     populateHeaderRoomSelect();
@@ -3152,7 +3406,18 @@
     } else {
       ROOM_CASES = [];
       renderCaseLibrary();
+      renderStudentHome();
     }
+  }
+
+  async function retryStudentData() {
+    if (ROOMS_LIST.length === 0) {
+      await loadStudentRooms();
+    } else {
+      await selectActiveRoom(ACTIVE_ROOM_ID || ROOMS_LIST[0].id);
+    }
+    await loadStudentProgressView();
+    renderStudentHome();
   }
 
   function populateHeaderRoomSelect() {
@@ -3178,16 +3443,29 @@
     populatePipelineTargetRoomSelect();
 
     const res = await fetch(`/api/rooms/${ACTIVE_ROOM_ID}/cases`);
-    if (res.ok) {
-      const data = await res.json();
-      ROOM_CASES = data.cases || [];
-      document.getElementById('library-room-heading').textContent = `${data.room.name} (${data.room.room_code})`;
-      document.getElementById('library-room-subheading').textContent = `Join Code: ${data.room.room_code} • ${ROOM_CASES.length} Whitelisted 3D Tooth Case(s)`;
-      renderCaseLibrary();
-      if (ROOM_CASES.length > 0) {
-        await selectActiveCase(ROOM_CASES[0].case_uid);
-      }
+    if (!res.ok) {
+      const feedback = document.getElementById('student-home-feedback');
+      feedback.textContent = 'Cases in this room could not be loaded. Please select the room again or retry.';
+      feedback.classList.remove('hidden');
+      document.getElementById('student-home-retry').classList.remove('hidden');
+      return;
     }
+    const data = await res.json();
+    ROOM_CASES = data.cases || [];
+    document.getElementById('student-home-feedback').classList.add('hidden');
+    document.getElementById('student-home-retry').classList.add('hidden');
+    document.getElementById('library-room-heading').textContent =
+      CURRENT_USER?.role === 'teacher' ? `${data.room.name} · Cases` : 'Cases to practise';
+    document.getElementById('library-room-subheading').textContent = `${ROOM_CASES.length} assigned case(s)`;
+    renderCaseLibrary();
+    if (ROOM_CASES.length > 0) {
+      await selectActiveCase(ROOM_CASES[0].case_uid);
+    } else {
+      ACTIVE_CASE = null;
+      ACTIVE_ATTEMPT = null;
+      STUDENT_MARK_3D = null;
+    }
+    if (CURRENT_USER?.role === 'student') renderStudentHome();
     if (CURRENT_USER?.role === 'teacher') {
       renderTeacherRoomsList();
       await loadTeacherRoomDashboard(ACTIVE_ROOM_ID);
@@ -3253,8 +3531,8 @@
       grid.innerHTML = `
         <div class="col-span-full p-10 rounded-xl bg-surface-container-lowest text-center space-y-2 shadow-sm">
           <span class="material-symbols-outlined text-3xl text-primary">meeting_room</span>
-          <h3 class="font-headline-sm text-headline-sm text-on-surface">No Cases Found</h3>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">Select or create a room, or reset the filter.</p>
+          <h3 class="font-headline-sm text-headline-sm text-on-surface">No cases available</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">${CURRENT_USER?.role === 'teacher' ? 'Create a room and add a validated case to begin.' : 'Join a room with your instructor’s code, or try resetting the filters.'}</p>
         </div>`;
       return;
     }
@@ -3264,27 +3542,23 @@
         <div class="h-44 bg-[#0F172A] relative overflow-hidden">
           <img src="${c.thumbnail_url}" alt="Tooth ${c.tooth_fdi}" class="w-full h-full object-cover"/>
           <div class="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
-            <span class="px-2.5 py-0.5 rounded bg-[#0F172A]/85 text-white font-code-md text-xs font-bold">Case #${c.case_number} • FDI #${c.tooth_fdi}</span>
+            <span class="px-2.5 py-0.5 rounded bg-[#0F172A]/85 text-white font-code-md text-xs font-bold">FDI #${c.tooth_fdi}</span>
             <span class="px-2.5 py-0.5 rounded-full bg-surface-container-lowest/90 text-on-surface font-label-sm text-label-sm">${c.rigor}</span>
           </div>
         </div>
         <div class="p-space-md flex-1 flex flex-col justify-between gap-3">
           <div>
             <div class="flex items-center justify-between">
-              <span class="font-label-sm text-label-sm text-primary uppercase">${c.anomaly_badge}</span>
+              <span class="font-label-sm text-label-sm text-primary uppercase">${CURRENT_USER?.role === 'teacher' ? c.anomaly_badge : 'Clinical case'}</span>
               <span class="font-code-md text-[10px] px-2 py-0.5 rounded bg-surface-container">${c.status}</span>
             </div>
             <h3 class="font-headline-sm text-headline-sm text-on-surface mt-1">${c.tooth_name}</h3>
             <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">${c.patient.name}: "${c.patient.chief_complaint}"</p>
           </div>
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="openCaseAndView('${c.case_uid}', '3d-viewer-and-sim')"
-              class="py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-bold">
-              3D Viewer
-            </button>
+          <div class="pt-1">
             <button onclick="openCaseAndStartAttempt('${c.case_uid}')"
               class="py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md text-label-md font-bold">
-              Evaluate / Viva
+              Start Case
             </button>
           </div>
         </div>
@@ -3293,21 +3567,68 @@
   }
 
   async function openCaseAndView(caseUid, tabId) {
-    await selectActiveCase(caseUid);
+    if (!await selectActiveCase(caseUid)) return;
     await switchTab(tabId);
   }
 
   async function openCaseAndStartAttempt(caseUid) {
-    await selectActiveCase(caseUid);
+    if (!await selectActiveCase(caseUid)) return;
     await startAttemptAndGo('evaluate-the-ai');
   }
 
   async function selectActiveCase(caseUid) {
-    const res = await fetch(`/api/rooms/cases/${caseUid}/mesh`);
-    if (!res.ok) return;
+    const changingCase = ACTIVE_CASE?.case_uid !== caseUid;
+    const loadingStatus = document.getElementById('case-load-status');
+    loadingStatus.textContent = 'Loading the 3D tooth and case details…';
+    loadingStatus.classList.remove('hidden');
+    let res;
+    try {
+      res = await fetch(`/api/rooms/cases/${caseUid}/mesh`);
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+      loadingStatus.textContent = 'The 3D tooth could not be loaded. Check your connection and try again.';
+      const feedback = document.getElementById('student-home-feedback');
+      feedback.textContent = 'This case could not be loaded. Please check your connection and retry.';
+      feedback.classList.remove('hidden');
+      document.getElementById('student-home-retry').classList.remove('hidden');
+      return false;
+    }
+    if (!res.ok) {
+      loadingStatus.textContent = 'The 3D tooth could not be loaded. Please try another case or retry.';
+      const feedback = document.getElementById('student-home-feedback');
+      feedback.textContent = 'This case could not be loaded. Please try another case or retry.';
+      feedback.classList.remove('hidden');
+      document.getElementById('student-home-retry').classList.remove('hidden');
+      return false;
+    }
+    loadingStatus.classList.add('hidden');
     const data = await res.json();
+    if (changingCase) {
+      ACTIVE_ATTEMPT = null;
+      STUDENT_MARK_3D = null;
+      LOCATION_SUBMITTED = false;
+      ATTEMPT_COMPLETED = false;
+      LOCATION_SUBMITTING = false;
+      EVALUATION_SUBMITTING = false;
+      selectEvalVerdict('correct');
+      const locationButton = document.getElementById('btn-confirm-step-1');
+      locationButton.disabled = false;
+      locationButton.querySelector('span:last-child').textContent = 'Submit My Answer';
+      document.getElementById('eval-ai-legend').classList.add('opacity-40');
+      document.getElementById('eval-step1-coord-badge').textContent = 'Awaiting click on 3D tooth...';
+      document.getElementById('eval-mark-coords').textContent = 'Not placed — click tooth surface';
+      document.getElementById('eval-step1-status').classList.add('hidden');
+      document.getElementById('eval-error-msg').classList.add('hidden');
+      document.getElementById('eval-rationale-input').value = '';
+      document.getElementById('eval-toggle-ai').checked = true;
+      document.getElementById('btn-submit-eval').disabled = false;
+      document.getElementById('btn-submit-eval').innerHTML =
+        '<span class="material-symbols-outlined text-[18px]">psychology</span><span>Submit Clinical Reasoning</span>';
+    }
     ACTIVE_CASE = data.case;
     ACTIVE_MESH_DATA = data.mesh_data;
+    document.getElementById('student-home-feedback').classList.add('hidden');
+    document.getElementById('student-home-retry').classList.add('hidden');
 
     const c = ACTIVE_CASE;
     const p = c.patient;
@@ -3330,30 +3651,69 @@
     buildSimMesh(ACTIVE_MESH_DATA);
     buildEvalMesh(ACTIVE_MESH_DATA);
     populateAttemptHeaderAndViva();
+    return true;
   }
 
   async function startAttemptAndGo(targetTab) {
     if (!ACTIVE_CASE && ROOM_CASES.length > 0) {
-      await selectActiveCase(ROOM_CASES[0].case_uid);
+      if (!await selectActiveCase(ROOM_CASES[0].case_uid)) return;
     }
     if (ACTIVE_CASE) {
-      const res = await fetch('/api/attempts/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ case_uid: ACTIVE_CASE.case_uid })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        ACTIVE_ATTEMPT = data.attempt;
-        STUDENT_MARK_3D = ACTIVE_ATTEMPT.student_mark_3d;
-        populateAttemptHeaderAndViva();
-        setEvalStep(1);
-        if (targetTab === 'voice-viva-session') {
-          setTimeout(() => speakLatestPatientMessage(), 250);
-        }
+      let res;
+      try {
+        res = await fetch('/api/attempts/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ case_uid: ACTIVE_CASE.case_uid })
+        });
+      } catch (error) {
+        if (!(error instanceof TypeError)) throw error;
+        const feedback = document.getElementById('student-home-feedback');
+        feedback.textContent = 'This case could not be started because the service is unavailable. Please retry.';
+        feedback.classList.remove('hidden');
+        document.getElementById('student-home-retry').classList.remove('hidden');
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) {
+        const feedback = document.getElementById('student-home-feedback');
+        feedback.textContent = data.error || 'This case could not be started. Please try again.';
+        feedback.classList.remove('hidden');
+        document.getElementById('student-home-retry').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('student-home-feedback').classList.add('hidden');
+      document.getElementById('student-home-retry').classList.add('hidden');
+      ACTIVE_ATTEMPT = data.attempt;
+      STUDENT_MARK_3D = ACTIVE_ATTEMPT.student_mark_3d;
+      LOCATION_SUBMITTED = Boolean(ACTIVE_ATTEMPT.gt_centroid_3d);
+      ATTEMPT_COMPLETED = ACTIVE_ATTEMPT.status === 'completed';
+      populateAttemptHeaderAndViva();
+      const locationButton = document.getElementById('btn-confirm-step-1');
+      locationButton.disabled = LOCATION_SUBMITTED;
+      locationButton.querySelector('span:last-child').textContent =
+        LOCATION_SUBMITTED ? 'Answer Submitted' : 'Submit My Answer';
+      if (STUDENT_MARK_3D) placeStudentSphere(STUDENT_MARK_3D);
+      if (LOCATION_SUBMITTED && STUDENT_MARK_3D) {
+        const restored = await restoreLocationEvaluation();
+        if (!restored) LOCATION_SUBMITTED = false;
+      }
+      setEvalStep(ATTEMPT_COMPLETED ? 3 : LOCATION_SUBMITTED ? 2 : 1);
+      if (targetTab === 'voice-viva-session') {
+        setTimeout(() => speakLatestPatientMessage(), 250);
       }
     }
     await switchTab(targetTab);
+  }
+
+  async function startNextCase() {
+    const currentIndex = ROOM_CASES.findIndex(item => item.case_uid === ACTIVE_CASE?.case_uid);
+    const nextCase = ROOM_CASES[currentIndex + 1];
+    if (!nextCase) {
+      await switchTab('case-library');
+      return;
+    }
+    await openCaseAndStartAttempt(nextCase.case_uid);
   }
 
   // ===========================================================================
@@ -3451,7 +3811,7 @@
     let downPos = { x: 0, y: 0 };
     evalThree.renderer.domElement.addEventListener('pointerdown', e => { downPos = { x: e.clientX, y: e.clientY }; });
     evalThree.renderer.domElement.addEventListener('pointerup', e => {
-      if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 5 || !evalThree.mesh) return;
+      if (LOCATION_SUBMITTED || Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 5 || !evalThree.mesh) return;
       const rect = evalThree.renderer.domElement.getBoundingClientRect();
       evalThree.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       evalThree.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -3534,6 +3894,9 @@
   }
 
   function setEvalStep(step) {
+    if (step === 2 && !LOCATION_SUBMITTED) return;
+    if (step === 3 && !ATTEMPT_COMPLETED) return;
+    if (step === 1 && LOCATION_SUBMITTED) return;
     [1, 2, 3].forEach(s => {
       const p = document.getElementById(`eval-panel-step-${s}`);
       const pill = document.getElementById(`eval-step-pill-${s}`);
@@ -3550,27 +3913,50 @@
   }
 
   async function submitLocationStep1() {
-    await ensureActiveAttemptReady();
+    if (!await ensureActiveAttemptReady()) return;
     const st = document.getElementById('eval-step1-status');
+    const btn = document.getElementById('btn-confirm-step-1');
+    if (LOCATION_SUBMITTING || LOCATION_SUBMITTED) return;
     if (!STUDENT_MARK_3D) {
-      st.textContent = 'Click directly on the 3D tooth surface on the left to place your teal anomaly marker first.';
+      st.textContent = 'Select a location on the 3D tooth before submitting your answer.';
       st.classList.remove('hidden');
       return;
     }
     if (!ACTIVE_ATTEMPT) return;
 
-    const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/location`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ student_mark_3d: STUDENT_MARK_3D })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      st.textContent = data.error || 'Failed to compute 3D location grade.';
-      st.classList.remove('hidden');
-      return;
-    }
+    LOCATION_SUBMITTING = true;
+    btn.disabled = true;
+    btn.querySelector('span:last-child').textContent = 'Submitting…';
+    st.classList.add('hidden');
+    try {
+      const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_mark_3d: STUDENT_MARK_3D })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        st.textContent = data.error || 'Your answer could not be submitted. Please try again.';
+        st.classList.remove('hidden');
+        return;
+      }
 
+      applyLocationEvaluation(data);
+      setEvalStep(2);
+    } catch (error) {
+      if (!(error instanceof TypeError) && !(error instanceof SyntaxError)) throw error;
+      st.textContent = 'Your answer could not be submitted because the service is unavailable. Your selection is saved on this page; please retry.';
+      st.classList.remove('hidden');
+    } finally {
+      LOCATION_SUBMITTING = false;
+      btn.disabled = LOCATION_SUBMITTED;
+      btn.querySelector('span:last-child').textContent = LOCATION_SUBMITTED ? 'Answer Submitted' : 'Submit My Answer';
+    }
+  }
+
+  function applyLocationEvaluation(data) {
+    ACTIVE_ATTEMPT = data.attempt;
+    LOCATION_SUBMITTED = true;
     ACTIVE_MESH_DATA.colors = data.colors;
     ACTIVE_MESH_DATA.gt_centroid_3d = data.gt_centroid_3d;
 
@@ -3594,7 +3980,38 @@
     document.getElementById('eval-live-distance').textContent =
       `${data.location_eval.centroid_distance_mm} mm (${data.location_eval.within_margin ? 'Within Margin' : 'Outside Margin'})`;
     updateEvalHeatmapOverlay();
-    setEvalStep(2);
+  }
+
+  async function restoreLocationEvaluation() {
+    const st = document.getElementById('eval-step1-status');
+    try {
+      const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/location`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_mark_3d: STUDENT_MARK_3D })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        st.textContent = data.error || 'The saved comparison could not be restored. Submit your saved answer to retry.';
+        st.classList.remove('hidden');
+        LOCATION_SUBMITTED = false;
+        const button = document.getElementById('btn-confirm-step-1');
+        button.disabled = false;
+        button.querySelector('span:last-child').textContent = 'Submit My Answer';
+        return false;
+      }
+      applyLocationEvaluation(data);
+      return true;
+    } catch (error) {
+      if (!(error instanceof TypeError) && !(error instanceof SyntaxError)) throw error;
+      st.textContent = 'The saved comparison could not be restored. Your saved answer is still available; submit it again to retry.';
+      st.classList.remove('hidden');
+      LOCATION_SUBMITTED = false;
+      const button = document.getElementById('btn-confirm-step-1');
+      button.disabled = false;
+      button.querySelector('span:last-child').textContent = 'Submit My Answer';
+      return false;
+    }
   }
 
   function updateEvalHeatmapOverlay() {
@@ -3680,42 +4097,55 @@
   }
 
   async function submitFinalAttemptEvaluation() {
-    await ensureActiveAttemptReady();
+    if (!await ensureActiveAttemptReady()) return;
     if (isRecordingDiagMic) await toggleDiagnosisVoiceDictation();
 
     const errEl = document.getElementById('eval-error-msg');
     const btn = document.getElementById('btn-submit-eval');
     errEl.classList.add('hidden');
 
-    if (!ACTIVE_ATTEMPT) return;
-    const rationale = document.getElementById('eval-rationale-input').value.trim();
-
-    btn.disabled = true;
-    btn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span><span>Grading &amp; Generating Live Spoken Teach-Back...</span>`;
-
-    const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/complete`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        rationale,
-        verdict: EVAL_VERDICT,
-        student_mark_3d: STUDENT_MARK_3D
-      })
-    });
-
-    btn.disabled = false;
-    btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">psychology</span><span>Complete Case &amp; Speak AI Examiner Teach-Back</span>`;
-
-    const data = await res.json();
-    if (!res.ok) {
-      errEl.textContent = data.error || 'Failed to complete attempt.';
+    if (!ACTIVE_ATTEMPT || EVALUATION_SUBMITTING || ATTEMPT_COMPLETED) return;
+    if (!LOCATION_SUBMITTED) {
+      errEl.textContent = 'Complete the comparison stage before submitting your clinical reasoning.';
       errEl.classList.remove('hidden');
       return;
     }
+    const rationale = document.getElementById('eval-rationale-input').value.trim();
 
-    ACTIVE_ATTEMPT = data.attempt;
-    populateStudentReportStep3(data.attempt, data.grading);
-    setEvalStep(3);
+    EVALUATION_SUBMITTING = true;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span><span>Grading &amp; Generating Live Spoken Teach-Back...</span>`;
+
+    try {
+      const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rationale,
+          verdict: EVAL_VERDICT,
+          student_mark_3d: STUDENT_MARK_3D
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Your case could not be completed. Please try again.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      ACTIVE_ATTEMPT = data.attempt;
+      ATTEMPT_COMPLETED = true;
+      populateStudentReportStep3(data.attempt, data.grading);
+      setEvalStep(3);
+    } catch (error) {
+      if (!(error instanceof TypeError) && !(error instanceof SyntaxError)) throw error;
+      errEl.textContent = 'Your case could not be completed because the service is unavailable. Your answers are still on this page; please retry.';
+      errEl.classList.remove('hidden');
+    } finally {
+      EVALUATION_SUBMITTING = false;
+      btn.disabled = ATTEMPT_COMPLETED;
+      btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">psychology</span><span>${ATTEMPT_COMPLETED ? 'Case Completed' : 'Complete Case &amp; Receive Clinical Feedback'}</span>`;
+    }
   }
 
   function populateStudentReportStep3(att, grading) {
@@ -3726,6 +4156,9 @@
     document.getElementById('eval-score-b-val').textContent = `${att.diagnosis_score}%`;
     document.getElementById('eval-score-b-provider').textContent = `Engine: ${att.llm_provider}`;
     document.getElementById('eval-teachback-text').textContent = att.teachback_text;
+    document.getElementById('eval-validated-finding').textContent = ACTIVE_CASE
+      ? `${ACTIVE_CASE.anomaly_type} on FDI #${ACTIVE_CASE.tooth_fdi} (${ACTIVE_CASE.target_surface}).`
+      : 'Validated finding details are unavailable for this saved report.';
 
     const g = grading || att.llm_grading || {};
     document.getElementById('eval-report-strengths').innerHTML = (g.strengths || ['Completed 3D spatial localization']).map(s => `<li>${s}</li>`).join('');
@@ -4081,12 +4514,19 @@
   // ===========================================================================
   async function loadStudentProgressView() {
     const res = await fetch('/api/student/progress');
-    if (!res.ok) return;
+    if (!res.ok) {
+      document.getElementById('student-home-stats-status').textContent =
+        'Progress data could not be loaded. You can still practise assigned cases.';
+      return;
+    }
     const p = await res.json();
+    STUDENT_PROGRESS = p;
+    document.getElementById('student-home-stats-status').textContent = '';
 
     document.getElementById('kpi-total-attempts').textContent = p.summary.total_attempts;
-    document.getElementById('kpi-mean-score-a').textContent = `${p.summary.avg_location_score}%`;
-    document.getElementById('kpi-mean-score-b').textContent = `${p.summary.avg_diagnosis_score}%`;
+    const hasAttempts = Number(p.summary.total_attempts) > 0;
+    document.getElementById('kpi-mean-score-a').textContent = hasAttempts ? `${p.summary.avg_location_score}%` : '—';
+    document.getElementById('kpi-mean-score-b').textContent = hasAttempts ? `${p.summary.avg_diagnosis_score}%` : '—';
 
     const cov = p.competency_coverage;
     document.getElementById('kpi-coverage-pct').textContent = `${cov.summary.families_tested} / ${cov.summary.families_total}`;
@@ -4158,7 +4598,7 @@
           <td class="py-3 px-4 font-mono">${a.duration_seconds}s</td>
           <td class="py-3 px-4 text-right">
             <button onclick="openSavedStudentReport('${a.attempt_uid}')" class="px-3 py-1 rounded-lg bg-primary text-white font-bold">
-              Open &amp; Speak
+              View report
             </button>
           </td>
         </tr>
@@ -4171,6 +4611,10 @@
     if (!res.ok) return;
     const data = await res.json();
     ACTIVE_ATTEMPT = data.attempt;
+    ACTIVE_CASE = data.case;
+    LOCATION_SUBMITTED = true;
+    ATTEMPT_COMPLETED = true;
+    populateAttemptHeaderAndViva();
     populateStudentReportStep3(data.attempt, data.attempt.llm_grading);
     setEvalStep(3);
     await switchTab('evaluate-the-ai');
