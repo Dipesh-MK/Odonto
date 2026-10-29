@@ -283,16 +283,6 @@
           Practise
         </button>
 
-        <button onclick="switchTab('student-attempts')" id="nav-student-attempts"
-          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          Student Attempts
-        </button>
-
-        <button onclick="switchTab('teacher-ai-evaluation')" id="nav-teacher-ai-evaluation"
-          class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          AI model status
-        </button>
-
         <button onclick="switchTab('3d-viewer-and-sim')" id="nav-3d-viewer-and-sim"
           class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
           3D Viewer
@@ -974,34 +964,6 @@
             <div id="td-family-coverage-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-3"></div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="view-teacher-ai-evaluation" class="pt-24 flex-1 hidden flex-col bg-background">
-    <div class="max-w-5xl w-full mx-auto px-gutter py-space-lg space-y-space-md">
-      <div>
-        <p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Model quality</p>
-        <h1 class="font-headline-lg text-headline-lg text-primary mt-2">AI model status</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-2">
-          This page is about testing the AI models themselves, not student grades. No measured model-validation results are connected yet.
-        </p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-        <article class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow p-space-lg">
-          <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Computer vision</span>
-          <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Not evaluated yet</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
-            No validated model-level accuracy, IoU, or Dice evaluation is available through the current application.
-          </p>
-        </article>
-        <article class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 clinical-shadow p-space-lg">
-          <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Language model</span>
-          <h2 class="font-headline-md text-headline-md text-on-surface mt-2">Not evaluated yet</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
-            The language model provides case-based feedback, but no faculty-reviewed model-level quality metrics are recorded.
-          </p>
-        </article>
       </div>
     </div>
   </section>
@@ -2448,8 +2410,6 @@
     const roleNav = {
       'nav-student-home': !isTeacher,
       'nav-teacher-dashboard': isTeacher,
-      'nav-student-attempts': isTeacher,
-      'nav-teacher-ai-evaluation': isTeacher,
       'nav-case-library': true,
       'nav-results-and-performance': !isTeacher,
       'nav-sam2-pipeline': isTeacher,
@@ -2485,16 +2445,13 @@
   async function switchTab(tabId) {
     if (!CURRENT_USER) return;
     const isTeacher = CURRENT_USER.role === 'teacher';
-    const teacherTabs = ['teacher-dashboard', 'student-attempts', 'teacher-ai-evaluation', 'case-library', 'sam2-pipeline', '3d-viewer-and-sim', 'evaluate-the-ai', 'voice-viva-session'];
+    const teacherTabs = ['teacher-dashboard', 'case-library', 'sam2-pipeline', '3d-viewer-and-sim', 'evaluate-the-ai', 'voice-viva-session'];
     const studentTabs = ['student-home', 'case-library', 'results-and-performance', 'evaluate-the-ai', 'voice-viva-session'];
     if (!(isTeacher ? teacherTabs : studentTabs).includes(tabId)) return;
 
-    const activeView = tabId === 'student-attempts' ? 'teacher-dashboard' : tabId;
     const views = [
       'student-home',
       'teacher-dashboard',
-      'student-attempts',
-      'teacher-ai-evaluation',
       'sam2-pipeline',
       'case-library',
       '3d-viewer-and-sim',
@@ -2506,8 +2463,8 @@
       const el = document.getElementById(`view-${v}`);
       const nav = document.getElementById(`nav-${v}`);
       if (el) {
-        el.classList.toggle('hidden', v !== activeView);
-        el.classList.toggle('flex', v === activeView);
+        el.classList.toggle('hidden', v !== tabId);
+        el.classList.toggle('flex', v === tabId);
       }
       if (nav && !nav.classList.contains('hidden')) {
         const base = 'nav-tab px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors flex items-center gap-1 ';
@@ -2524,10 +2481,6 @@
       await loadStudentProgressView();
     }
     if (tabId === 'student-home') renderStudentHome();
-    if (tabId === 'student-attempts') {
-      setTimeout(() => document.getElementById('teacher-attempts-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-    }
-
     setTimeout(() => {
       if (tabId === 'sam2-pipeline') {
         resizePipelineThreeJS();
