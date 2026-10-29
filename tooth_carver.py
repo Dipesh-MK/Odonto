@@ -270,7 +270,11 @@ def carve_cavity(
 
     # 3. Morphology Transfer: Exact 2D Mask Transfer vs Parametric Sculpting
     mask_used = False
-    if mask_2d is not None and isinstance(mask_2d, np.ndarray) and mask_2d.size > 20:
+    uses_profile_geometry = any(
+        profile_name in active_profile
+        for profile_name in ("abrasion", "wear", "crack", "fracture", "fissure", "erosion", "cervical")
+    )
+    if not uses_profile_geometry and mask_2d is not None and isinstance(mask_2d, np.ndarray) and mask_2d.size > 20:
         bin_mask = (mask_2d > 0).astype(np.uint8)
         mask_area = int(np.sum(bin_mask))
         if mask_area > 10:
@@ -323,7 +327,28 @@ def carve_cavity(
     if not mask_used:
         # Fallback to parametric elliptical sculpt
         eff_aspect = max(float(aspect_ratio), 1.0)
-        if eff_aspect > 1.15 or "crack" in active_profile:
+        if "crack" in active_profile or "fracture" in active_profile or "fissure" in active_profile:
+            eff_aspect = max(eff_aspect, 8.0)
+            scale_u = np.sqrt(eff_aspect)
+            scale_v = 1.0 / scale_u
+            scaled_dists = np.sqrt(
+                (coord_u / (radius * scale_u)) ** 2
+                + (coord_v / (radius * scale_v)) ** 2
+                + (coord_n / (radius * 0.35)) ** 2
+            )
+        elif "abrasion" in active_profile or "wear" in active_profile:
+            scaled_dists = np.sqrt(
+                (coord_u / (radius * 1.6)) ** 2
+                + (coord_v / (radius * 0.8)) ** 2
+                + (coord_n / (radius * 0.55)) ** 2
+            )
+        elif "erosion" in active_profile or "cervical" in active_profile:
+            scaled_dists = np.sqrt(
+                (coord_u / (radius * 1.5)) ** 2
+                + (coord_v / (radius * 1.3)) ** 2
+                + (coord_n / (radius * 0.85)) ** 2
+            )
+        elif eff_aspect > 1.15:
             scale_u = np.sqrt(max(eff_aspect, 1.0))
             scale_v = 1.0 / scale_u
             scaled_dists = np.sqrt(
@@ -335,17 +360,15 @@ def carve_cavity(
             scaled_dists = dists / max(radius, 1e-5)
 
         if "abrasion" in active_profile or "wear" in active_profile:
-            clamped_d = np.clip(scaled_dists, 0.0, 1.0)
-            radial_falloff = (1.0 - clamped_d ** 3) ** 1.5
-            influence = normal_gate * radial_falloff
-        elif "crack" in active_profile:
+            edge = np.clip((1.0 - scaled_dists) / 0.28, 0.0, 1.0)
+            flat_facet = edge ** 2 * (3.0 - 2.0 * edge)
+            influence = normal_gate * flat_facet
+        elif "crack" in active_profile or "fracture" in active_profile or "fissure" in active_profile:
             raw_influence = np.clip(1.0 - scaled_dists, 0.0, 1.0)
-            influence = normal_gate * np.clip(raw_influence ** 3.5, 0.0, 1.0)
-        elif "cervical" in active_profile:
-            np.random.seed(42)
-            noise = 1.0 + 0.10 * np.sin(diffs[:, 0] * 3.8) * np.cos(diffs[:, 1] * 3.8)
-            raw_influence = np.clip(1.0 - scaled_dists, 0.0, 1.0)
-            influence = normal_gate * np.clip((raw_influence ** 1.7) * noise, 0.0, 1.0)
+            influence = normal_gate * np.clip(raw_influence ** 4.5, 0.0, 1.0)
+        elif "erosion" in active_profile or "cervical" in active_profile:
+            raw_influence = np.clip(1.0 - scaled_dists ** 2, 0.0, 1.0)
+            influence = normal_gate * raw_influence ** 1.25
         else:
             radial_falloff = np.clip(1.0 - scaled_dists, 0.0, 1.0) ** 2
             influence = normal_gate * radial_falloff

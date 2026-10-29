@@ -1854,10 +1854,11 @@ def api_viva_audio_turn(attempt_uid: str):
         student_text = str(data.get("utterance_text", "")).strip()
         if not student_text:
             return jsonify({"error": "Audio recording ('audio') or spoken question is required for Voice Viva."}), 400
-        stu_tts_url = synthesize_speech_to_url(student_text, prefix="stu_utterance")
-        stu_wav_path = BASE_DIR / stu_tts_url.lstrip("/")
-        stt_result = transcribe_audio_file(stu_wav_path)
-        student_text = stt_result["transcript"].strip() or student_text
+        stt_result = {
+            "transcript": student_text,
+            "stt_engine": "browser-speech-recognition",
+            "duration_seconds": 0.0,
+        }
 
     return _execute_viva_turn_for_attempt(attempt_uid, student_text, stt_result)
 

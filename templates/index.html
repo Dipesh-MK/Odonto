@@ -290,7 +290,7 @@
 
         <button onclick="switchTab('teacher-ai-evaluation')" id="nav-teacher-ai-evaluation"
           class="nav-tab hidden px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap transition-colors">
-          AI Evaluation
+          AI model status
         </button>
 
         <button onclick="switchTab('3d-viewer-and-sim')" id="nav-3d-viewer-and-sim"
@@ -982,9 +982,9 @@
     <div class="max-w-5xl w-full mx-auto px-gutter py-space-lg space-y-space-md">
       <div>
         <p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Model quality</p>
-        <h1 class="font-headline-lg text-headline-lg text-primary mt-2">AI Evaluation</h1>
+        <h1 class="font-headline-lg text-headline-lg text-primary mt-2">AI model status</h1>
         <p class="font-body-md text-body-md text-on-surface-variant mt-2">
-          Model validation is reported only when measured evaluation records are available. Student attempt scores are not model evaluation metrics.
+          This page is about testing the AI models themselves, not student grades. No measured model-validation results are connected yet.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
@@ -4055,8 +4055,6 @@
       banner.classList.remove('hidden');
       status.textContent = 'Listening live... speak your diagnosis now';
 
-      await fetch('/api/audio/host_mic/start', { method: 'POST' }).catch(() => {});
-
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SR) {
         try {
@@ -4072,40 +4070,35 @@
           };
           webSpeechRec.start();
         } catch (e) {}
+      } else {
+        status.textContent = 'Speech recognition is not available in this browser. Type your rationale instead.';
       }
 
-      livePeekInterval = setInterval(async () => {
-        if (!isRecordingDiagMic) return;
-        try {
-          const r = await fetch('/api/audio/host_mic/live_peek');
-          if (r.ok) {
-            const d = await r.json();
-            hostMicRmsLevel = d.rms_level || 0.0;
-            if (d.partial_transcript) {
-              liveInterimTranscript = d.partial_transcript;
-              box.value = (baseText ? baseText + ' ' : '') + d.partial_transcript;
-              status.textContent = `Live STT (${d.duration_s}s): "${d.partial_transcript}"`;
-            }
-          }
-        } catch (e) {}
-      }, 1100);
     } else {
       isRecordingDiagMic = false;
-      if (livePeekInterval) { clearInterval(livePeekInterval); livePeekInterval = null; }
-      if (webSpeechRec) { try { webSpeechRec.stop(); } catch (e) {} webSpeechRec = null; }
+      const recognition = webSpeechRec;
+      webSpeechRec = null;
+      if (recognition) {
+        await new Promise(resolve => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            resolve();
+          };
+          const timeout = setTimeout(finish, 1200);
+          recognition.addEventListener('end', finish, { once: true });
+          try { recognition.stop(); } catch (e) { finish(); }
+        });
+      }
       lbl.textContent = 'Finalizing...';
 
-      const res = await fetch('/api/audio/host_mic/stop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ run_viva: false, live_interim_text: liveInterimTranscript })
-      });
-      const data = await res.json();
       lbl.textContent = 'Speak Diagnosis Live';
       btn.className = 'px-3 py-1 rounded-full bg-primary text-white font-label-sm text-label-sm flex items-center gap-1.5 shadow-sm hover:bg-primary-container transition-all';
       banner.classList.add('hidden');
-      if (res.ok && data.transcript) {
-        box.value = (baseText ? baseText + ' ' : '') + data.transcript;
+      if (!liveInterimTranscript.trim()) {
+        status.textContent = 'No speech was recognized. Check microphone permission or type your rationale.';
       }
     }
   }
@@ -4153,7 +4146,9 @@
       setEvalStep(3);
     } catch (error) {
       if (!(error instanceof TypeError) && !(error instanceof SyntaxError)) throw error;
-      errEl.textContent = 'Your case could not be completed because the service is unavailable. Your answers are still on this page; please retry.';
+      errEl.textContent = error instanceof SyntaxError
+        ? 'The server returned an unreadable response. Your answers are still on this page; please retry or contact your teacher.'
+        : 'The service could not be reached. Your answers are still on this page; please retry.';
       errEl.classList.remove('hidden');
     } finally {
       EVALUATION_SUBMITTING = false;
@@ -4163,18 +4158,20 @@
   }
 
   function populateStudentReportStep3(att, grading) {
+    const g = grading || att.llm_grading || {};
     document.getElementById('eval-final-composite').textContent = `${att.composite_score}% (${att.grade_letter})`;
     document.getElementById('eval-final-time').textContent = `Time: ${att.duration_seconds}s`;
     document.getElementById('eval-score-a-val').textContent = `${att.location_score}%`;
     document.getElementById('eval-score-a-dist').textContent = `3D Error: ${att.centroid_distance_mm} mm`;
     document.getElementById('eval-score-b-val').textContent = `${att.diagnosis_score}%`;
-    document.getElementById('eval-score-b-provider').textContent = `Engine: ${att.llm_provider}`;
+    document.getElementById('eval-score-b-provider').textContent = g.grading_notice
+      ? 'Local rubric used — language model unavailable'
+      : `Engine: ${att.llm_provider}`;
     document.getElementById('eval-teachback-text').textContent = att.teachback_text;
     document.getElementById('eval-validated-finding').textContent = ACTIVE_CASE
       ? `${ACTIVE_CASE.anomaly_type} on FDI #${ACTIVE_CASE.tooth_fdi} (${ACTIVE_CASE.target_surface}).`
       : 'Validated finding details are unavailable for this saved report.';
 
-    const g = grading || att.llm_grading || {};
     document.getElementById('eval-report-strengths').innerHTML = (g.strengths || ['Completed 3D spatial localization']).map(s => `<li>${s}</li>`).join('');
     document.getElementById('eval-report-weaknesses').innerHTML = (g.weaknesses || ['None noted']).map(w => `<li>${w}</li>`).join('');
 
@@ -4337,10 +4334,7 @@
       statusEl.textContent = 'Listening live to your voice...';
       liveCapEl.textContent = '“Listening live... start speaking into your microphone...”';
 
-      // 1. Start Linux Host OS PipeWire/PulseAudio live recording
-      await fetch('/api/audio/host_mic/start', { method: 'POST' }).catch(() => {});
-
-      // 2. Start Browser WebAudio AnalyserNode + MediaRecorder
+      // Capture audio in the browser so microphone input works on Windows and other hosts.
       try {
         const devId = document.getElementById('viva-audio-device-select')?.value;
         const audioConstraint = devId && devId !== 'default' ? { deviceId: { exact: devId } } : true;
@@ -4357,9 +4351,10 @@
         mediaRecorder.start(200);
       } catch (e) {
         mediaRecorder = null;
+        statusEl.textContent = 'Microphone recording is unavailable. You can still speak if browser dictation is supported, or type your question below.';
       }
 
-      // 3. Start Browser Web Speech API for zero-latency interim word streaming if supported
+      // Use browser speech recognition for live captions when supported.
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SR) {
         try {
@@ -4380,41 +4375,55 @@
         } catch (e) {}
       }
 
-      // 4. Poll /api/audio/host_mic/live_peek every 1.1s so faster-whisper streams live partial transcripts while speaking!
-      livePeekInterval = setInterval(async () => {
+      livePeekInterval = setInterval(() => {
         if (!isRecordingMic) return;
-        try {
-          const r = await fetch('/api/audio/host_mic/live_peek');
-          if (!r.ok) return;
-          const d = await r.json();
-          hostMicRmsLevel = d.rms_level || 0.0;
-          if (d.partial_transcript && d.partial_transcript !== liveInterimTranscript) {
-            liveInterimTranscript = d.partial_transcript;
-            lastTranscriptChangeTime = performance.now();
-            liveCapEl.textContent = `“${liveInterimTranscript}”`;
-          }
-          // Hands-free auto-turn detection: if user has spoken at least 4 words and paused for >2.4s with low RMS
-          const autoSend = document.getElementById('viva-handsfree-toggle')?.checked;
-          const wordsCount = liveInterimTranscript.trim().split(/\s+/).filter(Boolean).length;
-          if (
-            autoSend &&
-            wordsCount >= 4 &&
-            hostMicRmsLevel < 0.08 &&
-            (performance.now() - lastTranscriptChangeTime) > 2400
-          ) {
-            toggleMicrophoneRecording();
-          }
-        } catch (e) {}
-      }, 1100);
+        if (micAnalyser) {
+          const samples = new Uint8Array(micAnalyser.fftSize);
+          micAnalyser.getByteTimeDomainData(samples);
+          const rms = Math.sqrt(samples.reduce((sum, sample) => sum + ((sample - 128) / 128) ** 2, 0) / samples.length);
+          hostMicRmsLevel = Math.min(1, rms * 8.5);
+        }
+        const autoSend = document.getElementById('viva-handsfree-toggle')?.checked;
+        const wordsCount = liveInterimTranscript.trim().split(/\s+/).filter(Boolean).length;
+        if (
+          autoSend &&
+          wordsCount >= 4 &&
+          hostMicRmsLevel < 0.08 &&
+          (performance.now() - lastTranscriptChangeTime) > 2400
+        ) {
+          toggleMicrophoneRecording();
+        }
+      }, 150);
 
     } else {
       // Finalize live speech turn and immediately trigger Virtual Patient response
       isRecordingMic = false;
       hostMicRmsLevel = 0.0;
       if (livePeekInterval) { clearInterval(livePeekInterval); livePeekInterval = null; }
-      if (webSpeechRec) { try { webSpeechRec.stop(); } catch (e) {} webSpeechRec = null; }
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        try { mediaRecorder.stop(); } catch (e) {}
+      const recognition = webSpeechRec;
+      webSpeechRec = null;
+      if (recognition) {
+        await new Promise(resolve => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            resolve();
+          };
+          const timeout = setTimeout(finish, 1200);
+          recognition.addEventListener('end', finish, { once: true });
+          try { recognition.stop(); } catch (e) { finish(); }
+        });
+      }
+
+      const recorder = mediaRecorder;
+      mediaRecorder = null;
+      if (recorder && recorder.state !== 'inactive') {
+        await new Promise(resolve => {
+          recorder.addEventListener('stop', resolve, { once: true });
+          try { recorder.stop(); } catch (e) { resolve(); }
+        });
       }
       if (micStream) {
         try { micStream.getTracks().forEach(t => t.stop()); } catch (e) {}
@@ -4432,27 +4441,11 @@
       topPing.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75';
       statusEl.textContent = 'Patient thinking & speaking response...';
 
-      const res = await fetch('/api/audio/host_mic/stop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          attempt_uid: ACTIVE_ATTEMPT.attempt_uid,
-          run_viva: true,
-          live_interim_text: liveInterimTranscript
-        })
-      });
-      const data = await res.json();
       topStateEl.textContent = 'Live Voice Ready';
 
-      if (res.ok && data.attempt) {
-        ACTIVE_ATTEMPT = data.attempt;
-        liveCapEl.textContent = `“${data.student_transcript}”`;
-        renderVivaFromAttempt();
-        await playLiveVoiceStream(data.patient_audio_url, data.patient_reply, `${ACTIVE_CASE?.patient?.name || 'Patient'} speaking live...`);
-        return;
-      }
-
-      if (recordedChunks.length > 0) {
+      if (liveInterimTranscript.trim()) {
+        await sendVivaTextToApi(liveInterimTranscript.trim());
+      } else if (recordedChunks.length > 0) {
         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
         await sendAudioBlobToViva(blob, 'live_stream.webm');
       } else {
@@ -4460,6 +4453,29 @@
         liveCapEl.textContent = `“No speech detected. Click the microphone and speak your question...”`;
       }
     }
+  }
+
+  async function sendVivaTextToApi(text) {
+    const statusEl = document.getElementById('viva-recording-status');
+    const liveCapEl = document.getElementById('viva-live-mic-text');
+    const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/viva/audio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ utterance_text: text })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = data.error || 'Voice Viva turn failed.';
+      return;
+    }
+
+    ACTIVE_ATTEMPT = data.attempt;
+    liveCapEl.textContent = `“${data.student_transcript}”`;
+    renderVivaFromAttempt();
+    statusEl.textContent = data.llm_provider === 'offline-scripted-patient'
+      ? 'Reply saved. Scripted patient mode is active because the language model is unavailable.'
+      : 'Patient response ready.';
+    await playLiveVoiceStream(data.patient_audio_url, data.patient_reply, `${ACTIVE_CASE?.patient?.name || 'Patient'} speaking live...`);
   }
 
   async function submitSpokenQuestionBar(e) {
@@ -4475,20 +4491,7 @@
     liveCapEl.textContent = `“${text}”`;
     statusEl.textContent = 'Synthesizing & querying Virtual Patient...';
 
-    const res = await fetch(`/api/attempts/${ACTIVE_ATTEMPT.attempt_uid}/viva/audio`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ utterance_text: text })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      statusEl.textContent = data.error || 'Turn failed.';
-      return;
-    }
-
-    ACTIVE_ATTEMPT = data.attempt;
-    renderVivaFromAttempt();
-    await playLiveVoiceStream(data.patient_audio_url, data.patient_reply, `${ACTIVE_CASE?.patient?.name || 'Patient'} speaking live...`);
+    await sendVivaTextToApi(text);
   }
 
   async function sendAudioBlobToViva(blobOrFile, filename) {

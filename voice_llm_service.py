@@ -16,6 +16,7 @@ Strict No-Hardcoding & No-Stub Guarantees:
 """
 
 import json
+import logging
 import os
 import re
 import subprocess
@@ -44,6 +45,10 @@ PIPER_MODEL_PATH = BASE_DIR / "models" / "piper" / "en_US-lessac-low.onnx"
 
 _WHISPER_SINGLETON: Optional[WhisperModel] = None
 _PIPER_SINGLETON: Optional[PiperVoice] = None
+
+
+class ClinicalLLMUnavailableError(RuntimeError):
+    pass
 
 
 def get_whisper_model():
@@ -165,17 +170,23 @@ def call_clinical_llm(
     """
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if anthropic_key:
-        import anthropic
+        try:
+            import anthropic
+        except ImportError as exc:
+            raise ClinicalLLMUnavailableError("The Anthropic client package is not installed.") from exc
 
         client = anthropic.Anthropic(api_key=anthropic_key)
         model_name = os.environ.get("ODONTO_CLAUDE_MODEL", "claude-3-5-haiku-latest")
-        resp = client.messages.create(
-            model=model_name,
-            max_tokens=1024,
-            temperature=temperature,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
+        try:
+            resp = client.messages.create(
+                model=model_name,
+                max_tokens=1024,
+                temperature=temperature,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+        except anthropic.APIError as exc:
+            raise ClinicalLLMUnavailableError(f"Anthropic request failed: {exc}") from exc
         content = resp.content[0].text if resp.content else ""
         return content.strip(), f"anthropic:{model_name}"
 
@@ -194,8 +205,11 @@ def call_clinical_llm(
     if expect_json:
         payload["format"] = "json"
 
-    r = requests.post(ollama_url, json=payload, timeout=90)
-    r.raise_for_status()
+    try:
+        r = requests.post(ollama_url, json=payload, timeout=90)
+        r.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        raise ClinicalLLMUnavailableError(f"Ollama request failed: {exc}") from exc
     data = r.json()
     text = data.get("message", {}).get("content", "").strip()
     return text, f"ollama:{ollama_model}"
@@ -352,7 +366,8 @@ def run_viva_patient_turn(
         "   - 'onset': asked when symptoms began or timeline/progression.\n"
         "   - 'triggers': asked about cold, sweet, mechanical brushing, or chewing stimuli.\n"
         "   - 'duration': asked how long pain lingers after stimulus removal or whether pain is spontaneous/nocturnal.\n"
-        "   - 'medical_history': asked about systemic health, medications, or drug/latex allergies.\n\n"
+        "   - 'medical_history': asked about systemic health, medications, or drug/latex allergies.\n"
+        "Answer the student's latest utterance directly. Do not repeat the chief complaint or a previous answer unless it is directly relevant. Do not invent patient details that are absent from the case; say when you are unsure.\n\n"
         "Respond strictly in valid JSON with these keys:\n"
         "{\n"
         '  "patient_reply": "1-3 natural spoken sentences answering the student\'s question as the patient and prompting a follow-up clinical question",\n'
@@ -372,13 +387,93 @@ def run_viva_patient_turn(
         "Return the JSON response now."
     )
 
-    raw_resp, llm_provider = call_clinical_llm(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        expect_json=True,
-        temperature=0.25,
-    )
-    parsed = parse_json_safely(raw_resp)
+    try:
+        raw_resp, llm_provider = call_clinical_llm(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            expect_json=True,
+            temperature=0.25,
+        )
+        parsed = parse_json_safely(raw_resp)
+    except ClinicalLLMUnavailableError as exc:
+        logging.getLogger(__name__).warning("Using scripted Viva fallback: %s", exc)
+        question = student_utterance.lower()
+        newly_demonstrated = {
+            "onset": bool(
+                re.search(
+                    r"\b(when|start|started|begin|began|since|how long|recently|past week|last week|change|changed|progress|worsen)\b",
+                    question,
+                )
+            ),
+            "triggers": bool(
+                re.search(r"\b(cold|hot|sweet|brush|chew|bite|trigger|food|eat|eaten|ate|meal)\b", question)
+            ),
+            "duration": bool(re.search(r"\b(duration|last|linger|seconds?|minutes?|night|spontaneous)\b", question)),
+            "medical_history": bool(re.search(r"\b(medical|health|medicine|medication|drug|allerg|latex|condition)\b", question)),
+        }
+        hpi_sentences = re.split(r"(?<=[.!?])\s+", str(patient.get("hpi", "")).strip())
+        answer_terms = {
+            "onset": r"\b(start|started|began|ago|since)\b",
+            "triggers": r"\b(cold|hot|sweet|brush|chew|bite|stimulus)\b",
+            "duration": r"\b(last|seconds?|minutes?|night|spontaneous|subsides?)\b",
+        }
+        prior_patient_replies = [
+            str(turn.get("text", "")).strip()
+            for turn in transcript_history
+            if turn.get("role") == "patient" and turn.get("text")
+        ]
+        matching_competencies = [
+            competency
+            for competency, is_asked in newly_demonstrated.items()
+            if is_asked
+        ]
+        matching_sentences = [
+            sentence
+            for competency in matching_competencies
+            for sentence in hpi_sentences
+            if competency in answer_terms
+            and re.search(answer_terms[competency], sentence, re.IGNORECASE)
+            and not any(sentence.lower() in previous.lower() for previous in prior_patient_replies)
+        ]
+        if re.search(r"\b(hello|hi|hey|good morning|good afternoon)\b", question):
+            patient_reply = "Hello again, Doctor. What would you like to know about my symptoms?"
+        elif newly_demonstrated["medical_history"]:
+            patient_reply = f"My medical record says {patient.get('asa_class', 'my history is not available')}."
+        elif matching_sentences:
+            patient_reply = " ".join(dict.fromkeys(matching_sentences))
+        elif re.search(r"\b(where|which tooth|which part|exactly|inside|outside|gumline|area)\b", question):
+            patient_reply = (
+                f"It feels like it is around my {case_data.get('short_name', 'tooth')}. "
+                "I cannot tell you exactly which part is inside or outside."
+            )
+        elif re.search(r"\b(what have you tried|tried|taken|treatment|medicine|medication|past week|last week)\b", question):
+            patient_reply = "I am not sure, Doctor; I do not have a clear answer about that."
+        else:
+            unknown_replies = (
+                "I am not sure about that, Doctor. You could ask me when it began, what brings it on, or how long it lasts.",
+                "I cannot remember that detail. I can tell you more about the tooth discomfort if you like.",
+                "I do not know, Doctor. Is there something about the pain or my medical history you would like to ask?",
+                "Sorry, I do not have that information. Could you ask me about one of the symptoms?",
+            )
+            patient_turn_count = len(prior_patient_replies)
+            rotation = patient_turn_count % len(unknown_replies)
+            rotated_replies = unknown_replies[rotation:] + unknown_replies[:rotation]
+            patient_reply = next(
+                (reply for reply in rotated_replies if reply not in prior_patient_replies),
+                "I am still not sure about that, Doctor. Could you ask me something different?",
+            )
+
+        if patient_reply in prior_patient_replies:
+            patient_reply = (
+                "I may have already mentioned that, Doctor. "
+                "Could you ask me about a different symptom or detail?"
+            )
+        parsed = {
+            "patient_reply": patient_reply,
+            "newly_demonstrated": newly_demonstrated,
+            "clinical_note": "Scripted patient mode: the language-model service is unavailable.",
+        }
+        llm_provider = "offline-scripted-patient"
 
     patient_reply = str(parsed.get("patient_reply") or "").strip()
     if not patient_reply:
@@ -471,13 +566,66 @@ def grade_diagnosis_and_generate_teachback(
         "Grade this submission strictly against the ground truth and return JSON."
     )
 
-    raw_resp, llm_provider = call_clinical_llm(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        expect_json=True,
-        temperature=0.1,
-    )
-    parsed = parse_json_safely(raw_resp)
+    grading_notice = ""
+    try:
+        raw_resp, llm_provider = call_clinical_llm(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            expect_json=True,
+            temperature=0.1,
+        )
+        parsed = parse_json_safely(raw_resp)
+    except ClinicalLLMUnavailableError as exc:
+        logging.getLogger(__name__).warning("Using local diagnosis rubric: %s", exc)
+        submission = combined_diagnosis_text.lower()
+        anomaly_terms = {
+            "cavity": r"\b(cavity|caries|decay|carious)\b",
+            "abrasion": r"\b(abrasion|wear|toothbrush abrasion)\b",
+            "crack": r"\b(crack|fracture|fissure)\b",
+            "erosion": r"\b(erosion|acid wear|acid damage)\b",
+        }
+        anomaly_correct = bool(re.search(anomaly_terms.get(str(true_anomaly).lower(), r"$^"), submission))
+        surface_terms = {
+            "labial_facial": r"\b(labial|facial|buccal|front surface)\b",
+            "occlusal_table": r"\b(occlusal|chewing surface|chewing table)\b",
+            "cervical": r"\b(cervical|gumline|gum line)\b",
+            "buccal": r"\b(buccal|cheek side)\b",
+            "lingual": r"\b(lingual|palatal|tongue side)\b",
+        }
+        surface_correct = bool(re.search(surface_terms.get(str(true_surface).lower(), r"$^"), submission))
+        treatment_mentioned = bool(
+            re.search(r"\b(treat|treatment|restore|restoration|seal|filling|composite|monitor|fluoride|desensiti[sz]e)\b", submission)
+        )
+        rationale_words = len(student_rationale.split())
+        diag_score = (
+            (50 if anomaly_correct else 0)
+            + (20 if surface_correct else 0)
+            + (20 if treatment_mentioned else 0)
+            + (10 if rationale_words >= 15 else 0)
+        )
+        comm_score = min(100, 30 + rationale_words * 2)
+        strengths = []
+        weaknesses = []
+        (strengths if anomaly_correct else weaknesses).append(
+            "Correctly identified the pathology." if anomaly_correct else f"Review the distinguishing features of {true_anomaly.lower()}."
+        )
+        (strengths if surface_correct else weaknesses).append(
+            "Correctly located the affected tooth surface." if surface_correct else f"Name the affected surface ({true_surface.replace('_', ' ')})."
+        )
+        if treatment_mentioned:
+            strengths.append("Included a treatment or management consideration.")
+        else:
+            weaknesses.append("Add an appropriate treatment or management plan.")
+        parsed = {
+            "diagnosis_score": diag_score,
+            "communication_score": comm_score,
+            "anomaly_correctly_identified": anomaly_correct,
+            "surface_correctly_identified": surface_correct,
+            "strengths": strengths,
+            "weaknesses": weaknesses,
+        }
+        llm_provider = "offline-local-rubric"
+        grading_notice = "The language model is unavailable; this report uses a local keyword-based rubric, not LLM grading."
 
     diag_score = int(np.clip(int(parsed.get("diagnosis_score", 0)), 0, 100))
     comm_score = int(np.clip(int(parsed.get("communication_score", 50)), 0, 100))
@@ -526,4 +674,5 @@ def grade_diagnosis_and_generate_teachback(
         "teachback_text": teachback_text,
         "teachback_audio_url": teachback_audio_url,
         "llm_provider": llm_provider,
+        "grading_notice": grading_notice,
     }
