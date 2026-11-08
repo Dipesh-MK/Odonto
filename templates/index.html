@@ -7,8 +7,18 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/static/js/three.min.js"></script>
+<script>
+  if (typeof THREE === 'undefined') {
+    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+  }
+</script>
+<script src="/static/js/OrbitControls.js"></script>
+<script>
+  if (typeof THREE !== 'undefined' && typeof THREE.OrbitControls === 'undefined') {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script>');
+  }
+</script>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode: "class",
@@ -324,6 +334,12 @@
         <div class="h-6 w-px bg-outline-variant/40 hidden sm:block"></div>
 
         <div class="flex items-center gap-2">
+          <!-- Platform & AI Agent Settings Button -->
+          <button onclick="openOdontoSettingsModal()" title="Platform & AI Agent Settings" id="btn-header-settings"
+            class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">settings</span>
+          </button>
+
           <div class="text-right hidden xl:block">
             <div id="header-user-name" class="font-label-md text-label-md text-on-surface font-semibold leading-tight">User</div>
             <div id="header-user-email" class="font-label-sm text-label-sm text-on-surface-variant leading-tight">user@dental.edu</div>
@@ -428,49 +444,68 @@
             <span class="font-code-md text-code-md text-secondary font-semibold">Interactive Canvas</span>
           </div>
 
-          <div class="flex flex-wrap items-end gap-2.5">
-            <div class="flex-1 min-w-[220px]">
-              <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Or start with a sample photo</label>
-              <select id="pipe-preset-select" onchange="loadPipelinePreset(this.value)"
-                class="w-full rounded-lg bg-surface-container-low border border-outline-variant/40 text-xs font-semibold py-2 px-3">
-                <option value="case_01">Sample 1: Caries 1 — Occlusal Molar (AlphaDent p001_002)</option>
-                <option value="case_02">Sample 2: Caries 2 — Posterior Pit (AlphaDent p001_003)</option>
-                <option value="case_04">Sample 3: Caries 5 — Cervical/Labial Margin (AlphaDent p015_002)</option>
-                <option value="case_05">Sample 4: Enamel Defect / Fissure (DentalAI 1018)</option>
-                <option value="case_07">Sample 5: Premolar Cavitated Fossa Lesion (DentalAI 1007)</option>
-                <option value="case_08">Sample 6: Maxillary Premolar Caries (AlphaDent p026_001)</option>
-                <option value="case_09">Sample 7: Anterior Labial Abrasion Facet (AlphaDent p001_001)</option>
-                <option value="case_10">Sample 8: Canine Cervical Abrasion (AlphaDent p015_001)</option>
-              </select>
+          <div class="space-y-2.5 bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-[18px]">add_a_photo</span>
+                <span>1. Provide Clinical Dental Photo:</span>
+              </span>
+              <button type="button" onclick="openPhotoGuidelinesModal()"
+                class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[15px]">help_outline</span>
+                <span>Photo Guidelines</span>
+              </button>
             </div>
-            <label class="px-3.5 py-2 rounded-lg bg-inverse-surface text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer hover:opacity-90">
-              <span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
-              <span>Upload a photo</span>
-              <input type="file" id="pipe-file-upload" accept="image/*" class="hidden" onchange="handlePipelinePhotoUpload(event)"/>
-            </label>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- Upload Custom Photo (Primary Action) -->
+              <label class="flex-1 min-w-[220px] px-4 py-2.5 rounded-lg bg-primary text-white text-xs font-bold inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:bg-primary-container transition-all">
+                <span class="material-symbols-outlined text-[18px]">upload_file</span>
+                <span>Upload Your Photo (JPG/PNG/WEBP)</span>
+                <input type="file" id="pipe-file-upload" accept="image/*" class="hidden" onchange="handlePipelinePhotoUpload(event)"/>
+              </label>
+
+              <!-- Dynamic Gallery Dropdown -->
+              <div class="flex-1 min-w-[220px]">
+                <select id="pipe-preset-select" onchange="loadClinicalGalleryImage(this.value)"
+                  class="w-full rounded-lg bg-surface-container-lowest border border-outline-variant/40 text-xs font-semibold py-2 px-3 focus:ring-2 focus:ring-primary">
+                  <option value="">📁 Or choose verified test photo...</option>
+                </select>
+              </div>
+            </div>
+            
+            <p class="text-[11px] text-on-surface-variant italic">
+              Upload any macro intraoral photo (occlusal chewing surface, labial enamel face, or cervical margin).
+            </p>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-surface-container-low p-2.5 rounded-lg">
-            <p class="text-sm font-semibold text-on-surface">2. Click the area you want students to practise.</p>
-            <details class="text-xs text-on-surface-variant">
-              <summary class="cursor-pointer font-semibold">More marking options</summary>
-              <div class="flex flex-wrap items-center gap-2 mt-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-on-surface">2. Mark lesion:</span>
+              <div class="inline-flex rounded-lg bg-surface-container-lowest p-0.5 border border-outline-variant/40">
                 <button type="button" id="pipe-mode-point" onclick="setPipelinePromptMode('point')"
-                  class="px-3 py-1 rounded-md text-xs font-bold bg-primary text-white">
-                  Click an area
+                  class="px-3 py-1 rounded-md text-xs font-bold bg-primary text-white shadow-sm transition-all flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[15px]">ads_click</span>
+                  <span>Point Click</span>
                 </button>
                 <button type="button" id="pipe-mode-box" onclick="setPipelinePromptMode('box')"
-                  class="px-3 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-on-surface">
-                  Draw a box
+                  class="px-3 py-1 rounded-md text-xs font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[15px]">crop_free</span>
+                  <span>Draw Box</span>
                 </button>
-                <button type="button" onclick="clearPipelinePrompts()"
-                  class="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-error">
-                  Clear mark
-                </button>
-                <label for="pipe-opacity-slider">Outline visibility</label>
-                <input type="range" id="pipe-opacity-slider" min="0.1" max="0.95" step="0.05" value="0.6" oninput="redrawPipelineCanvas()" class="w-20 accent-primary"/>
               </div>
-            </details>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="clearPipelinePrompts()"
+                class="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-error hover:bg-error-container/30 border border-outline-variant/30 transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">delete</span>
+                <span>Clear</span>
+              </button>
+              <div class="flex items-center gap-1 text-[11px] text-on-surface-variant">
+                <label for="pipe-opacity-slider" class="font-code-md">Overlay:</label>
+                <input type="range" id="pipe-opacity-slider" min="0.1" max="0.95" step="0.05" value="0.6" oninput="redrawPipelineCanvas()" class="w-16 accent-primary"/>
+              </div>
+            </div>
           </div>
 
           <!-- Interactive 2D Canvas -->
@@ -487,6 +522,36 @@
             <span id="pipe-prompt-coords-label" class="font-code-md text-code-md text-on-surface-variant">
               Click the affected area in the photo to highlight it.
             </span>
+          </div>
+
+          <!-- FastSAM Lesion Contour & Depth Anything V2 2.5D Heatmap Inspector -->
+          <div id="pipe-depth-card" class="hidden p-3 rounded-xl bg-surface-container-low border border-outline-variant/30 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm font-bold text-on-surface flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-[18px]">layers</span>
+                <span>Lesion Boundary &amp; 2.5D Depth Relief</span>
+              </span>
+              <span id="pipe-depth-status-pill" class="px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-secondary-container/60 text-secondary border border-secondary/30">
+                DEPTH ANYTHING V2 DETRENDED
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/20 flex flex-col items-center">
+                <span class="text-[10px] font-code-md text-on-surface-variant mb-1 font-semibold">SAM Boundary Snapped</span>
+                <img id="pipe-overlay-preview" alt="SAM Contour Overlay" class="w-full h-32 object-contain rounded bg-[#0F172A]"/>
+              </div>
+              <div class="bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/20 flex flex-col items-center">
+                <span class="text-[10px] font-code-md text-on-surface-variant mb-1 font-semibold">2.5D Relief Heatmap &Delta;z(u,v)</span>
+                <img id="pipe-heatmap-preview" alt="Depth Anything V2 Heatmap" class="w-full h-32 object-contain rounded bg-[#0F172A]"/>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-code-md text-on-surface-variant px-1">
+              <span>Vertices: <strong id="pipe-metric-points" class="text-primary font-bold">—</strong></span>
+              <span>Area: <strong id="pipe-metric-area" class="text-on-surface font-bold">—</strong></span>
+              <span>Baseline: <strong id="pipe-metric-ring" class="text-secondary font-bold">—</strong></span>
+            </div>
           </div>
 
           <!-- HITL Validation Gate -->
@@ -519,28 +584,139 @@
             </div>
           </div>
 
-          <!-- Auto-Identified Tooth Classification Banner (tooth_classifier.py) -->
-          <div id="pipe-auto-id-banner" class="hidden px-3 py-2 rounded-lg bg-secondary-container/50 border border-secondary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-secondary text-[18px]">my_location</span>
-              <div>
-                <span id="pipe-auto-id-title" class="font-bold text-on-surface">Auto-Identified: FDI #36 — Lower Left 1st Molar</span>
-                <span id="pipe-auto-id-meta" class="block font-code-md text-[11px] text-on-surface-variant">Mandibular Left • Occlusal Surface • 92% Confidence</span>
+          <!-- Clinical AI Diagnostics & Transfer Agent Card -->
+          <div id="pipe-agent-card" class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 space-y-3">
+            <div class="flex items-center justify-between border-b border-surface-container pb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+                <span class="font-headline-sm text-[13px] font-bold text-on-surface">Clinical Agent Diagnostics</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span id="pipe-agent-source-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-secondary-container/60 text-on-secondary-container border border-secondary/30">
+                  LOCAL EXPERT ENGINE
+                </span>
+                <button type="button" onclick="openOdontoSettingsModal()" title="Switch Diagnostic Agent in Settings" class="text-on-surface-variant hover:text-primary">
+                  <span class="material-symbols-outlined text-[15px]">tune</span>
+                </button>
               </div>
             </div>
-            <span class="px-2 py-0.5 rounded bg-secondary text-white font-code-md text-[10px] font-bold uppercase">Auto-Matched</span>
+
+            <!-- Pathology, Severity Grade, Confidence -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span id="pipe-diag-pathology" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-primary text-white shadow-sm">
+                  Caries
+                </span>
+                <div>
+                  <h4 id="pipe-diag-grade" class="font-headline-sm text-xs font-bold text-on-surface">ICDAS 4 (Moderate Dentinal Caries)</h4>
+                  <span id="pipe-diag-conf" class="font-code-md text-[10px] text-on-surface-variant">Confidence: 92%</span>
+                </div>
+              </div>
+              <!-- Tissue Involvement -->
+              <div id="pipe-diag-tissues" class="flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded text-[10px] font-code-md bg-surface-container-lowest text-on-surface border border-outline-variant/30">ENAMEL</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-code-md bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">DENTIN</span>
+              </div>
+            </div>
+
+            <!-- Recommended Depth Slider & Controls -->
+            <div class="bg-surface-container-lowest p-2.5 rounded-lg border border-outline-variant/20 space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-on-surface">Recommended Physical Depth:</span>
+                <span id="pipe-diag-depth-readout" class="font-code-md text-sm font-bold text-primary">0.75 mm</span>
+              </div>
+              <input type="range" id="pipe-agent-depth-slider" min="0.2" max="2.0" step="0.05" value="0.75"
+                oninput="updatePipeAgentDepth(this.value)" class="w-full accent-primary"/>
+              <div class="flex items-center justify-between text-[10px] font-code-md text-on-surface-variant">
+                <span id="pipe-diag-min-depth">Min Safe: 0.35 mm</span>
+                <span id="pipe-diag-steepness">Margin Wall: 0.70 (Undermined)</span>
+                <span id="pipe-diag-max-depth">Max Safe: 1.40 mm</span>
+              </div>
+            </div>
+
+            <!-- Clinical Rationale -->
+            <div class="p-2 rounded-lg bg-surface-container-lowest border border-outline-variant/20 text-[11px] text-on-surface-variant italic" id="pipe-diag-rationale">
+              "Cavitated carious lesion within occlusal pit showing dentinal discoloration and margin loss."
+            </div>
+
+            <!-- Clinical Transfer Agent Recommendation Banner -->
+            <div id="pipe-transfer-banner" class="p-2.5 rounded-lg bg-secondary-container/30 border border-secondary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+                <div>
+                  <span class="font-bold text-on-surface">Target Simulation Tooth:</span>
+                  <span id="pipe-transfer-fdi-badge" class="font-code-md font-bold text-secondary ml-1">FDI #16</span>
+                  <p id="pipe-transfer-rationale" class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">
+                    "Occlusal pit caries are anatomically validated on posterior molar occlusal tables (FDI #16 / #36)."
+                  </p>
+                </div>
+              </div>
+              <button type="button" onclick="applyPipeRecommendedTooth()"
+                class="px-2.5 py-1 rounded bg-secondary text-white font-label-sm text-[11px] font-bold hover:opacity-95 shadow-sm">
+                Apply Tooth
+              </button>
+            </div>
           </div>
 
-          <!-- Auto-Detected Dental Anomaly Banner (anomaly_classifier.py) -->
-          <div id="pipe-auto-anomaly-banner" class="hidden px-3 py-2 rounded-lg bg-primary-fixed/40 border border-primary/30 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-primary text-[18px]">biotech</span>
-              <div>
-                <span id="pipe-auto-anomaly-title" class="font-bold text-on-surface">Auto-Detected Anomaly: Cavity / Caries</span>
-                <span id="pipe-auto-anomaly-meta" class="block font-code-md text-[11px] text-on-surface-variant">Deterministic CV Extraction • 88% Confidence</span>
+          <!-- Deformation Method Toggle: Method A vs Method B vs Side-by-Side -->
+          <div class="bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/30 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-on-surface">3D Deformation Engine:</span>
+              <span id="pipe-active-method-label" class="font-code-md text-[11px] font-bold text-primary">Method B (Depth Model Relief)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
+              <button type="button" id="pipe-btn-method-a" onclick="setPipeDeformMethod('contour_conforming')"
+                class="py-1.5 px-2 rounded-lg bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:text-on-surface text-center">
+                Method A (Parametric)
+              </button>
+              <button type="button" id="pipe-btn-method-b" onclick="setPipeDeformMethod('depth_heightmap')"
+                class="py-1.5 px-2 rounded-lg bg-primary text-white border border-primary text-center shadow-sm">
+                Method B (Depth Model)
+              </button>
+              <button type="button" id="pipe-btn-method-compare" onclick="setPipeDeformMethod('compare')"
+                class="py-1.5 px-2 rounded-lg bg-secondary-container/60 text-secondary border border-secondary/40 hover:bg-secondary hover:text-white text-center font-bold">
+                ⚡ Side-by-Side
+              </button>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Comparison Dual Viewports (shown when method == 'compare') -->
+          <div id="pipe-side-by-side-card" class="hidden p-3.5 rounded-xl bg-surface-container-low border border-secondary/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-secondary text-[18px]">compare</span>
+                <span class="font-headline-sm text-xs font-bold text-on-surface">Side-by-Side Method Comparison</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-secondary text-white">DUAL VIEWPORTS</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <!-- Method A Viewport -->
+              <div class="bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/30 space-y-1.5">
+                <div class="flex items-center justify-between text-xs font-bold">
+                  <span class="text-primary">Method A (Synthetic Parametric)</span>
+                  <span id="pipe-compare-verts-a" class="font-code-md text-[11px] text-on-surface-variant">—</span>
+                </div>
+                <img id="pipe-compare-render-a" alt="Method A Render" class="w-full h-44 object-contain rounded bg-[#0F172A]"/>
+                <div class="flex items-center justify-between text-[11px] font-code-md text-on-surface-variant">
+                  <span>Max Depth: <strong id="pipe-compare-depth-a" class="text-on-surface">—</strong></span>
+                  <span class="text-[10px]">Mathematical Floor</span>
+                </div>
+              </div>
+
+              <!-- Method B Viewport -->
+              <div class="bg-surface-container-lowest p-2 rounded-lg border border-outline-variant/30 space-y-1.5">
+                <div class="flex items-center justify-between text-xs font-bold">
+                  <span class="text-secondary">Method B (Depth Model Relief)</span>
+                  <span id="pipe-compare-verts-b" class="font-code-md text-[11px] text-on-surface-variant">—</span>
+                </div>
+                <img id="pipe-compare-render-b" alt="Method B Render" class="w-full h-44 object-contain rounded bg-[#0F172A]"/>
+                <div class="flex items-center justify-between text-[11px] font-code-md text-on-surface-variant">
+                  <span>Max Depth: <strong id="pipe-compare-depth-b" class="text-on-surface">—</strong></span>
+                  <span class="text-[10px]">Photographic Relief</span>
+                </div>
               </div>
             </div>
-            <span id="pipe-auto-anomaly-badge" class="px-2 py-0.5 rounded bg-primary text-white font-code-md text-[10px] font-bold uppercase">CV Classified</span>
           </div>
 
           <details class="bg-surface-container-low rounded-lg">
@@ -737,7 +913,7 @@
                 <button type="button" onclick="togglePipelineWireframe()" class="hover:text-secondary-fixed px-1">Wireframe</button>
               </div>
             </div>
-            <div id="pipe-three-container" class="absolute inset-0 w-full h-full cursor-grab"></div>
+            <div id="pipe-three-container" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
             <div class="relative z-10 p-2 bg-[#0F172A]/90 flex items-center justify-between text-[11px] font-code-md text-surface-dim">
               <div class="flex items-center gap-2">
                 <a id="pipe-download-npz" href="#" download class="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white hidden">.NPZ</a>
@@ -1209,7 +1385,7 @@
       <!-- Main Split Stage: Left 7 Cols 3D Co-Registered Viewport + Right 5 Cols Step Panels -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-stretch">
         <!-- LEFT 7 COLS: 3D Raycast & Dual Overlay Viewport -->
-        <div class="lg:col-span-7 bg-[#0F172A] rounded-xl overflow-hidden shadow-lg relative min-h-[520px] flex flex-col justify-between">
+        <div class="lg:col-span-7 bg-[#0F172A] rounded-xl overflow-hidden shadow-lg relative h-[540px] min-h-[520px] flex flex-col justify-between">
           <!-- Top HUD Legend -->
           <div class="relative z-10 p-space-md flex flex-wrap items-center justify-between gap-2 pointer-events-none">
             <div class="bg-[#0F172A]/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-white font-label-sm text-label-sm shadow-sm">
@@ -1909,6 +2085,194 @@
 </div>
 
 <!-- ========================================================================= -->
+<!-- MODAL: CLINICAL PHOTO GUIDELINES                                          -->
+<!-- ========================================================================= -->
+<div id="clinical-photo-guidelines-modal" class="fixed inset-0 z-50 bg-on-surface/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 clinical-shadow border border-outline-variant/30 my-8 space-y-4">
+    <div class="flex items-start justify-between border-b border-surface-container pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed shadow-sm">
+          <span class="material-symbols-outlined text-[22px]">photo_camera</span>
+        </div>
+        <div>
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Clinical Photo Guidelines</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Recommended parameters for optimal FastSAM and 3D carving results</p>
+        </div>
+      </div>
+      <button onclick="closePhotoGuidelinesModal()" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-3 text-xs text-on-surface leading-relaxed">
+      <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+        <h4 class="font-bold text-primary mb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">check_circle</span>
+          <span>1. Ideal Anatomical Perspectives</span>
+        </h4>
+        <ul class="list-disc pl-5 space-y-1 text-on-surface-variant">
+          <li><strong>Occlusal Tables (Molars &amp; Premolars):</strong> Direct top-down perpendicular view into the biting fissures and central pit.</li>
+          <li><strong>Labial / Facial Faces (Incisors &amp; Canines):</strong> Straight perpendicular frontal shot of the crown face.</li>
+          <li><strong>Cervical Margin (Gingival Third):</strong> Horizontal view focused at the cementoenamel junction (CEJ) for erosion/abrasions.</li>
+        </ul>
+      </div>
+
+      <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+        <h4 class="font-bold text-secondary mb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">palette</span>
+          <span>2. Framing, Lighting &amp; Cleanliness</span>
+        </h4>
+        <ul class="list-disc pl-5 space-y-1 text-on-surface-variant">
+          <li><strong>Macro Framing:</strong> Target tooth and defect should occupy 30%–80% of the image frame.</li>
+          <li><strong>High Contrast:</strong> Distinct demarcation between healthy enamel and dark/demineralized lesion tissue.</li>
+          <li><strong>Avoid Glare &amp; Pools:</strong> Air-dry saliva puddles; avoid harsh direct ring-flash reflections over cavity floors.</li>
+        </ul>
+      </div>
+
+      <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+        <h4 class="font-bold text-on-surface mb-1 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">folder</span>
+          <span>3. Ready-Made Clinical Test Gallery</span>
+        </h4>
+        <p class="text-on-surface-variant">
+          Check out the pre-tested folder at <code class="font-mono text-primary font-bold">clinical_test_images/</code> containing verified real cases for Caries, Abrasion, Erosion, and Fissure Cracks.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex justify-end pt-2 border-t border-surface-container">
+      <button onclick="closePhotoGuidelinesModal()"
+        class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-container transition-all">
+        Close Guidelines
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL 0: ODONTO PLATFORM & AI AGENT SETTINGS                              -->
+<!-- ========================================================================= -->
+<div id="odonto-settings-modal" class="fixed inset-0 z-50 bg-on-surface/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-surface-container-lowest rounded-2xl max-w-lg w-full p-6 clinical-shadow border border-outline-variant/30 my-8 space-y-5">
+    <!-- Modal Header -->
+    <div class="flex items-start justify-between border-b border-surface-container pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed shadow-sm">
+          <span class="material-symbols-outlined text-[22px]">tune</span>
+        </div>
+        <div>
+          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Platform &amp; AI Agent Settings</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Choose the diagnostic intelligence agent and carving pipeline</p>
+        </div>
+      </div>
+      <button onclick="closeOdontoSettingsModal()" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Agent Selection Cards -->
+    <div class="space-y-2.5">
+      <div class="flex items-center justify-between">
+        <label class="font-label-md text-label-md font-bold text-on-surface">AI Clinical Diagnostics Agent</label>
+        <span class="font-code-md text-[11px] text-on-surface-variant">Select reasoning backend</span>
+      </div>
+      <div class="grid grid-cols-1 gap-2.5">
+        <!-- Agent Option 1: Local Clinical Expert -->
+        <label class="relative flex items-start gap-3 p-3.5 rounded-xl border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all agent-choice-card" id="card-agent-local">
+          <input type="radio" name="settings-diagnostic-agent" value="local_expert" class="mt-1 text-primary focus:ring-primary" checked onchange="onSettingsAgentChange('local_expert')"/>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-headline-sm text-headline-sm font-bold text-on-surface flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-secondary text-[18px]">developer_board</span>
+                <span>Local Clinical Expert Engine</span>
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-secondary-container/60 text-on-secondary-container border border-secondary/30">
+                OFFLINE · 0ms
+              </span>
+            </div>
+            <p class="font-body-sm text-[12px] text-on-surface-variant mt-1">
+              Deterministic colorimetry, edge density, and anatomical heuristic rules. Fast, offline-first, and zero API quota dependency.
+            </p>
+          </div>
+        </label>
+
+        <!-- Agent Option 2: Gemini 2.0 Flash -->
+        <label class="relative flex items-start gap-3 p-3.5 rounded-xl border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary transition-all agent-choice-card" id="card-agent-gemini">
+          <input type="radio" name="settings-diagnostic-agent" value="gemini" class="mt-1 text-primary focus:ring-primary" onchange="onSettingsAgentChange('gemini')"/>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-headline-sm text-headline-sm font-bold text-on-surface flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+                <span>Gemini 2.0 Flash Multimodal Vision Agent</span>
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-primary-fixed text-on-primary-fixed border border-primary/30">
+                CLOUD VLM
+              </span>
+            </div>
+            <p class="font-body-sm text-[12px] text-on-surface-variant mt-1">
+              Multimodal VLM visual reasoning. Evaluates tissue margins, dentinal involvement, and synthesizes millimeter physical defect depth.
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Gemini API Key Input (conditionally highlighted) -->
+    <div id="settings-gemini-key-container" class="space-y-1.5 p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+      <div class="flex items-center justify-between">
+        <label class="font-label-sm text-label-sm font-semibold text-on-surface">Gemini API Key</label>
+        <span class="font-code-md text-[10px] text-on-surface-variant">Stored in localStorage</span>
+      </div>
+      <div class="relative flex items-center">
+        <input type="password" id="settings-gemini-api-key" placeholder="AIzaSy... (leave blank to use server environment key)"
+          class="w-full rounded-lg bg-surface-container-lowest border border-outline-variant/40 text-xs font-mono py-2 pl-3 pr-9 text-on-surface"/>
+        <button type="button" onclick="toggleSettingsKeyVisibility()" class="absolute right-2.5 text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined text-[16px]" id="key-vis-icon">visibility</span>
+        </button>
+      </div>
+      <p class="text-[11px] text-on-surface-variant">
+        Required when using Gemini 2.0 Flash if not already configured in backend environment.
+      </p>
+    </div>
+
+    <!-- Default 3D Carve Deformation Method -->
+    <div class="space-y-2">
+      <label class="font-label-md text-label-md font-bold text-on-surface">Default 3D Carving Method</label>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <label class="p-2.5 rounded-lg border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary text-center">
+          <input type="radio" name="settings-default-carve" value="contour_conforming" class="sr-only"/>
+          <span class="block font-bold text-on-surface">Method A</span>
+          <span class="block text-[10px] text-on-surface-variant mt-0.5">Parametric Math</span>
+        </label>
+        <label class="p-2.5 rounded-lg border border-primary bg-primary-fixed/20 cursor-pointer text-center">
+          <input type="radio" name="settings-default-carve" value="depth_heightmap" checked class="sr-only"/>
+          <span class="block font-bold text-primary">Method B</span>
+          <span class="block text-[10px] text-on-surface-variant mt-0.5">Depth Model Relief</span>
+        </label>
+        <label class="p-2.5 rounded-lg border border-outline-variant/40 bg-surface-container-low cursor-pointer hover:border-primary text-center">
+          <input type="radio" name="settings-default-carve" value="compare" class="sr-only"/>
+          <span class="block font-bold text-secondary">⚡ Dual View</span>
+          <span class="block text-[10px] text-on-surface-variant mt-0.5">Side-by-Side</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-surface-container">
+      <button type="button" onclick="closeOdontoSettingsModal()"
+        class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container">
+        Cancel
+      </button>
+      <button type="button" id="btn-save-settings" onclick="saveOdontoSettings()"
+        class="px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold shadow-sm hover:bg-primary-container flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px]">check</span>
+        <span>Save Settings</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
 <!-- MODAL 1: STUDENT JOIN ROOM BY CODE                                        -->
 <!-- ========================================================================= -->
 <div id="join-room-modal" class="fixed inset-0 z-50 bg-on-surface/60 backdrop-blur-sm hidden items-center justify-center p-4">
@@ -2015,6 +2379,7 @@
 
   // Three.js Viewports
   let pipeThree = { scene: null, camera: null, renderer: null, controls: null, mesh: null, meshData: null };
+  let pipeShaderMode = 'clinical';
   let simThree = { scene: null, camera: null, renderer: null, controls: null, mesh: null, wireframe: false };
   let evalThree = { scene: null, camera: null, renderer: null, controls: null, mesh: null, raycaster: null, mouse: null, studentSphere: null, aiSphere: null };
 
@@ -2049,15 +2414,14 @@
   let hostMicRmsLevel = 0.0;
 
   document.addEventListener('DOMContentLoaded', async () => {
+    loadOdontoSettings();
     initPipelineCanvasEvents();
-    initPipelineThreeJS();
-    initSimThreeJS();
-    initEvalThreeJS();
     setupThreeJSResizeObservers();
     renderStagedRoomSpecs();
     initLiveWaveformLoop();
     initSpacebarPushToTalk();
     populateAudioInputDevices();
+    populateClinicalGalleryDropdown();
     await checkCurrentSession();
   });
 
@@ -2399,6 +2763,7 @@
   }
 
   async function enterAuthenticatedShell() {
+    loadOdontoSettings();
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app-shell').classList.remove('hidden');
 
@@ -2431,7 +2796,6 @@
     document.getElementById('filter-whitelist-notice').classList.toggle('hidden', !isTeacher);
 
     if (isTeacher) {
-      loadPipelinePreset('case_01');
       await loadTeacherRooms();
       switchTab('teacher-dashboard');
     } else {
@@ -2483,12 +2847,24 @@
     if (tabId === 'student-home') renderStudentHome();
     setTimeout(() => {
       if (tabId === 'sam2-pipeline') {
+        populateClinicalGalleryDropdown();
         resizePipelineThreeJS();
         redrawPipelineCanvas();
       }
-      if (tabId === '3d-viewer-and-sim') resizeSimThreeJS();
-      if (tabId === 'evaluate-the-ai') resizeEvalThreeJS();
+      if (tabId === '3d-viewer-and-sim') {
+        resizeSimThreeJS();
+        if (ACTIVE_MESH_DATA && !simThree.mesh) buildSimMesh(ACTIVE_MESH_DATA);
+      }
+      if (tabId === 'evaluate-the-ai') {
+        resizeEvalThreeJS();
+        if (ACTIVE_MESH_DATA && !evalThree.mesh) buildEvalMesh(ACTIVE_MESH_DATA);
+      }
     }, 50);
+    // Secondary safety resize after DOM transitions
+    setTimeout(() => {
+      if (tabId === 'evaluate-the-ai') resizeEvalThreeJS();
+      if (tabId === '3d-viewer-and-sim') resizeSimThreeJS();
+    }, 250);
   }
 
   async function ensureActiveAttemptReady() {
@@ -2560,65 +2936,178 @@
   // ===========================================================================
   // 2. SAM2 2D-TO-3D RECONSTRUCTION STUDIO
   // ===========================================================================
+  function redrawPipelineCanvas() {
+    const canvas = document.getElementById('photoCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (pipeImageObj) {
+      const targetW = pipeImageObj.naturalWidth || pipeImageObj.width || 800;
+      const targetH = pipeImageObj.naturalHeight || pipeImageObj.height || 600;
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(pipeImageObj, 0, 0, canvas.width, canvas.height);
+
+      if (pipeMaskObj) {
+        const op = parseFloat(document.getElementById('pipe-opacity-slider')?.value || '0.6');
+        ctx.globalAlpha = op;
+        ctx.drawImage(pipeMaskObj, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+      }
+
+      if (pipePromptBox && pipePromptBox.length === 4) {
+        const bx = pipePromptBox[0];
+        const by = pipePromptBox[1];
+        const bw = pipePromptBox[2] - pipePromptBox[0];
+        const bh = pipePromptBox[3] - pipePromptBox[1];
+
+        ctx.strokeStyle = '#00a896';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 3]);
+        ctx.strokeRect(bx, by, bw, bh);
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(0, 168, 150, 0.25)';
+        ctx.fillRect(bx, by, bw, bh);
+      }
+
+      if (pipePromptPoints && pipePromptPoints.length > 0) {
+        for (const pt of pipePromptPoints) {
+          ctx.fillStyle = '#00375e';
+          ctx.beginPath();
+          ctx.arc(pt[0], pt[1], 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+      }
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Select a sample photo or upload an image to begin', canvas.width / 2, canvas.height / 2);
+    }
+  }
+
   function initPipelineCanvasEvents() {
     const canvas = document.getElementById('photoCanvas');
     if (!canvas) return;
 
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = (canvas.width || 800) / rect.width;
+      const scaleY = (canvas.height || 600) / rect.height;
+      return [
+        Math.round((e.clientX - rect.left) * scaleX),
+        Math.round((e.clientY - rect.top) * scaleY)
+      ];
+    }
+
+    let canvasDownPos = null;
+    let isCanvasPointerDown = false;
+
     canvas.addEventListener('mousedown', e => {
       if (!pipeImageObj) return;
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = pipeImageObj.width / rect.width;
-      const scaleY = pipeImageObj.height / rect.height;
-      const x = Math.round((e.clientX - rect.left) * scaleX);
-      const y = Math.round((e.clientY - rect.top) * scaleY);
-
-      if (pipePromptMode === 'point') {
-        pipePromptPoints = [[x, y]];
-        document.getElementById('pipe-prompt-coords-label').textContent = 'Finding the marked area...';
-        redrawPipelineCanvas();
-        runPipelineSAM2();
-      } else if (pipePromptMode === 'box') {
+      const [x, y] = getCanvasCoords(e);
+      isCanvasPointerDown = true;
+      canvasDownPos = [x, y];
+      pipeBoxStart = [x, y];
+      if (pipePromptMode === 'box') {
         pipeDrawingBox = true;
-        pipeBoxStart = [x, y];
+        pipePromptPoints = [];
+        pipePromptBox = [x, y, x, y];
+        redrawPipelineCanvas();
       }
     });
 
     canvas.addEventListener('mousemove', e => {
-      if (!pipeDrawingBox || pipePromptMode !== 'box' || !pipeImageObj) return;
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = pipeImageObj.width / rect.width;
-      const scaleY = pipeImageObj.height / rect.height;
-      const x = Math.round((e.clientX - rect.left) * scaleX);
-      const y = Math.round((e.clientY - rect.top) * scaleY);
-      pipePromptBox = [
-        Math.min(pipeBoxStart[0], x),
-        Math.min(pipeBoxStart[1], y),
-        Math.max(pipeBoxStart[0], x),
-        Math.max(pipeBoxStart[1], y)
-      ];
-      redrawPipelineCanvas();
-    });
+      if (!isCanvasPointerDown || !pipeImageObj || !canvasDownPos) return;
+      const [x, y] = getCanvasCoords(e);
+      const dx = Math.abs(x - canvasDownPos[0]);
+      const dy = Math.abs(y - canvasDownPos[1]);
 
-    canvas.addEventListener('mouseup', () => {
-      if (pipeDrawingBox && pipePromptMode === 'box') {
-        pipeDrawingBox = false;
-        if (pipePromptBox) {
-          document.getElementById('pipe-prompt-coords-label').textContent = 'Finding the marked area...';
-          runPipelineSAM2();
-        }
+      // Auto-detect drag: if user moves > 6px, switch into box drawing mode seamlessly
+      if (!pipeDrawingBox && (dx > 6 || dy > 6)) {
+        pipeDrawingBox = true;
+        setPipelinePromptMode('box');
+        pipePromptPoints = [];
+        pipeBoxStart = [canvasDownPos[0], canvasDownPos[1]];
+      }
+
+      if (pipeDrawingBox) {
+        pipePromptBox = [
+          Math.min(pipeBoxStart[0], x),
+          Math.min(pipeBoxStart[1], y),
+          Math.max(pipeBoxStart[0], x),
+          Math.max(pipeBoxStart[1], y)
+        ];
+        const bw = pipePromptBox[2] - pipePromptBox[0];
+        const bh = pipePromptBox[3] - pipePromptBox[1];
+        const lbl = document.getElementById('pipe-prompt-coords-label');
+        if (lbl) lbl.textContent = `Drawing box: ${bw}×${bh} px`;
         redrawPipelineCanvas();
       }
+    });
+
+    const finishCanvasInteraction = e => {
+      if (!isCanvasPointerDown) return;
+      isCanvasPointerDown = false;
+      const [x, y] = getCanvasCoords(e);
+      const dist = canvasDownPos ? Math.hypot(x - canvasDownPos[0], y - canvasDownPos[1]) : 0;
+
+      if (pipeDrawingBox) {
+        pipeDrawingBox = false;
+        if (pipePromptBox) {
+          const bw = pipePromptBox[2] - pipePromptBox[0];
+          const bh = pipePromptBox[3] - pipePromptBox[1];
+          if (bw > 10 && bh > 10) {
+            const lbl = document.getElementById('pipe-prompt-coords-label');
+            if (lbl) lbl.textContent = `Box marked: ${bw}×${bh} px · Finding area...`;
+            runPipelineSAM2();
+          } else {
+            pipePromptBox = null;
+          }
+        }
+        redrawPipelineCanvas();
+      } else if (dist <= 6 && pipeImageObj) {
+        // Click without drag: Point marker
+        setPipelinePromptMode('point');
+        pipePromptPoints = [[canvasDownPos[0], canvasDownPos[1]]];
+        pipePromptBox = null;
+        const lbl = document.getElementById('pipe-prompt-coords-label');
+        if (lbl) lbl.textContent = `Point marked at (${canvasDownPos[0]}, ${canvasDownPos[1]}) · Finding area...`;
+        redrawPipelineCanvas();
+        runPipelineSAM2();
+      }
+    };
+
+    canvas.addEventListener('mouseup', finishCanvasInteraction);
+    canvas.addEventListener('mouseleave', e => {
+      if (pipeDrawingBox) finishCanvasInteraction(e);
+      isCanvasPointerDown = false;
     });
   }
 
   function setPipelinePromptMode(mode) {
     pipePromptMode = mode;
-    document.getElementById('pipe-mode-point').className = mode === 'point'
-      ? 'px-3 py-1 rounded-md text-xs font-bold bg-primary text-white'
-      : 'px-3 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-on-surface';
-    document.getElementById('pipe-mode-box').className = mode === 'box'
-      ? 'px-3 py-1 rounded-md text-xs font-bold bg-primary text-white'
-      : 'px-3 py-1 rounded-md text-xs font-semibold bg-surface-container-lowest text-on-surface';
+    const btnPt = document.getElementById('pipe-mode-point');
+    const btnBox = document.getElementById('pipe-mode-box');
+    if (btnPt && btnBox) {
+      if (mode === 'point') {
+        btnPt.className = 'px-3 py-1 rounded-md text-xs font-bold bg-primary text-white shadow-sm transition-all flex items-center gap-1';
+        btnBox.className = 'px-3 py-1 rounded-md text-xs font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1';
+      } else {
+        btnBox.className = 'px-3 py-1 rounded-md text-xs font-bold bg-primary text-white shadow-sm transition-all flex items-center gap-1';
+        btnPt.className = 'px-3 py-1 rounded-md text-xs font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1';
+      }
+    }
   }
 
   function clearPipelinePrompts() {
@@ -2630,97 +3119,124 @@
     redrawPipelineCanvas();
   }
 
-  async function loadPipelinePreset(presetId) {
-    if (!presetId) return;
-    pipeActiveImageId = presetId;
-    const res = await fetch(`/api/preset/${presetId}`);
-    if (!res.ok) return;
-    const data = await res.json();
+  // ===========================================================================
+  // 0. PLATFORM & AI AGENT SETTINGS LOGIC
+  // ===========================================================================
+  let ODONTO_SETTINGS = {
+    diagnostic_agent: 'local_expert', // 'local_expert' | 'gemini'
+    gemini_api_key: '',
+    default_carve_method: 'depth_heightmap' // 'contour_conforming' | 'depth_heightmap' | 'compare'
+  };
 
-    document.getElementById('pipe-fdi-select').value = String(data.default_fdi || 36);
-    document.getElementById('pipe-anomaly-select').value = data.default_anomaly || 'Cavity';
-    onPipelineWhitelistCheck();
-
-    pipePromptPoints = data.default_point ? [data.default_point] : [];
-    pipePromptBox = data.default_box || null;
-
-    const img = new Image();
-    img.onload = async () => {
-      pipeImageObj = img;
-      pipeMaskObj = null;
-      redrawPipelineCanvas();
-      await runPipelineSAM2();
-    };
-    img.src = data.image_url;
-  }
-
-  async function handlePipelinePhotoUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const fd = new FormData();
-    fd.append('file', file);
-    const res = await fetch('/api/upload', { method: 'POST', body: fd });
-    if (!res.ok) return;
-    const data = await res.json();
-    pipeActiveImageId = data.image_id;
-    pipePromptPoints = [];
-    pipePromptBox = null;
-    pipeMaskObj = null;
-
-    const img = new Image();
-    img.onload = () => {
-      pipeImageObj = img;
-      document.getElementById('pipe-status-badge').textContent = 'Step 2 of 3 · Mark the area';
-      redrawPipelineCanvas();
-    };
-    img.src = data.image_url;
-  }
-
-  function redrawPipelineCanvas() {
-    const canvas = document.getElementById('photoCanvas');
-    if (!canvas || !pipeImageObj) return;
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = 800;
-    canvas.height = Math.round((800 / pipeImageObj.width) * pipeImageObj.height);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(pipeImageObj, 0, 0, canvas.width, canvas.height);
-
-    const scaleX = canvas.width / pipeImageObj.width;
-    const scaleY = canvas.height / pipeImageObj.height;
-
-    if (pipeMaskObj) {
-      ctx.save();
-      ctx.globalAlpha = parseFloat(document.getElementById('pipe-opacity-slider').value || '0.6');
-      ctx.drawImage(pipeMaskObj, 0, 0, canvas.width, canvas.height);
-      ctx.restore();
+  function loadOdontoSettings() {
+    try {
+      const saved = localStorage.getItem('odonto_settings');
+      if (saved) {
+        ODONTO_SETTINGS = { ...ODONTO_SETTINGS, ...JSON.parse(saved) };
+      }
+    } catch (e) {
+      console.warn('Failed to parse odonto_settings from localStorage:', e);
     }
-
-    if (pipePromptBox) {
-      const [x1, y1, x2, y2] = pipePromptBox;
-      ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2.5;
-      ctx.strokeRect(x1 * scaleX, y1 * scaleY, (x2 - x1) * scaleX, (y2 - y1) * scaleY);
-    }
-
-    pipePromptPoints.forEach(pt => {
-      const px = pt[0] * scaleX;
-      const py = pt[1] * scaleY;
-      ctx.beginPath();
-      ctx.arc(px, py, 7, 0, 2 * Math.PI);
-      ctx.fillStyle = '#22c55e';
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
-    });
+    updateSettingsUI();
   }
 
-  let pipeShaderMode = 'clinical'; // 'clinical' | 'heatmap'
+  function updateSettingsUI() {
+    const radAgent = document.querySelector(`input[name="settings-diagnostic-agent"][value="${ODONTO_SETTINGS.diagnostic_agent}"]`);
+    if (radAgent) radAgent.checked = true;
+
+    const radMethod = document.querySelector(`input[name="settings-default-carve"][value="${ODONTO_SETTINGS.default_carve_method}"]`);
+    if (radMethod) radMethod.checked = true;
+
+    const keyInp = document.getElementById('settings-gemini-api-key');
+    if (keyInp) keyInp.value = ODONTO_SETTINGS.gemini_api_key || '';
+
+    const badge = document.getElementById('pipe-agent-source-badge');
+    if (badge) {
+      if (ODONTO_SETTINGS.diagnostic_agent === 'gemini') {
+        badge.textContent = '🤖 GEMINI 2.0 FLASH';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-primary-fixed text-on-primary-fixed border border-primary/30';
+      } else {
+        badge.textContent = '💻 LOCAL EXPERT ENGINE';
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold font-code-md bg-secondary-container/60 text-on-secondary-container border border-secondary/30';
+      }
+    }
+    onSettingsAgentChange(ODONTO_SETTINGS.diagnostic_agent);
+  }
+
+  function openOdontoSettingsModal() {
+    updateSettingsUI();
+    const m = document.getElementById('odonto-settings-modal');
+    if (m) {
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+  }
+
+  function closeOdontoSettingsModal() {
+    const m = document.getElementById('odonto-settings-modal');
+    if (m) {
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+  }
+
+  function onSettingsAgentChange(val) {
+    const cardLocal = document.getElementById('card-agent-local');
+    const cardGemini = document.getElementById('card-agent-gemini');
+    if (cardLocal && cardGemini) {
+      if (val === 'local_expert') {
+        cardLocal.className = 'relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer';
+        cardGemini.className = 'relative flex items-start gap-3 p-3.5 rounded-xl border border-outline-variant/40 bg-surface-container-low cursor-pointer';
+      } else {
+        cardGemini.className = 'relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer';
+        cardLocal.className = 'relative flex items-start gap-3 p-3.5 rounded-xl border border-outline-variant/40 bg-surface-container-low cursor-pointer';
+      }
+    }
+  }
+
+  function toggleSettingsKeyVisibility() {
+    const inp = document.getElementById('settings-gemini-api-key');
+    const icon = document.getElementById('key-vis-icon');
+    if (inp && icon) {
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        inp.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+  }
+
+  function saveOdontoSettings() {
+    const selectedAgent = document.querySelector('input[name="settings-diagnostic-agent"]:checked')?.value || 'local_expert';
+    const selectedMethod = document.querySelector('input[name="settings-default-carve"]:checked')?.value || 'depth_heightmap';
+    const key = document.getElementById('settings-gemini-api-key')?.value.trim() || '';
+
+    ODONTO_SETTINGS.diagnostic_agent = selectedAgent;
+    ODONTO_SETTINGS.default_carve_method = selectedMethod;
+    ODONTO_SETTINGS.gemini_api_key = key;
+
+    localStorage.setItem('odonto_settings', JSON.stringify(ODONTO_SETTINGS));
+    updateSettingsUI();
+    setPipeDeformMethod(selectedMethod);
+    closeOdontoSettingsModal();
+  }
+
+  // ===========================================================================
+  // 2. TEACHER MULTI-MODAL 2D-TO-3D RECONSTRUCTION PIPELINE STUDIO
+  // ===========================================================================
+  let pipeDeformMethod = 'depth_heightmap'; // 'contour_conforming' | 'depth_heightmap' | 'compare'
+  let pipeLastPolygonNorm = null;
+  let pipeLastCropBase64 = null;
+  let pipeDepthReliefGrid = null;
+  let pipeLastDiagnosis = null;
+  let pipeRecommendedFdi = 16;
+  let pipeRawImageSource = null; // file | stem | url
 
   function highlightOdontogramChip(fdi) {
-    document.querySelectorAll('.fdi-chip').forEach(btn => {
-      btn.className = 'fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold';
+    document.querySelectorAll('.fdi-chip').forEach(el => {
+      el.className = 'fdi-chip px-1.5 py-0.5 rounded bg-surface-container-lowest hover:bg-primary-fixed font-bold text-on-surface';
     });
     const activeChip = document.getElementById(`chip_${fdi}`);
     if (activeChip) {
@@ -2728,220 +3244,499 @@
     }
   }
 
-  async function selectOdontogramTooth(fdi) {
+  function selectOdontogramTooth(fdi) {
     const sel = document.getElementById('pipe-fdi-select');
     if (sel) sel.value = String(fdi);
     highlightOdontogramChip(fdi);
     onPipelineWhitelistCheck(false);
-    await loadCleanToothPreview(fdi);
   }
 
-  async function loadCleanToothPreview(overrideFdi) {
-    const fdi = overrideFdi || Number(document.getElementById('pipe-fdi-select').value || 36);
-    highlightOdontogramChip(fdi);
-    document.getElementById('pipe-status-badge').textContent = `Loading Clean 3D Tooth FDI #${fdi}...`;
-    const res = await fetch(`/api/tooth/${fdi}`);
-    if (!res.ok) return;
-    const data = await res.json();
-    document.getElementById('pipe-3d-hud').textContent = `Clean 3D Model: FDI #${data.tooth_fdi} (${data.tooth_name})`;
-    document.getElementById('pipe-carve-summary').textContent =
-      `FDI #${data.tooth_fdi} — ${data.mesh_data.num_vertices} vertices • Ready for Method A or Method B carving`;
-    document.getElementById('pipe-status-badge').textContent = `Loaded Clean Tooth #${data.tooth_fdi}`;
-    buildPipelineThreeMesh(data.mesh_data);
-  }
-
-  async function runPipelineSAM2() {
-    if (!pipeActiveImageId) return;
-    document.getElementById('pipe-status-badge').textContent = 'Finding the marked area...';
-
-    const payload = { image_id: pipeActiveImageId };
-    if (pipePromptPoints.length > 0) payload.points = pipePromptPoints;
-    if (pipePromptBox) payload.box = pipePromptBox;
-
-    const res = await fetch('/api/segment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    pipeGeometry = data.geometry;
-
-    const g = pipeGeometry;
-    document.getElementById('pipe-m-centroid').textContent = `(${g.centroid[0]}, ${g.centroid[1]})`;
-    document.getElementById('pipe-m-area').textContent = `${g.area}px`;
-    document.getElementById('pipe-m-radius').textContent = `${g.radius}px`;
-    document.getElementById('pipe-m-aspect').textContent = `${g.aspect_ratio}`;
-    document.getElementById('pipe-m-dims').textContent = `${g.width}×${g.height}`;
-    document.getElementById('pipe-m-angle').textContent = `${g.orientation}°`;
-    document.getElementById('pipe-sam2-conf').textContent = `Match: ${(data.confidence * 100).toFixed(1)}%`;
-
-    // Display Automatic FDI Tooth Identification from tooth_classifier.py
-    if (data.identified_tooth && data.identified_tooth.fdi) {
-      const idt = data.identified_tooth;
-      const autoBanner = document.getElementById('pipe-auto-id-banner');
-      if (autoBanner) {
-        autoBanner.classList.remove('hidden');
-        document.getElementById('pipe-auto-id-title').textContent =
-          `Auto-Identified: FDI #${idt.fdi} — ${idt.name}`;
-        document.getElementById('pipe-auto-id-meta').textContent =
-          `${idt.quadrant} • ${idt.surface} surface • ${Math.round((idt.confidence || 0.88) * 100)}% Confidence`;
-      }
-      const fdiSel = document.getElementById('pipe-fdi-select');
-      if (fdiSel && Array.from(fdiSel.options).some(o => Number(o.value) === Number(idt.fdi))) {
-        fdiSel.value = String(idt.fdi);
-      }
-      highlightOdontogramChip(idt.fdi);
-      onPipelineWhitelistCheck(false);
-    }
-
-    // Display Automatic Dental Anomaly Classification from anomaly_classifier.py
-    if (data.detected_anomaly && data.detected_anomaly.anomaly_type) {
-      const anomObj = data.detected_anomaly;
-      const anomType = anomObj.anomaly_type;
-      const anomBanner = document.getElementById('pipe-auto-anomaly-banner');
-      if (anomBanner) {
-        anomBanner.classList.remove('hidden');
-        document.getElementById('pipe-auto-anomaly-title').textContent =
-          `Auto-Detected Anomaly: ${anomType} (${Math.round((anomObj.confidence || 0.8) * 100)}% Confidence)`;
-        document.getElementById('pipe-auto-anomaly-meta').textContent =
-          `${anomObj.reasoning || 'Deterministic CV classification via mask shape + color analysis'}`;
-      }
-      const anomSel = document.getElementById('pipe-anomaly-select');
-      if (anomSel) {
-        if (Array.from(anomSel.options).some(o => o.value === anomType)) {
-          anomSel.value = anomType;
-        } else if (anomType === 'Erosion' && Array.from(anomSel.options).some(o => o.value === 'Cervical')) {
-          anomSel.value = 'Cervical';
-        }
-      }
-      onPipelineWhitelistCheck(false);
-    }
-
-    const mImg = new Image();
-    mImg.onload = () => {
-      pipeMaskObj = mImg;
-      redrawPipelineCanvas();
-      document.getElementById('pipe-validation-bar').classList.remove('hidden');
-      document.getElementById('pipe-status-badge').textContent = 'Area highlighted · Review it, then create the preview';
-    };
-    mImg.src = data.mask_url;
-  }
-
-  function acceptPipelineSegmentation() {
-    runPipelineCarvePreview();
-  }
-
-  function resegmentPipeline() {
-    clearPipelinePrompts();
-  }
-
-  function onPipelineWhitelistCheck(syncChip = false) {
-    const fdi = Number(document.getElementById('pipe-fdi-select').value);
-    if (syncChip) highlightOdontogramChip(fdi);
-    const anom = document.getElementById('pipe-anomaly-select').value;
-    const isPosterior = [14, 15, 16, 17, 18, 24, 25, 26, 27, 28, 34, 35, 36, 37, 38, 44, 45, 46, 47, 48].includes(fdi);
+  function onPipelineWhitelistCheck(autoSelectSurface = false) {
+    const fdi = Number(document.getElementById('pipe-fdi-select')?.value || 16);
+    const anom = document.getElementById('pipe-anomaly-select')?.value || 'Cavity';
     const banner = document.getElementById('pipe-whitelist-banner');
     const txt = document.getElementById('pipe-whitelist-text');
     const btnCarve = document.getElementById('btn-pipe-carve-preview');
     const btnPub = document.getElementById('btn-pipe-publish-room');
+    if (!banner || !txt) return;
+
+    const isPosterior = [14, 15, 16, 17, 18, 24, 25, 26, 27, 28, 34, 35, 36, 37, 38, 44, 45, 46, 47, 48].includes(fdi);
 
     if (isPosterior && anom === 'Abrasion') {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-error-container text-on-error-container text-xs flex items-center justify-between';
       txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Posterior Abrasion on FDI #${fdi} is excluded from Room Cases (anterior teeth only).`;
-      btnCarve.disabled = true;
-      btnPub.disabled = true;
+      if (btnCarve) btnCarve.disabled = true;
+      if (btnPub) btnPub.disabled = true;
     } else if (isPosterior && (anom === 'Cervical' || anom === 'Erosion')) {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-error-container text-on-error-container text-xs flex items-center justify-between';
       txt.textContent = `BLOCKED BY WHITELIST (HTTP 422): Cervical Erosion on posterior FDI #${fdi} is excluded from Room Cases (anterior teeth only).`;
-      btnCarve.disabled = true;
-      btnPub.disabled = true;
+      if (btnCarve) btnCarve.disabled = true;
+      if (btnPub) btnPub.disabled = true;
     } else {
       banner.className = 'sm:col-span-12 px-3 py-1.5 rounded-md bg-secondary-container/40 text-xs flex items-center justify-between';
-      txt.textContent = `FDI #${fdi} + ${anom} is ready to use in a practice room.`;
-      btnCarve.disabled = false;
-      btnPub.disabled = false;
+      txt.textContent = `UNCONDITIONAL GO: FDI #${fdi} + ${anom} is Phase 0 Whitelisted for 3D Carving.`;
+      if (btnCarve) btnCarve.disabled = false;
+      if (btnPub) btnPub.disabled = false;
+    }
+  }
+
+  function setPipeDeformMethod(method) {
+    pipeDeformMethod = method;
+    const btnA = document.getElementById('pipe-btn-method-a');
+    const btnB = document.getElementById('pipe-btn-method-b');
+    const btnC = document.getElementById('pipe-btn-method-compare');
+    const lbl = document.getElementById('pipe-active-method-label');
+
+    [btnA, btnB, btnC].forEach(b => {
+      if (b) b.className = 'py-1.5 px-2 rounded-lg bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:text-on-surface text-center font-semibold';
+    });
+
+    if (method === 'contour_conforming') {
+      if (btnA) btnA.className = 'py-1.5 px-2 rounded-lg bg-primary text-white border border-primary text-center font-bold shadow-sm';
+      if (lbl) lbl.textContent = 'Method A (Parametric Mathematical Floor)';
+      document.getElementById('pipe-side-by-side-card')?.classList.add('hidden');
+    } else if (method === 'depth_heightmap') {
+      if (btnB) btnB.className = 'py-1.5 px-2 rounded-lg bg-primary text-white border border-primary text-center font-bold shadow-sm';
+      if (lbl) lbl.textContent = 'Method B (Depth Anything V2 Relief)';
+      document.getElementById('pipe-side-by-side-card')?.classList.add('hidden');
+    } else {
+      if (btnC) btnC.className = 'py-1.5 px-2 rounded-lg bg-secondary text-white border border-secondary text-center font-bold shadow-sm';
+      if (lbl) lbl.textContent = '⚡ Side-by-Side Dual Comparison';
+      if (pipeLastPolygonNorm) {
+        runPipelineCarvePreview();
+      }
+    }
+  }
+
+  function updatePipeAgentDepth(val) {
+    const d = parseFloat(val) || 0.75;
+    document.getElementById('pipe-diag-depth-readout').textContent = `${d.toFixed(2)} mm`;
+    if (pipeLastDiagnosis) {
+      pipeLastDiagnosis.recommended_depth_mm = d;
+    }
+  }
+
+  function applyPipeRecommendedTooth() {
+    if (pipeRecommendedFdi) {
+      const sel = document.getElementById('pipe-fdi-select');
+      if (sel) sel.value = String(pipeRecommendedFdi);
+      highlightOdontogramChip(pipeRecommendedFdi);
+      onPipelineWhitelistCheck(false);
+    }
+  }
+
+  async function loadClinicalGalleryImage(imageId) {
+    if (!imageId) return;
+    pipeActiveImageId = imageId;
+    clearPipelinePrompts();
+    document.getElementById('pipe-status-badge').textContent = `Loading test photo ${imageId}...`;
+
+    try {
+      const resp = await fetch(`/api/teacher/preset/${imageId}`);
+      const data = await resp.json();
+      if (!resp.ok) {
+        alert('Failed to load image: ' + (data.error || 'Not found'));
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        pipeImageObj = img;
+        const canvas = document.getElementById('photoCanvas');
+        if (canvas) {
+          canvas.width = img.naturalWidth || img.width || 800;
+          canvas.height = img.naturalHeight || img.height || 600;
+        }
+        document.getElementById('pipe-status-badge').textContent = 'Step 2 of 3 · Photo loaded. Drag a box or click to mark the defect.';
+        document.getElementById('pipe-prompt-coords-label').textContent = 'Click to place a marker or drag to draw a box.';
+        redrawPipelineCanvas();
+      };
+      img.src = data.original_image;
+    } catch (err) {
+      console.error('Failed to load gallery photo:', err);
+    }
+  }
+
+  async function populateClinicalGalleryDropdown() {
+    const sel = document.getElementById('pipe-preset-select');
+    if (!sel) return;
+    try {
+      const resp = await fetch('/api/teacher/gallery');
+      const data = await resp.json();
+      if (!data.gallery || !data.gallery.length) return;
+
+      const grouped = {};
+      data.gallery.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      let html = '<option value="">📁 Or choose verified test photo from folder...</option>';
+      for (const [cat, items] of Object.entries(grouped)) {
+        html += `<optgroup label="📂 ${cat}">`;
+        items.forEach(it => {
+          html += `<option value="${it.id}">${it.title}</option>`;
+        });
+        html += `</optgroup>`;
+      }
+      sel.innerHTML = html;
+    } catch (e) {
+      console.warn('Could not populate clinical gallery dropdown:', e);
+    }
+  }
+
+  function openPhotoGuidelinesModal() {
+    const m = document.getElementById('clinical-photo-guidelines-modal');
+    if (m) {
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+  }
+
+  function closePhotoGuidelinesModal() {
+    const m = document.getElementById('clinical-photo-guidelines-modal');
+    if (m) {
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+  }
+
+  async function handlePipelinePhotoUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    clearPipelinePrompts();
+
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      document.getElementById('pipe-status-badge').textContent = 'Uploading photo...';
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (!res.ok) {
+        alert('Upload failed with status ' + res.status);
+        return;
+      }
+      const data = await res.json();
+      pipeActiveImageId = data.image_id;
+
+      const img = new Image();
+      img.onload = () => {
+        pipeImageObj = img;
+        const canvas = document.getElementById('photoCanvas');
+        if (canvas) {
+          canvas.width = img.naturalWidth || img.width || 800;
+          canvas.height = img.naturalHeight || img.height || 600;
+        }
+        document.getElementById('pipe-status-badge').textContent = 'Step 2 of 3 · Photo uploaded. Click or draw a box over the lesion.';
+        document.getElementById('pipe-prompt-coords-label').textContent = 'Drag to draw a box or click to place a marker.';
+        redrawPipelineCanvas();
+      };
+      img.src = data.image_url;
+    } catch (err) {
+      console.error('Upload error:', err);
+    }
+  }
+
+  async function runPipelineSAM2() {
+    if (!pipeImageObj) return;
+    document.getElementById('pipe-status-badge').textContent = 'Snapping lesion boundary via FastSAM...';
+    const btn = document.getElementById('btn-pipe-segment');
+    if (btn) btn.disabled = true;
+
+    try {
+      const w = pipeImageObj.naturalWidth || pipeImageObj.width || 800;
+      const h = pipeImageObj.naturalHeight || pipeImageObj.height || 600;
+
+      let normBbox = null;
+      if (pipePromptBox) {
+        normBbox = [
+          Math.max(0, pipePromptBox[0] / w),
+          Math.max(0, pipePromptBox[1] / h),
+          Math.min(1, pipePromptBox[2] / w),
+          Math.min(1, pipePromptBox[3] / h)
+        ];
+      }
+
+      let normPts = [];
+      if (pipePromptPoints && pipePromptPoints.length > 0) {
+        normPts = pipePromptPoints.map(pt => [pt[0] / w, pt[1] / h]);
+      }
+
+      if (!pipeActiveImageId && (!pipeImageObj || !pipeImageObj.src)) {
+        document.getElementById('pipe-status-badge').textContent = 'Please upload a photo first.';
+        return;
+      }
+
+      const fd = new FormData();
+      if (pipeActiveImageId) {
+        fd.append('stem', pipeActiveImageId);
+        fd.append('image_id', pipeActiveImageId);
+      }
+      if (!pipeActiveImageId && pipeImageObj && pipeImageObj.src && pipeImageObj.src.startsWith('data:')) {
+        fd.append('image_b64', pipeImageObj.src);
+      }
+      if (normBbox) fd.append('bbox_norm', JSON.stringify(normBbox));
+      if (normPts.length > 0) fd.append('points_norm', JSON.stringify(normPts));
+
+      const resp = await fetch('/api/teacher/segment', { method: 'POST', body: fd });
+      const res = await resp.json();
+
+      if (!resp.ok || !res.success) {
+        document.getElementById('pipe-status-badge').textContent = 'SAM boundary snapping failed.';
+        return;
+      }
+
+      pipeLastPolygonNorm = res.polygon_norm;
+      pipeLastCropBase64 = res.crop_base64;
+
+      // Update Depth & Boundary Inspector Card
+      const depthCard = document.getElementById('pipe-depth-card');
+      if (depthCard) depthCard.classList.remove('hidden');
+
+      const overlayImg = document.getElementById('pipe-overlay-preview');
+      if (overlayImg) overlayImg.src = res.overlay_base64;
+
+      document.getElementById('pipe-metric-points').textContent = `${res.points_count} pts`;
+      document.getElementById('pipe-metric-area').textContent = `${res.area_px.toLocaleString()} px²`;
+
+      // Update HITL validation bar
+      document.getElementById('pipe-validation-bar').classList.remove('hidden');
+      document.getElementById('pipe-sam2-conf').textContent = `Boundary: ${res.points_count} vertices`;
+      document.getElementById('pipe-status-badge').textContent = 'Lesion contour snapped · Running Depth Anything V2 & Diagnostics Agent...';
+
+      // 1. Extract Monocular Depth Anything V2 Heightmap (Method B)
+      await executePipeDepthExtraction(res.crop_base64, res.polygon_norm);
+
+      // 2. Run Clinical Diagnostics Agent (Gemini or Local Expert per Settings)
+      await executePipeDiagnosis(res.crop_base64);
+
+    } catch (e) {
+      console.error('Pipeline SAM error:', e);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  async function executePipeDepthExtraction(cropBase64, polyNorm) {
+    try {
+      const resp = await fetch('/api/teacher/extract_depth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crop_base64: cropBase64, polygon_norm: polyNorm })
+      });
+      const res = await resp.json();
+      if (res.success) {
+        const hmImg = document.getElementById('pipe-heatmap-preview');
+        if (hmImg) hmImg.src = res.heatmap_base64;
+        pipeDepthReliefGrid = res.depth_relief_grid;
+        if (res.metrics && res.metrics.enamel_ring_samples) {
+          document.getElementById('pipe-metric-ring').textContent = `${res.metrics.enamel_ring_samples.toLocaleString()} ring pts`;
+        }
+      }
+    } catch (err) {
+      console.error('Depth extraction error:', err);
+    }
+  }
+
+  async function executePipeDiagnosis(cropBase64) {
+    try {
+      const fdi = parseInt(document.getElementById('pipe-fdi-select').value) || 16;
+      const surface = document.getElementById('pipe-surface-select')?.value || 'occlusal_table';
+
+      const resp = await fetch('/api/teacher/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          crop_base64: cropBase64,
+          tooth_fdi: fdi,
+          target_surface: surface,
+          force_agent: ODONTO_SETTINGS.diagnostic_agent,
+          api_key: ODONTO_SETTINGS.gemini_api_key
+        })
+      });
+      const diag = await resp.json();
+      if (!resp.ok) return;
+
+      pipeLastDiagnosis = diag;
+
+      // Update Diagnostic Card in UI
+      const badgePath = document.getElementById('pipe-diag-pathology');
+      if (badgePath) {
+        badgePath.textContent = diag.pathology;
+        if (diag.pathology === 'Caries') badgePath.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-error text-white shadow-sm';
+        else if (diag.pathology === 'Abrasion') badgePath.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white shadow-sm';
+        else badgePath.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-700 text-white shadow-sm';
+      }
+
+      document.getElementById('pipe-diag-grade').textContent = diag.severity_grade || diag.pathology;
+      document.getElementById('pipe-diag-conf').textContent = `Confidence: ${Math.round((diag.confidence || 0.88) * 100)}%`;
+
+      const tBox = document.getElementById('pipe-diag-tissues');
+      if (tBox) {
+        tBox.innerHTML = '';
+        (diag.tissues_involved || ['enamel']).forEach(tis => {
+          const sp = document.createElement('span');
+          sp.textContent = tis.toUpperCase();
+          sp.className = tis === 'enamel'
+            ? 'px-2 py-0.5 rounded text-[10px] font-code-md bg-surface-container-lowest text-on-surface border border-outline-variant/30'
+            : 'px-2 py-0.5 rounded text-[10px] font-code-md bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 font-bold';
+          tBox.appendChild(sp);
+        });
+      }
+
+      const depthVal = diag.recommended_depth_mm || 0.75;
+      const depthSlider = document.getElementById('pipe-agent-depth-slider');
+      if (depthSlider) {
+        depthSlider.value = depthVal;
+        if (diag.depth_range_mm && diag.depth_range_mm.length === 2) {
+          depthSlider.min = diag.depth_range_mm[0];
+          depthSlider.max = diag.depth_range_mm[1];
+          document.getElementById('pipe-diag-min-depth').textContent = `Min Safe: ${diag.depth_range_mm[0].toFixed(2)} mm`;
+          document.getElementById('pipe-diag-max-depth').textContent = `Max Safe: ${diag.depth_range_mm[1].toFixed(2)} mm`;
+        }
+      }
+      document.getElementById('pipe-diag-depth-readout').textContent = `${depthVal.toFixed(2)} mm`;
+      document.getElementById('pipe-diag-steepness').textContent = `Margin: ${(diag.margin_steepness || 0.7).toFixed(2)}`;
+      document.getElementById('pipe-diag-rationale').textContent = `"${diag.clinical_rationale || 'Ground truth anatomical assessment.'}"`;
+
+      // Synchronize anomaly dropdown
+      const anomSel = document.getElementById('pipe-anomaly-select');
+      if (anomSel) {
+        if (diag.pathology === 'Caries') anomSel.value = 'Cavity';
+        else if (diag.pathology === 'Abrasion') anomSel.value = 'Abrasion';
+        else if (diag.pathology === 'Crack') anomSel.value = 'Crack';
+      }
+
+      // Query Transfer Agent for target tooth recommendation
+      await executePipeTransferAgent(diag.pathology, diag.severity_grade);
+
+      document.getElementById('pipe-status-badge').textContent = 'Diagnostics complete · Ready to preview 3D carve or publish';
+
+    } catch (err) {
+      console.error('Diagnosis error:', err);
+    }
+  }
+
+  async function executePipeTransferAgent(pathology, severity) {
+    try {
+      const curFdi = parseInt(document.getElementById('pipe-fdi-select').value) || 16;
+      const resp = await fetch('/api/teacher/agent_recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pathology: pathology, severity_grade: severity, current_fdi: curFdi })
+      });
+      const rec = await resp.json();
+      if (rec.success) {
+        pipeRecommendedFdi = rec.recommended_fdi;
+        document.getElementById('pipe-transfer-fdi-badge').textContent = `FDI #${rec.recommended_fdi} (${rec.recommended_name})`;
+        document.getElementById('pipe-transfer-rationale').textContent = `"${rec.recommendation_rationale}"`;
+      }
+    } catch (err) {
+      console.error('Transfer agent error:', err);
     }
   }
 
   async function runPipelineCarvePreview() {
-    if (!pipeGeometry) await runPipelineSAM2();
-    const fdi = Number(document.getElementById('pipe-fdi-select').value);
-    const anomaly = document.getElementById('pipe-anomaly-select').value;
-    const surface = document.getElementById('pipe-surface-select')?.value || '';
-    document.getElementById('pipe-status-badge').textContent = `Carving 3D Tooth (#${fdi} ${anomaly})...`;
+    if (!pipeLastPolygonNorm) {
+      await runPipelineSAM2();
+      if (!pipeLastPolygonNorm) {
+        alert('Please snap or mark an area on the clinical photo first.');
+        return;
+      }
+    }
 
-    const payload = { tooth_fdi: fdi, anomaly_type: anomaly, geometry: pipeGeometry };
-    if (surface) payload.surface = surface;
+    const fdi = Number(document.getElementById('pipe-fdi-select').value || 16);
+    const pathology = pipeLastDiagnosis?.pathology || 'Caries';
+    const surface = document.getElementById('pipe-surface-select')?.value || 'occlusal_table';
+    const depth = parseFloat(document.getElementById('pipe-agent-depth-slider')?.value || '0.75');
 
-    const res = await fetch('/api/carve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      document.getElementById('pipe-carve-summary').textContent = data.error || 'Carve rejected.';
+    document.getElementById('pipe-status-badge').textContent = `Executing 3D Carving on FDI #${fdi}...`;
+
+    if (pipeDeformMethod === 'compare') {
+      // DUAL VIEWPORT SIDE-BY-SIDE MODE
+      try {
+        const resp = await fetch('/api/teacher/compare_methods', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            polygon_norm: pipeLastPolygonNorm,
+            tooth_fdi: fdi,
+            target_surface: surface,
+            depth_mm: depth,
+            margin_steepness: pipeLastDiagnosis?.margin_steepness || 0.70,
+            floor_morphology: pipeLastDiagnosis?.floor_morphology || 'irregular_concave',
+            pathology: pathology,
+            depth_relief_grid: pipeDepthReliefGrid
+          })
+        });
+        const res = await resp.json();
+        if (!resp.ok) {
+          alert('Comparison Carve Error: ' + (res.error || 'Failed.'));
+          return;
+        }
+
+        const card = document.getElementById('pipe-side-by-side-card');
+        if (card) {
+          card.classList.remove('hidden');
+          card.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('pipe-compare-render-a').src = res.method_a.render_base64;
+        document.getElementById('pipe-compare-verts-a').textContent = `${res.method_a.metrics.num_displaced_vertices} verts`;
+        document.getElementById('pipe-compare-depth-a').textContent = `${res.method_a.metrics.max_depth_reached_mm} mm`;
+
+        document.getElementById('pipe-compare-render-b').src = res.method_b.render_base64;
+        document.getElementById('pipe-compare-verts-b').textContent = `${res.method_b.metrics.num_displaced_vertices} verts`;
+        document.getElementById('pipe-compare-depth-b').textContent = `${res.method_b.metrics.max_depth_reached_mm} mm`;
+
+        document.getElementById('pipe-status-badge').textContent = 'Side-by-Side Dual Carve Ready';
+
+      } catch (err) {
+        console.error('Comparison error:', err);
+      }
       return;
     }
 
-    const cp = data.carve_params;
-    document.getElementById('pipe-3d-hud').textContent = `Method A Carved: FDI #${fdi} (${anomaly})`;
-    document.getElementById('pipe-3d-telemetry').textContent =
-      `r=${cp.radius}mm • d=${cp.depth}mm • wall=${cp.local_wall_thickness_mm}mm`;
-    document.getElementById('pipe-carve-summary').textContent =
-      `FDI #${fdi} (${anomaly}) — ${cp.affected_vertices} displaced verts, 0 bleed`;
-    document.getElementById('pipe-status-badge').textContent = `3D Tooth Carved — Inspect Below or Publish to Room`;
+    // SINGLE 3D THREE.JS CARVE (Method A or Method B)
+    try {
+      const resp = await fetch('/api/teacher/carve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          polygon_norm: pipeLastPolygonNorm,
+          tooth_fdi: fdi,
+          target_surface: surface,
+          depth_mm: depth,
+          margin_steepness: pipeLastDiagnosis?.margin_steepness || 0.70,
+          floor_morphology: pipeLastDiagnosis?.floor_morphology || 'irregular_concave',
+          pathology: pathology,
+          method: pipeDeformMethod,
+          depth_relief_grid: pipeDepthReliefGrid
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        document.getElementById('pipe-carve-summary').textContent = data.error || 'Carve rejected.';
+        return;
+      }
 
-    const npzLink = document.getElementById('pipe-download-npz');
-    const objLink = document.getElementById('pipe-download-obj');
-    npzLink.href = data.npz_url;
-    objLink.href = data.obj_url;
-    npzLink.classList.remove('hidden');
-    objLink.classList.remove('hidden');
+      const methodName = pipeDeformMethod === 'depth_heightmap' ? 'Method B (Depth Model)' : 'Method A (Parametric)';
+      document.getElementById('pipe-3d-hud').textContent = `${methodName}: FDI #${fdi} (${pathology})`;
+      document.getElementById('pipe-3d-telemetry').textContent =
+        `d=${data.depth_mm}mm • verts=${data.metrics.num_displaced_vertices} • max_d=${data.metrics.max_depth_reached_mm}mm`;
+      document.getElementById('pipe-carve-summary').textContent =
+        `FDI #${fdi} (${pathology}) — ${data.metrics.num_displaced_vertices} displaced verts, 0 bleed`;
+      document.getElementById('pipe-status-badge').textContent = `3D Tooth Carved (${methodName}) — Inspect or Publish`;
 
-    buildPipelineThreeMesh(data.mesh_data);
-  }
+      const npzLink = document.getElementById('pipe-download-npz');
+      const objLink = document.getElementById('pipe-download-obj');
+      if (data.npz_url) { npzLink.href = data.npz_url; npzLink.classList.remove('hidden'); }
+      if (data.obj_url) { objLink.href = data.obj_url; objLink.classList.remove('hidden'); }
 
-  async function runPipelineCustomCarve() {
-    const fdi = Number(document.getElementById('pipe-fdi-select').value || 36);
-    const lesionType = document.getElementById('pipe-anomaly-select').value || 'Cavity';
-    const surface = document.getElementById('pipe-surface-select')?.value || 'occlusal';
-    const radius = parseFloat(document.getElementById('pipe-custom-radius')?.value || '1.8');
-    const depth = parseFloat(document.getElementById('pipe-custom-depth')?.value || '1.1');
+      buildPipelineThreeMesh(data.mesh_data);
 
-    document.getElementById('pipe-status-badge').textContent = `Method B: Sculpting Custom ${lesionType} on FDI #${fdi}...`;
-    const res = await fetch('/api/carve_custom', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tooth_fdi: fdi,
-        lesion_type: lesionType,
-        surface: surface,
-        radius: radius,
-        depth: depth
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      document.getElementById('pipe-carve-summary').textContent = data.error || 'Custom carve failed.';
-      return;
+    } catch (err) {
+      console.error('Carve error:', err);
     }
-
-    const cp = data.carve_params;
-    document.getElementById('pipe-3d-hud').textContent = `Method B Custom: FDI #${fdi} (${lesionType} • ${cp.surface})`;
-    document.getElementById('pipe-3d-telemetry').textContent =
-      `r=${cp.radius}mm • d=${cp.depth}mm • surf=${cp.surface}`;
-    document.getElementById('pipe-carve-summary').textContent =
-      `Custom FDI #${fdi} (${lesionType} on ${cp.surface}) — ${cp.affected_vertices || '—'} displaced verts`;
-    document.getElementById('pipe-status-badge').textContent = `Custom 3D Tooth Carved — Inspect or Publish to Room`;
-
-    const npzLink = document.getElementById('pipe-download-npz');
-    const objLink = document.getElementById('pipe-download-obj');
-    if (data.npz_url) { npzLink.href = data.npz_url; npzLink.classList.remove('hidden'); }
-    if (data.obj_url) { objLink.href = data.obj_url; objLink.classList.remove('hidden'); }
-
-    buildPipelineThreeMesh(data.mesh_data);
   }
 
   async function publishPipelineCaseToRoom() {
@@ -2950,14 +3745,14 @@
       fb.textContent = 'Sign in as a Teacher to publish cases into rooms.';
       return;
     }
-    if (!pipeGeometry) await runPipelineSAM2();
+    if (!pipeLastPolygonNorm) await runPipelineSAM2();
 
-    let targetRoomId = document.getElementById('pipe-target-room-select').value || ACTIVE_ROOM_ID;
+    let targetRoomId = document.getElementById('pipe-target-room-select')?.value || ACTIVE_ROOM_ID;
     if (!targetRoomId) {
       const createRes = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Custom SAM2 Simulation Room', description: 'Created from 2D->3D Studio', cases: [] })
+        body: JSON.stringify({ name: 'Clinical Simulation Room', description: 'Created from 2D->3D Studio', cases: [] })
       });
       if (createRes.ok) {
         const crData = await createRes.json();
@@ -2966,95 +3761,179 @@
       }
     }
 
-    const fdi = Number(document.getElementById('pipe-fdi-select').value);
-    const rawAnomaly = document.getElementById('pipe-anomaly-select').value;
-    const anomaly = rawAnomaly === 'Abrasion' ? 'Abrasion' : 'Cavity';
-    const surface = document.getElementById('pipe-surface-select')?.value || '';
-    const patientName = document.getElementById('pipe-patient-name').value.trim() || 'Jordan Taylor';
-    const rigor = document.getElementById('pipe-case-rigor').value;
+    const fdi = Number(document.getElementById('pipe-fdi-select').value || 16);
+    const pathology = pipeLastDiagnosis?.pathology || 'Caries';
+    const surface = document.getElementById('pipe-surface-select')?.value || 'occlusal_table';
+    const depth = parseFloat(document.getElementById('pipe-agent-depth-slider')?.value || '0.75');
+    const patientName = document.getElementById('pipe-patient-name')?.value.trim() || 'Jordan Taylor';
+    const rigor = document.getElementById('pipe-case-rigor')?.value || 'Intermediate';
 
-    fb.textContent = `Publishing #${fdi} (${anomaly})...`;
-    const payload = {
-      room_id: Number(targetRoomId),
-      tooth_fdi: fdi,
-      anomaly_type: anomaly,
-      geometry: pipeGeometry,
-      patient_name: patientName,
-      rigor: rigor
-    };
-    if (surface) payload.surface = surface;
+    fb.textContent = `Publishing #${fdi} (${pathology}) to Room #${targetRoomId}...`;
 
-    const res = await fetch('/api/carve', {
+    const resp = await fetch('/api/teacher/carve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        polygon_norm: pipeLastPolygonNorm,
+        tooth_fdi: fdi,
+        target_surface: surface,
+        depth_mm: depth,
+        margin_steepness: pipeLastDiagnosis?.margin_steepness || 0.70,
+        floor_morphology: pipeLastDiagnosis?.floor_morphology || 'irregular_concave',
+        pathology: pathology,
+        method: pipeDeformMethod === 'compare' ? 'depth_heightmap' : pipeDeformMethod,
+        depth_relief_grid: pipeDepthReliefGrid,
+        room_id: Number(targetRoomId),
+        patient_name: patientName,
+        rigor: rigor
+      })
     });
-    const data = await res.json();
-    if (!res.ok) {
-      fb.textContent = data.error || 'Failed to publish.';
+    const res = await resp.json();
+    if (!resp.ok) {
+      fb.textContent = 'Failed: ' + (res.error || 'Room case creation rejected.');
       return;
     }
-    if (data.mesh_data) buildPipelineThreeMesh(data.mesh_data);
-    await loadTeacherRooms();
-    fb.textContent = `Published Case #${data.room_case.case_number} to Room!`;
+
+    fb.textContent = `Published Case #${res.room_case?.id || 'OK'} (${pathology} on #${fdi}) to Room #${targetRoomId}!`;
+    setTimeout(() => { fb.textContent = ''; }, 4000);
+    if (ACTIVE_ROOM_ID) await loadTeacherRoomDashboard(ACTIVE_ROOM_ID);
+  }
+
+  function disposeThreeObject(obj, scene) {
+    if (!obj) return;
+    if (scene) scene.remove(obj);
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach(m => { if (m && m.dispose) m.dispose(); });
+      } else if (obj.material.dispose) {
+        obj.material.dispose();
+      }
+    }
   }
 
   function initPipelineThreeJS() {
     const container = document.getElementById('pipe-three-container');
-    if (!container) return;
+    if (!container || typeof THREE === 'undefined') return;
+
+    if (!pipeThree.renderer) {
+      try {
+        pipeThree.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      } catch (err) {
+        try {
+          pipeThree.renderer = new THREE.WebGLRenderer({ antialias: false });
+        } catch (err2) {
+          console.error('Fatal WebGL error in pipeThree:', err2);
+          return;
+        }
+      }
+      pipeThree.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      container.innerHTML = '';
+      const canvas = pipeThree.renderer.domElement;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.display = 'block';
+      container.appendChild(canvas);
+
+      pipeThree.camera = new THREE.PerspectiveCamera(40, 1.5, 0.1, 1000);
+      pipeThree.camera.up.set(0, 0, 1);
+      pipeThree.controls = new THREE.OrbitControls(pipeThree.camera, pipeThree.renderer.domElement);
+      pipeThree.controls.enableDamping = true;
+      pipeThree.controls.dampingFactor = 0.08;
+      pipeThree.controls.rotateSpeed = -1.0;
+      pipeThree.controls.screenSpacePanning = true;
+
+      function anim() {
+        pipeThree.animId = requestAnimationFrame(anim);
+        pipeThree.controls.update();
+        if (pipeThree.scene && pipeThree.camera) {
+          pipeThree.renderer.render(pipeThree.scene, pipeThree.camera);
+        }
+      }
+      anim();
+    }
+
     pipeThree.scene = new THREE.Scene();
     pipeThree.scene.background = new THREE.Color(0x0f172a);
-    pipeThree.camera = new THREE.PerspectiveCamera(40, 1.5, 0.1, 1000);
     pipeThree.camera.position.set(0, -16, 14);
     pipeThree.camera.up.set(0, 0, 1);
-    pipeThree.renderer = new THREE.WebGLRenderer({ antialias: true });
-    container.innerHTML = '';
-    container.appendChild(pipeThree.renderer.domElement);
-    pipeThree.controls = new THREE.OrbitControls(pipeThree.camera, pipeThree.renderer.domElement);
-    pipeThree.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    const dl1 = new THREE.DirectionalLight(0xffffff, 0.85);
+
+    pipeThree.scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+    const dl1 = new THREE.DirectionalLight(0xffffff, 0.78);
     dl1.position.set(12, -18, 25);
     pipeThree.scene.add(dl1);
-    const dl2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    const dl2 = new THREE.DirectionalLight(0x94a3b8, 0.32);
     dl2.position.set(-12, 18, -15);
     pipeThree.scene.add(dl2);
 
-    function anim() {
-      requestAnimationFrame(anim);
-      pipeThree.controls.update();
-      pipeThree.renderer.render(pipeThree.scene, pipeThree.camera);
-    }
-    anim();
+    resizePipelineThreeJS();
   }
 
   function resizePipelineThreeJS() {
     const c = document.getElementById('pipe-three-container');
-    if (!c || !pipeThree.renderer) return;
-    const w = c.clientWidth || 600, h = c.clientHeight || 270;
+    if (!c || !pipeThree.renderer || !pipeThree.camera) return;
+    const w = c.clientWidth || c.offsetWidth || 600, h = c.clientHeight || c.offsetHeight || 270;
     if (w <= 0 || h <= 0) return;
     pipeThree.camera.aspect = w / h;
     pipeThree.camera.updateProjectionMatrix();
-    pipeThree.renderer.setSize(w, h);
+    pipeThree.renderer.setSize(w, h, false);
   }
 
   function buildPipelineThreeMesh(meshData) {
+    if (!pipeThree.scene || !pipeThree.renderer) {
+      initPipelineThreeJS();
+    }
     if (!pipeThree.scene || !meshData) return;
     pipeThree.meshData = meshData;
-    if (pipeThree.mesh) pipeThree.scene.remove(pipeThree.mesh);
+    if (pipeThree.mesh) {
+      disposeThreeObject(pipeThree.mesh, pipeThree.scene);
+      pipeThree.mesh = null;
+    }
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(meshData.vertices), 3));
     const useClinical = pipeShaderMode === 'clinical' && meshData.clinical_colors;
     const cols = useClinical ? meshData.clinical_colors : (meshData.colors || meshData.enamel_colors);
-    geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
+    if (cols && cols.length >= meshData.vertices.length) {
+      geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
+    } else {
+      const nVerts = (meshData.vertices.length / 3) | 0;
+      const defCols = new Float32Array(nVerts * 3);
+      for (let i = 0; i < nVerts; i++) {
+        defCols[i * 3] = 0.96;
+        defCols[i * 3 + 1] = 0.95;
+        defCols[i * 3 + 2] = 0.92;
+      }
+      geom.setAttribute('color', new THREE.BufferAttribute(defCols, 3));
+    }
     geom.setIndex(new THREE.BufferAttribute(new Uint32Array(meshData.faces), 1));
     geom.computeVertexNormals();
+    geom.computeBoundingSphere();
     pipeThree.mesh = new THREE.Mesh(
       geom,
-      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.32, metalness: 0.05, side: THREE.DoubleSide })
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.02, side: THREE.DoubleSide })
     );
     pipeThree.scene.add(pipeThree.mesh);
     setPipeline3DView('reset');
     resizePipelineThreeJS();
+  }
+
+  async function loadCleanToothPreview() {
+    const fdi = Number(document.getElementById('pipe-fdi-select')?.value || 16);
+    document.getElementById('pipe-status-badge').textContent = `Loading clean uncarved tooth FDI #${fdi}...`;
+    try {
+      const resp = await fetch(`/api/teacher/clean_mesh/${fdi}`);
+      const data = await resp.json();
+      if (data.success && data.mesh_data) {
+        document.getElementById('pipe-3d-hud').textContent = `Clean Tooth: FDI #${fdi} (Normal)`;
+        document.getElementById('pipe-carve-summary').textContent = `Clean tooth FDI #${fdi} loaded in 3D viewport.`;
+        document.getElementById('pipe-status-badge').textContent = `Clean Tooth FDI #${fdi} Loaded`;
+        buildPipelineThreeMesh(data.mesh_data);
+      } else {
+        alert('Could not load clean tooth mesh: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Clean tooth preview error:', err);
+    }
   }
 
   function togglePipelineShaderMode() {
@@ -3066,18 +3945,23 @@
 
   function setPipeline3DView(mode) {
     if (!pipeThree.camera || !pipeThree.controls) return;
-    const size = pipeThree.meshData?.tooth_size || 14.0;
+    const bs = pipeThree.mesh?.geometry?.boundingSphere;
+    const center = bs ? bs.center : new THREE.Vector3(0, 0, 0);
+    const radius = bs ? (bs.radius || 7.0) : (pipeThree.meshData?.tooth_size ? pipeThree.meshData.tooth_size / 2 : 7.0);
+    const dist = Math.max(14, radius * 2.3);
+
+    pipeThree.controls.target.copy(center);
+
     if (mode === 'top') {
-      pipeThree.camera.position.set(0, 0, size * 1.65);
-      pipeThree.camera.up.set(0, 1, 0);
+      pipeThree.camera.position.set(center.x, center.y - 0.02, center.z + dist * 1.35);
+      pipeThree.camera.up.set(0, 0, 1);
     } else if (mode === 'front') {
-      pipeThree.camera.position.set(0, -size * 1.65, 0);
+      pipeThree.camera.position.set(center.x, center.y - dist * 1.35, center.z);
       pipeThree.camera.up.set(0, 0, 1);
     } else {
-      pipeThree.camera.position.set(0, -size * 1.4, size * 1.05);
+      pipeThree.camera.position.set(center.x, center.y - dist * 1.15, center.z + dist * 0.85);
       pipeThree.camera.up.set(0, 0, 1);
     }
-    pipeThree.controls.target.set(0, 0, 0);
     pipeThree.controls.update();
   }
 
@@ -3505,9 +4389,10 @@
     }
 
     grid.innerHTML = filtered.map(c => `
-      <article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+      <article onclick="openCaseAndStartAttempt('${c.case_uid}', event)"
+        class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:ring-2 hover:ring-primary/40 transition-all flex flex-col cursor-pointer group">
         <div class="h-44 bg-[#0F172A] relative overflow-hidden">
-          <img src="${c.thumbnail_url}" alt="Tooth ${c.tooth_fdi}" class="w-full h-full object-cover"/>
+          <img src="${c.thumbnail_url}" alt="Tooth ${c.tooth_fdi}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
           <div class="absolute top-2.5 left-2.5 right-2.5 flex justify-between">
             <span class="px-2.5 py-0.5 rounded bg-[#0F172A]/85 text-white font-code-md text-xs font-bold">FDI #${c.tooth_fdi}</span>
             <span class="px-2.5 py-0.5 rounded-full bg-surface-container-lowest/90 text-on-surface font-label-sm text-label-sm">${c.rigor}</span>
@@ -3519,13 +4404,14 @@
               <span class="font-label-sm text-label-sm text-primary uppercase">${CURRENT_USER?.role === 'teacher' ? c.anomaly_badge : 'Clinical case'}</span>
               <span class="font-code-md text-[10px] px-2 py-0.5 rounded bg-surface-container">${c.status}</span>
             </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mt-1">${c.tooth_name}</h3>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mt-1 group-hover:text-primary transition-colors">${c.tooth_name}</h3>
             <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">${c.patient.name}: "${c.patient.chief_complaint}"</p>
           </div>
           <div class="pt-1">
-            <button onclick="openCaseAndStartAttempt('${c.case_uid}')"
-              class="py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md text-label-md font-bold">
-              Start Case
+            <button data-case-uid="${c.case_uid}" onclick="openCaseAndStartAttempt('${c.case_uid}', event)"
+              class="w-full sm:w-auto py-2.5 px-4 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md text-label-md font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>Start Case</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
         </div>
@@ -3538,37 +4424,66 @@
     await switchTab(tabId);
   }
 
-  async function openCaseAndStartAttempt(caseUid) {
-    if (!await selectActiveCase(caseUid)) return;
-    await startAttemptAndGo('evaluate-the-ai');
+  async function openCaseAndStartAttempt(caseUid, evt) {
+    if (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
+    const btns = document.querySelectorAll(`button[data-case-uid="${caseUid}"]`);
+    btns.forEach(b => {
+      b.disabled = true;
+      b.innerHTML = '<span class="inline-block animate-spin mr-1">↻</span> Starting Case...';
+    });
+    const loadingStatus = document.getElementById('case-load-status');
+    if (loadingStatus) {
+      loadingStatus.textContent = 'Starting case and loading 3D tooth model...';
+      loadingStatus.classList.remove('hidden');
+    }
+
+    try {
+      const ok = await selectActiveCase(caseUid);
+      if (!ok) return;
+      await startAttemptAndGo('evaluate-the-ai');
+    } catch (err) {
+      console.error('Error starting case:', err);
+      alert('Unable to start case: ' + (err.message || 'Please refresh and try again.'));
+    } finally {
+      btns.forEach(b => {
+        b.disabled = false;
+        b.innerHTML = '<span>Start Case</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span>';
+      });
+      if (loadingStatus) loadingStatus.classList.add('hidden');
+    }
   }
 
   async function selectActiveCase(caseUid) {
     const changingCase = ACTIVE_CASE?.case_uid !== caseUid;
     const loadingStatus = document.getElementById('case-load-status');
-    loadingStatus.textContent = 'Loading the 3D tooth and case details…';
-    loadingStatus.classList.remove('hidden');
+    if (loadingStatus) {
+      loadingStatus.textContent = 'Loading the 3D tooth and case details…';
+      loadingStatus.classList.remove('hidden');
+    }
     let res;
     try {
       res = await fetch(`/api/rooms/cases/${caseUid}/mesh`);
     } catch (error) {
-      if (!(error instanceof TypeError)) throw error;
-      loadingStatus.textContent = 'The 3D tooth could not be loaded. Check your connection and try again.';
-      const feedback = document.getElementById('student-home-feedback');
-      feedback.textContent = 'This case could not be loaded. Please check your connection and retry.';
-      feedback.classList.remove('hidden');
-      document.getElementById('student-home-retry').classList.remove('hidden');
+      if (loadingStatus) loadingStatus.textContent = 'The 3D tooth could not be loaded. Check your connection and try again.';
+      alert('Network error: Unable to load 3D tooth mesh.');
       return false;
     }
     if (!res.ok) {
-      loadingStatus.textContent = 'The 3D tooth could not be loaded. Please try another case or retry.';
-      const feedback = document.getElementById('student-home-feedback');
-      feedback.textContent = 'This case could not be loaded. Please try another case or retry.';
-      feedback.classList.remove('hidden');
-      document.getElementById('student-home-retry').classList.remove('hidden');
+      if (res.status === 401) {
+        alert('Your session has expired. Please sign in again.');
+        location.reload();
+        return false;
+      }
+      const dataErr = await res.json().catch(() => ({}));
+      const msg = dataErr.error || 'The 3D tooth could not be loaded. Please try another case.';
+      alert('Case load error: ' + msg);
+      if (loadingStatus) loadingStatus.textContent = msg;
       return false;
     }
-    loadingStatus.classList.add('hidden');
+    if (loadingStatus) loadingStatus.classList.add('hidden');
     const data = await res.json();
     if (changingCase) {
       ACTIVE_ATTEMPT = null;
@@ -3615,9 +4530,12 @@
       </li>
     `).join('');
 
-    buildSimMesh(ACTIVE_MESH_DATA);
-    buildEvalMesh(ACTIVE_MESH_DATA);
-    populateAttemptHeaderAndViva();
+    try {
+      buildEvalMesh(ACTIVE_MESH_DATA);
+      populateAttemptHeaderAndViva();
+    } catch (e) {
+      console.warn('Non-fatal 3D mesh building error:', e);
+    }
     return true;
   }
 
@@ -3634,23 +4552,19 @@
           body: JSON.stringify({ case_uid: ACTIVE_CASE.case_uid })
         });
       } catch (error) {
-        if (!(error instanceof TypeError)) throw error;
-        const feedback = document.getElementById('student-home-feedback');
-        feedback.textContent = 'This case could not be started because the service is unavailable. Please retry.';
-        feedback.classList.remove('hidden');
-        document.getElementById('student-home-retry').classList.remove('hidden');
+        alert('Service unavailable: Could not start attempt. Check your connection.');
         return;
       }
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const feedback = document.getElementById('student-home-feedback');
-        feedback.textContent = data.error || 'This case could not be started. Please try again.';
-        feedback.classList.remove('hidden');
-        document.getElementById('student-home-retry').classList.remove('hidden');
+        if (res.status === 401) {
+          alert('Your session has expired. Please sign in again.');
+          location.reload();
+          return;
+        }
+        alert('Could not start case: ' + (data.error || 'Server rejected attempt creation.'));
         return;
       }
-      document.getElementById('student-home-feedback').classList.add('hidden');
-      document.getElementById('student-home-retry').classList.add('hidden');
       ACTIVE_ATTEMPT = data.attempt;
       STUDENT_MARK_3D = ACTIVE_ATTEMPT.student_mark_3d;
       LOCATION_SUBMITTED = Boolean(ACTIVE_ATTEMPT.gt_centroid_3d);
@@ -3688,66 +4602,144 @@
   // ===========================================================================
   function initSimThreeJS() {
     const container = document.getElementById('sim-threejs-container');
-    if (!container) return;
+    if (!container || typeof THREE === 'undefined') return;
+
+    if (!simThree.renderer) {
+      try {
+        simThree.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      } catch (err) {
+        try {
+          simThree.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+        } catch (err2) {
+          console.error('Fatal WebGL error in simThree:', err2);
+          return;
+        }
+      }
+      simThree.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      container.innerHTML = '';
+      const canvas = simThree.renderer.domElement;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.display = 'block';
+      container.appendChild(canvas);
+
+      simThree.camera = new THREE.PerspectiveCamera(40, 1.4, 0.1, 1000);
+      simThree.camera.up.set(0, 0, 1);
+      simThree.controls = new THREE.OrbitControls(simThree.camera, simThree.renderer.domElement);
+      simThree.controls.enableDamping = true;
+      simThree.controls.dampingFactor = 0.08;
+      simThree.controls.rotateSpeed = -1.0;
+      simThree.controls.screenSpacePanning = true;
+
+      function anim() {
+        simThree.animId = requestAnimationFrame(anim);
+        simThree.controls.update();
+        if (simThree.scene && simThree.camera) {
+          simThree.renderer.render(simThree.scene, simThree.camera);
+        }
+      }
+      anim();
+    }
+
     simThree.scene = new THREE.Scene();
     simThree.scene.background = new THREE.Color(0x0f172a);
-    simThree.camera = new THREE.PerspectiveCamera(40, 1.4, 0.1, 1000);
     simThree.camera.position.set(0, -16, 14);
     simThree.camera.up.set(0, 0, 1);
-    simThree.renderer = new THREE.WebGLRenderer({ antialias: true });
-    container.innerHTML = '';
-    container.appendChild(simThree.renderer.domElement);
-    simThree.controls = new THREE.OrbitControls(simThree.camera, simThree.renderer.domElement);
-    simThree.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    const dl = new THREE.DirectionalLight(0xffffff, 0.85);
-    dl.position.set(15, -20, 25);
+
+    simThree.scene.add(new THREE.AmbientLight(0xffffff, 0.40));
+    const dl = new THREE.DirectionalLight(0xffffff, 0.75);
+    dl.position.set(12, -22, 22);
     simThree.scene.add(dl);
-    function anim() {
-      requestAnimationFrame(anim);
-      simThree.controls.update();
-      simThree.renderer.render(simThree.scene, simThree.camera);
-    }
-    anim();
+    const dlBack = new THREE.DirectionalLight(0x94a3b8, 0.30);
+    dlBack.position.set(-12, 22, -10);
+    simThree.scene.add(dlBack);
+
+    resizeSimThreeJS();
   }
 
   function resizeSimThreeJS() {
     const c = document.getElementById('sim-threejs-container');
-    if (!c || !simThree.renderer) return;
-    const w = c.clientWidth || 700, h = c.clientHeight || 500;
+    if (!c || !simThree.renderer || !simThree.camera) return;
+    const w = c.clientWidth || c.offsetWidth || 700, h = c.clientHeight || c.offsetHeight || 500;
     if (w <= 0 || h <= 0) return;
     simThree.camera.aspect = w / h;
     simThree.camera.updateProjectionMatrix();
-    simThree.renderer.setSize(w, h);
+    simThree.renderer.setSize(w, h, false);
   }
 
   function buildSimMesh(meshData) {
-    if (!simThree.scene || !meshData) return;
-    if (simThree.mesh) simThree.scene.remove(simThree.mesh);
+    if (!meshData) return;
+    if (!simThree.scene || !simThree.renderer) {
+      initSimThreeJS();
+    }
+    if (!simThree.scene) return;
+    if (simThree.mesh) {
+      disposeThreeObject(simThree.mesh, simThree.scene);
+      simThree.mesh = null;
+    }
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(meshData.vertices), 3));
     const cols = meshData.colors || meshData.enamel_colors;
-    geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
+    if (cols && cols.length >= meshData.vertices.length) {
+      geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
+    } else {
+      const nVerts = (meshData.vertices.length / 3) | 0;
+      const defCols = new Float32Array(nVerts * 3);
+      for (let i = 0; i < nVerts; i++) {
+        defCols[i * 3] = 0.96;
+        defCols[i * 3 + 1] = 0.95;
+        defCols[i * 3 + 2] = 0.92;
+      }
+      geom.setAttribute('color', new THREE.BufferAttribute(defCols, 3));
+    }
     geom.setIndex(new THREE.BufferAttribute(new Uint32Array(meshData.faces), 1));
     geom.computeVertexNormals();
-    simThree.mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, side: THREE.DoubleSide }));
+    geom.computeBoundingSphere();
+    simThree.mesh = new THREE.Mesh(
+      geom,
+      new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.42,
+        metalness: 0.02,
+        side: THREE.DoubleSide
+      })
+    );
     simThree.scene.add(simThree.mesh);
     resetSimCamera();
     resizeSimThreeJS();
   }
 
   function resetSimCamera() {
-    if (!simThree.camera) return;
-    simThree.camera.position.set(0, -15, 14);
-    simThree.camera.up.set(0, 0, 1);
-    simThree.controls.target.set(0, 0, 0);
+    if (!simThree.camera || !simThree.controls) return;
+    if (simThree.mesh && simThree.mesh.geometry && simThree.mesh.geometry.boundingSphere) {
+      const bs = simThree.mesh.geometry.boundingSphere;
+      const r = bs.radius || 8;
+      const dist = Math.max(16, r * 2.3);
+      simThree.camera.position.set(bs.center.x, bs.center.y - dist * 1.15, bs.center.z + dist * 0.85);
+      simThree.camera.up.set(0, 0, 1);
+      simThree.controls.target.copy(bs.center);
+    } else {
+      simThree.camera.position.set(0, -15, 14);
+      simThree.camera.up.set(0, 0, 1);
+      simThree.controls.target.set(0, 0, 0);
+    }
     simThree.controls.update();
   }
 
   function setSimCameraTop() {
-    if (!simThree.camera) return;
-    simThree.camera.position.set(0, 0, 22);
-    simThree.camera.up.set(0, 1, 0);
-    simThree.controls.target.set(0, 0, 0);
+    if (!simThree.camera || !simThree.controls) return;
+    if (simThree.mesh && simThree.mesh.geometry && simThree.mesh.geometry.boundingSphere) {
+      const bs = simThree.mesh.geometry.boundingSphere;
+      const r = bs.radius || 8;
+      const dist = Math.max(16, r * 2.3);
+      simThree.camera.position.set(bs.center.x, bs.center.y - 0.02, bs.center.z + dist * 1.35);
+      simThree.camera.up.set(0, 0, 1);
+      simThree.controls.target.copy(bs.center);
+    } else {
+      simThree.camera.position.set(0, -0.02, 22);
+      simThree.camera.up.set(0, 0, 1);
+      simThree.controls.target.set(0, 0, 0);
+    }
     simThree.controls.update();
   }
 
@@ -3758,78 +4750,168 @@
 
   function initEvalThreeJS() {
     const container = document.getElementById('eval-threejs-container');
-    if (!container) return;
+    if (!container || typeof THREE === 'undefined') return;
+
+    if (!evalThree.renderer) {
+      try {
+        evalThree.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      } catch (err) {
+        console.warn('WebGL with antialias failed, retrying standard WebGL:', err);
+        try {
+          evalThree.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+        } catch (err2) {
+          console.error('Fatal WebGL context error:', err2);
+          alert('WebGL context could not be created in your browser. Please close unused tabs or restart your browser to clear GPU memory.');
+          return;
+        }
+      }
+      evalThree.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+      container.innerHTML = '';
+      const canvas = evalThree.renderer.domElement;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.display = 'block';
+      container.appendChild(canvas);
+
+      evalThree.camera = new THREE.PerspectiveCamera(40, 1.4, 0.1, 1000);
+      evalThree.camera.up.set(0, 0, 1);
+      evalThree.controls = new THREE.OrbitControls(evalThree.camera, evalThree.renderer.domElement);
+      evalThree.controls.enableDamping = true;
+      evalThree.controls.dampingFactor = 0.08;
+      evalThree.controls.rotateSpeed = -1.0;
+      evalThree.controls.screenSpacePanning = true;
+      evalThree.raycaster = new THREE.Raycaster();
+      evalThree.mouse = new THREE.Vector2();
+
+      let downPos = { x: 0, y: 0 };
+      evalThree.renderer.domElement.addEventListener('pointerdown', e => { downPos = { x: e.clientX, y: e.clientY }; });
+      evalThree.renderer.domElement.addEventListener('pointerup', e => {
+        if (LOCATION_SUBMITTED || Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 5 || !evalThree.mesh) return;
+        const rect = evalThree.renderer.domElement.getBoundingClientRect();
+        evalThree.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        evalThree.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        evalThree.raycaster.setFromCamera(evalThree.mouse, evalThree.camera);
+        const hits = evalThree.raycaster.intersectObject(evalThree.mesh);
+        if (hits.length > 0) {
+          const pt = hits[0].point;
+          placeStudentSphere([Number(pt.x.toFixed(3)), Number(pt.y.toFixed(3)), Number(pt.z.toFixed(3))]);
+        }
+      });
+
+      function anim() {
+        evalThree.animId = requestAnimationFrame(anim);
+        evalThree.controls.update();
+        if (evalThree.scene && evalThree.camera) {
+          evalThree.renderer.render(evalThree.scene, evalThree.camera);
+        }
+      }
+      anim();
+    }
+
     evalThree.scene = new THREE.Scene();
     evalThree.scene.background = new THREE.Color(0x0f172a);
-    evalThree.camera = new THREE.PerspectiveCamera(40, 1.4, 0.1, 1000);
-    evalThree.camera.position.set(0, -15, 15);
+    evalThree.camera.position.set(0, -18, 14);
     evalThree.camera.up.set(0, 0, 1);
-    evalThree.renderer = new THREE.WebGLRenderer({ antialias: true });
-    container.innerHTML = '';
-    container.appendChild(evalThree.renderer.domElement);
-    evalThree.controls = new THREE.OrbitControls(evalThree.camera, evalThree.renderer.domElement);
-    evalThree.raycaster = new THREE.Raycaster();
-    evalThree.mouse = new THREE.Vector2();
-    evalThree.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    const dl = new THREE.DirectionalLight(0xffffff, 0.85);
-    dl.position.set(15, -20, 25);
-    evalThree.scene.add(dl);
 
-    let downPos = { x: 0, y: 0 };
-    evalThree.renderer.domElement.addEventListener('pointerdown', e => { downPos = { x: e.clientX, y: e.clientY }; });
-    evalThree.renderer.domElement.addEventListener('pointerup', e => {
-      if (LOCATION_SUBMITTED || Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 5 || !evalThree.mesh) return;
-      const rect = evalThree.renderer.domElement.getBoundingClientRect();
-      evalThree.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      evalThree.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      evalThree.raycaster.setFromCamera(evalThree.mouse, evalThree.camera);
-      const hits = evalThree.raycaster.intersectObject(evalThree.mesh);
-      if (hits.length > 0) {
-        const pt = hits[0].point;
-        placeStudentSphere([Number(pt.x.toFixed(3)), Number(pt.y.toFixed(3)), Number(pt.z.toFixed(3))]);
-      }
-    });
+    const w = container.clientWidth || container.offsetWidth || 700;
+    const h = container.clientHeight || container.offsetHeight || 520;
+    evalThree.renderer.setSize(w, h, false);
 
-    function anim() {
-      requestAnimationFrame(anim);
-      evalThree.controls.update();
-      evalThree.renderer.render(evalThree.scene, evalThree.camera);
-    }
-    anim();
+    // Balanced dental studio lighting with realistic depth and cusp shading
+    evalThree.scene.add(new THREE.AmbientLight(0xffffff, 0.40));
+    const dlFront = new THREE.DirectionalLight(0xffffff, 0.75);
+    dlFront.position.set(12, -22, 22);
+    evalThree.scene.add(dlFront);
+    const dlBack = new THREE.DirectionalLight(0x94a3b8, 0.30);
+    dlBack.position.set(-12, 22, -10);
+    evalThree.scene.add(dlBack);
+
+    resizeEvalThreeJS();
   }
 
   function resizeEvalThreeJS() {
     const c = document.getElementById('eval-threejs-container');
-    if (!c || !evalThree.renderer) return;
-    const w = c.clientWidth || 700, h = c.clientHeight || 500;
+    if (!c || !evalThree.renderer || !evalThree.camera) return;
+    const w = c.clientWidth || c.offsetWidth || 700;
+    const h = c.clientHeight || c.offsetHeight || 520;
     if (w <= 0 || h <= 0) return;
     evalThree.camera.aspect = w / h;
     evalThree.camera.updateProjectionMatrix();
-    evalThree.renderer.setSize(w, h);
+    evalThree.renderer.setSize(w, h, false);
   }
 
   function buildEvalMesh(meshData) {
-    if (!evalThree.scene || !meshData) return;
-    if (evalThree.mesh) evalThree.scene.remove(evalThree.mesh);
-    if (evalThree.studentSphere) { evalThree.scene.remove(evalThree.studentSphere); evalThree.studentSphere = null; }
-    if (evalThree.aiSphere) { evalThree.scene.remove(evalThree.aiSphere); evalThree.aiSphere = null; }
+    if (!meshData) return;
+    if (!evalThree.scene || !evalThree.renderer) {
+      initEvalThreeJS();
+    }
+    if (!evalThree.scene) return;
+    evalThree.meshData = meshData;
+
+    if (evalThree.mesh) {
+      disposeThreeObject(evalThree.mesh, evalThree.scene);
+      evalThree.mesh = null;
+    }
+    if (evalThree.studentSphere) {
+      disposeThreeObject(evalThree.studentSphere, evalThree.scene);
+      evalThree.studentSphere = null;
+    }
+    if (evalThree.aiSphere) {
+      disposeThreeObject(evalThree.aiSphere, evalThree.scene);
+      evalThree.aiSphere = null;
+    }
 
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(meshData.vertices), 3));
-    geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(meshData.enamel_colors), 3));
+
+    // Fallback safe color generation so vertexColors always succeeds
+    const cols = meshData.enamel_colors || meshData.colors;
+    if (cols && cols.length >= meshData.vertices.length) {
+      geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(cols), 3));
+    } else {
+      const nVerts = (meshData.vertices.length / 3) | 0;
+      const defCols = new Float32Array(nVerts * 3);
+      for (let i = 0; i < nVerts; i++) {
+        defCols[i * 3] = 0.96;
+        defCols[i * 3 + 1] = 0.95;
+        defCols[i * 3 + 2] = 0.92;
+      }
+      geom.setAttribute('color', new THREE.BufferAttribute(defCols, 3));
+    }
+
     geom.setIndex(new THREE.BufferAttribute(new Uint32Array(meshData.faces), 1));
     geom.computeVertexNormals();
-    evalThree.mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, side: THREE.DoubleSide }));
+    geom.computeBoundingSphere();
+
+    evalThree.mesh = new THREE.Mesh(
+      geom,
+      new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.45,
+        metalness: 0.02,
+        side: THREE.DoubleSide
+      })
+    );
     evalThree.scene.add(evalThree.mesh);
     resetEvalCamera();
     resizeEvalThreeJS();
   }
 
   function resetEvalCamera() {
-    if (!evalThree.camera) return;
-    evalThree.camera.position.set(0, -15, 14);
-    evalThree.camera.up.set(0, 0, 1);
-    evalThree.controls.target.set(0, 0, 0);
+    if (!evalThree.camera || !evalThree.controls) return;
+    if (evalThree.mesh && evalThree.mesh.geometry && evalThree.mesh.geometry.boundingSphere) {
+      const bs = evalThree.mesh.geometry.boundingSphere;
+      const r = bs.radius || 8;
+      const dist = Math.max(16, r * 2.3);
+      evalThree.camera.position.set(bs.center.x, bs.center.y - dist, bs.center.z + dist * 0.85);
+      evalThree.camera.up.set(0, 0, 1);
+      evalThree.controls.target.copy(bs.center);
+    } else {
+      evalThree.camera.position.set(0, -18, 14);
+      evalThree.camera.up.set(0, 0, 1);
+      evalThree.controls.target.set(0, 0, 0);
+    }
     evalThree.controls.update();
   }
 

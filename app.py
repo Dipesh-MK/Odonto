@@ -23,6 +23,7 @@ Unified Architecture (Phase 0 + Phase A/B + Multi-Tooth 32-FDI Studio + Live STT
   and Teacher Room/Attempt Replay Dashboards.
 """
 
+import base64
 import json
 import os
 import secrets
@@ -30,6 +31,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import uuid
 from datetime import datetime
 from functools import wraps
@@ -81,11 +83,24 @@ from sam2_segmenter import SAM2AnomalySegmenter
 from tooth_carver import (
     FDI_NAMES,
     carve_cavity,
+    carve_contour_conforming_defect,
+    carve_depth_heightmap_defect,
     compute_clinical_vertex_colors,
     find_surface_vertex,
     load_or_extract_tooth_mesh,
     render_carved_tooth_pyvista,
     save_atomic_case,
+)
+from teacher_agent_service import (
+    InteractiveSAMSegmenter,
+    ClinicalDiagnosticsAgent,
+    ClinicalTransferAgent,
+    encode_image_to_base64,
+)
+from depth_extractor import (
+    estimate_raw_depth_map,
+    detrend_enamel_baseline,
+    render_relief_heatmap_overlay,
 )
 from tooth_classifier import classify_tooth
 from voice_llm_service import (
@@ -108,14 +123,135 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 UPLOAD_DIR = STATIC_DIR / "uploads"
 RENDER_DIR = STATIC_DIR / "renders"
+NOVEL_DIR = BASE_DIR / "novel_samples"
+TEST_IMG_DIR = BASE_DIR / "dataset_3class_seg" / "images" / "test"
+
+CLINICAL_TEST_IMG_DIR = BASE_DIR / "clinical_test_images"
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 RENDER_DIR.mkdir(parents=True, exist_ok=True)
 AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
+# Lazy-loaded singletons for Teacher Studio & Depth Extraction
+_sam_segmenter_inst = None
+_clinical_agent_inst = None
+_transfer_agent_inst = None
+
+
+def get_sam_segmenter():
+    global _sam_segmenter_inst
+    if _sam_segmenter_inst is None:
+        _sam_segmenter_inst = InteractiveSAMSegmenter(device="cpu", imgsz=640)
+    return _sam_segmenter_inst
+
+
+def get_clinical_agent(api_key: Optional[str] = None):
+    global _clinical_agent_inst
+    if api_key:
+        return ClinicalDiagnosticsAgent(api_key=api_key)
+    if _clinical_agent_inst is None:
+        _clinical_agent_inst = ClinicalDiagnosticsAgent()
+    return _clinical_agent_inst
+
+
+def get_transfer_agent():
+    global _transfer_agent_inst
+    if _transfer_agent_inst is None:
+        _transfer_agent_inst = ClinicalTransferAgent()
+    return _transfer_agent_inst
+
+
+loaded_images: Dict[str, str] = {}
+
+
+def resolve_photo_path(stem: str) -> Optional[Path]:
+    if not stem:
+        return None
+    stem_clean = str(stem).strip()
+
+    # 0. Check in-memory uploaded images dictionary
+    if stem_clean in loaded_images:
+        p_loaded = Path(loaded_images[stem_clean])
+        if p_loaded.exists():
+            return p_loaded
+
+    # 0b. If stem has "upload_" prefix or vice versa, check stripped or prefixed
+    if stem_clean.startswith("upload_"):
+        sub_key = stem_clean[len("upload_"):]
+        if sub_key in loaded_images:
+            p_loaded = Path(loaded_images[sub_key])
+            if p_loaded.exists():
+                return p_loaded
+    else:
+        pref_key = f"upload_{stem_clean}"
+        if pref_key in loaded_images:
+            p_loaded = Path(loaded_images[pref_key])
+            if p_loaded.exists():
+                return p_loaded
+
+    # 0c. Check static/uploads directory
+    p_up = UPLOAD_DIR / stem_clean
+    if p_up.exists():
+        return p_up
+    for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+        p_up_ext = UPLOAD_DIR / f"{stem_clean}{ext}"
+        if p_up_ext.exists():
+            return p_up_ext
+        p_up_pref = UPLOAD_DIR / f"upload_{stem_clean}{ext}"
+        if p_up_pref.exists():
+            return p_up_pref
+
+    # 0d. Check glob matches in static/uploads
+    matches = list(UPLOAD_DIR.glob(f"*{stem_clean}*"))
+    if matches and matches[0].exists():
+        return matches[0]
+
+    # 0e. Check clinical_test_images gallery directory
+    if CLINICAL_TEST_IMG_DIR.exists():
+        direct_clin = CLINICAL_TEST_IMG_DIR / stem_clean
+        if direct_clin.exists() and direct_clin.is_file():
+            return direct_clin
+        for p in CLINICAL_TEST_IMG_DIR.rglob(f"{stem_clean}.*"):
+            if p.exists() and p.is_file():
+                return p
+        matches = [m for m in CLINICAL_TEST_IMG_DIR.rglob(f"*{stem_clean}*") if m.is_file()]
+        if matches:
+            return matches[0]
+
+    # 1. Novel samples directory
+    p1 = NOVEL_DIR / f"{stem_clean}.jpg"
+    if p1.exists():
+        return p1
+    # 2. Test dataset directory
+    p2 = TEST_IMG_DIR / f"{stem_clean}.jpg"
+    if p2.exists():
+        return p2
+    p2_png = TEST_IMG_DIR / f"{stem_clean}.png"
+    if p2_png.exists():
+        return p2_png
+    # 3. AlphaDent train/valid directories
+    p3 = BASE_DIR / "data" / "alphadent" / "images" / "train" / f"{stem_clean}.jpg"
+    if p3.exists():
+        return p3
+    p4 = BASE_DIR / "data" / "alphadent" / "images" / "valid" / f"{stem_clean}.jpg"
+    if p4.exists():
+        return p4
+    # 4. Check PRESETS dictionary
+    if stem_clean in PRESETS:
+        p_pre = BASE_DIR / PRESETS[stem_clean]["path"]
+        if p_pre.exists():
+            return p_pre
+    # 5. Direct file path
+    p_direct = Path(stem_clean)
+    if p_direct.exists():
+        return p_direct
+    return None
+
+
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.environ.get("ODONTO_SECRET_KEY", "odonto-clinical-secret-key-2026-v5")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024  # 64 MB for clinical photo uploads
 
 # Initialize SQLite schema on startup
 init_db()
@@ -281,7 +417,6 @@ PRESETS: Dict[str, Dict[str, Any]] = {
     },
 }
 
-loaded_images: Dict[str, str] = {}
 active_host_mic_procs: Dict[int, Dict[str, Any]] = {}
 
 
@@ -1216,6 +1351,528 @@ def segment():
     )
 
 
+# ============================================================================
+# TEACHER STUDIO & MULTI-ANOMALY CARVING ENDPOINTS (METHOD A & METHOD B)
+# ============================================================================
+
+@app.route("/api/teacher/sample_photos", methods=["GET"])
+@login_required
+def api_teacher_sample_photos():
+    """Lists curated clinical macro photo samples for Teacher Case Creation."""
+    samples = [
+        {
+            "id": "alpha_p006_F_15_001",
+            "name": "AlphaDent #1: Occlusal Pit Caries (FDI #16)",
+            "pathology": "Caries",
+            "fdi": 16,
+            "surface": "occlusal_table",
+            "default_box": [0.42, 0.44, 0.58, 0.59],
+            "description": "Cavitated carious pit in maxillary first molar with undermined enamel margins.",
+        },
+        {
+            "id": "alpha_p006_F_15_002",
+            "name": "AlphaDent #2: Cervical Abrasion Facet (FDI #11)",
+            "pathology": "Abrasion",
+            "fdi": 11,
+            "surface": "labial_facial",
+            "default_box": [0.38, 0.40, 0.62, 0.60],
+            "description": "Cervical saucer-shaped wear facet at gingival third of maxillary central incisor.",
+        },
+        {
+            "id": "dental_1138_jpg.rf.fd470daf6db30f3a92dd2ccced1d10d7",
+            "name": "DentalAI #1: Structural Fissure Crack (FDI #16)",
+            "pathology": "Crack",
+            "fdi": 16,
+            "surface": "occlusal_table",
+            "default_box": [0.42, 0.46, 0.58, 0.54],
+            "description": "Linear structural crack traversing mesiodistal groove of occlusal surface.",
+        },
+        {
+            "id": "novel_01_alphadent_filling_case",
+            "name": "Novel Sample: Chipped Incisal Edge (FDI #21)",
+            "pathology": "Chipped Cusp",
+            "fdi": 21,
+            "surface": "labial_facial",
+            "default_box": [0.44, 0.45, 0.58, 0.58],
+            "description": "Incisal edge chipping with enamel-dentin fracture angle.",
+        },
+    ]
+
+    for pid, pdata in PRESETS.items():
+        samples.append({
+            "id": pid,
+            "name": pdata["name"],
+            "pathology": pdata.get("default_anomaly", "Cavity"),
+            "fdi": pdata.get("default_fdi", 36),
+            "surface": pdata.get("default_surface", "occlusal"),
+            "default_box": [0.4, 0.4, 0.6, 0.6],
+            "description": pdata["name"],
+        })
+
+    return jsonify({"photos": samples}), 200
+
+
+@app.route("/api/teacher/gallery", methods=["GET"])
+@login_required
+def api_teacher_gallery():
+    """Returns curated real clinical photos organized by pathology category."""
+    items = []
+    if CLINICAL_TEST_IMG_DIR.exists():
+        for p in sorted(CLINICAL_TEST_IMG_DIR.rglob("*.*")):
+            if p.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp"] and p.is_file():
+                cat = p.parent.name.replace("_", " ").title()
+                title = p.stem.replace("_", " ").title()
+                items.append({
+                    "id": p.stem,
+                    "filename": p.name,
+                    "category": cat,
+                    "title": title,
+                })
+    return jsonify({"gallery": items}), 200
+
+
+@app.route("/api/teacher/preset/<stem>", methods=["GET"])
+@login_required
+def api_teacher_get_preset(stem: str):
+    """Loads a clinical source photo by stem or preset id and returns base64 image data."""
+    p = resolve_photo_path(stem)
+    if not p or not p.exists():
+        return jsonify({"error": f"Sample photo '{stem}' not found on server."}), 404
+    img_bgr = cv2.imread(str(p))
+    if img_bgr is None:
+        return jsonify({"error": "Failed to decode photo from disk."}), 500
+    h, w = img_bgr.shape[:2]
+    return jsonify({
+        "stem": stem,
+        "width": w,
+        "height": h,
+        "original_image": encode_image_to_base64(img_bgr),
+    }), 200
+
+
+@app.route("/api/teacher/segment", methods=["POST"])
+@login_required
+def api_teacher_segment():
+    """Phase 1: Snaps exact lesion contour polygon from bounding box or point prompts."""
+    img_bgr = None
+    data = {}
+    if request.is_json:
+        data = request.get_json() or {}
+    else:
+        data = request.form.to_dict()
+        if "file" in request.files:
+            f = request.files["file"]
+            img_bytes = f.read()
+            img_bgr = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+
+    if img_bgr is None:
+        stem = data.get("stem") or data.get("image_id")
+        if stem:
+            p = resolve_photo_path(stem)
+            if p and p.exists():
+                img_bgr = cv2.imread(str(p))
+        if img_bgr is None and data.get("image_b64"):
+            b64_str = data["image_b64"]
+            if "," in b64_str:
+                b64_str = b64_str.split(",", 1)[1]
+            try:
+                img_bytes = base64.b64decode(b64_str)
+                img_bgr = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+            except Exception as e:
+                logger.warning(f"Failed to decode base64 image in teacher segment: {e}")
+
+    if img_bgr is None:
+        return jsonify({"error": "No valid image input provided."}), 400
+
+    bbox = data.get("bbox_norm")
+    if isinstance(bbox, str):
+        try:
+            bbox = json.loads(bbox)
+        except Exception:
+            bbox = None
+
+    points = data.get("points_norm")
+    if isinstance(points, str):
+        try:
+            points = json.loads(points)
+        except Exception:
+            points = None
+
+    if not bbox and not points:
+        return jsonify({"error": "Must provide bounding box or point prompt."}), 400
+
+    seg = get_sam_segmenter()
+    res = seg.segment_roi(img_bgr, bbox_norm=bbox, points_norm=points)
+    if not res.get("success"):
+        return jsonify({"error": res.get("error", "Failed to segment lesion boundary.")}), 422
+
+    return jsonify({
+        "success": True,
+        "polygon_norm": res["polygon_norm"],
+        "polygon_px": res["polygon_px"],
+        "centroid_norm": res["centroid_norm"],
+        "bbox_norm": res["bbox_norm"],
+        "area_px": res["area_px"],
+        "points_count": len(res["polygon_norm"]),
+        "overlay_base64": res["overlay_base64"],
+        "crop_base64": res["crop_base64"],
+    }), 200
+
+
+@app.route("/api/teacher/extract_depth", methods=["POST"])
+@login_required
+def api_teacher_extract_depth():
+    """Method B: Extracts dense monocular depth heightmap and enamel baseline detrending."""
+    data = request.get_json() or {}
+    crop_b64 = data.get("crop_base64")
+    poly_norm = data.get("polygon_norm")
+    if not crop_b64:
+        return jsonify({"error": "crop_base64 is required."}), 400
+
+    if "," in crop_b64:
+        crop_b64 = crop_b64.split(",", 1)[1]
+    img_bytes = base64.b64decode(crop_b64)
+    crop_bgr = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+    if crop_bgr is None:
+        return jsonify({"error": "Invalid crop image."}), 400
+
+    ch, cw = crop_bgr.shape[:2]
+    crop_mask = np.zeros((ch, cw), dtype=np.uint8)
+    if poly_norm and len(poly_norm) >= 3:
+        poly_arr = np.array(poly_norm, dtype=np.float32)
+        min_x, max_x = poly_arr[:, 0].min(), poly_arr[:, 0].max()
+        min_y, max_y = poly_arr[:, 1].min(), poly_arr[:, 1].max()
+        span_x = max(1e-4, max_x - min_x)
+        span_y = max(1e-4, max_y - min_y)
+        px = np.clip((poly_arr[:, 0] - min_x) / span_x * (cw - 1), 0, cw - 1)
+        py = np.clip((poly_arr[:, 1] - min_y) / span_y * (ch - 1), 0, ch - 1)
+        pts = np.round(np.column_stack([px, py])).astype(np.int32)
+        cv2.fillPoly(crop_mask, [pts], 255)
+    else:
+        cv2.ellipse(crop_mask, (cw // 2, ch // 2), (int(cw * 0.35), int(ch * 0.35)), 0, 0, 360, 255, -1)
+
+    raw_depth = estimate_raw_depth_map(crop_bgr)
+    delta_z, baseline, metrics = detrend_enamel_baseline(raw_depth, crop_mask)
+    heatmap_overlay = render_relief_heatmap_overlay(crop_bgr, delta_z, crop_mask)
+    delta_z_thumb = cv2.resize(delta_z, (96, 96), interpolation=cv2.INTER_AREA)
+
+    return jsonify({
+        "success": True,
+        "heatmap_base64": encode_image_to_base64(heatmap_overlay),
+        "depth_relief_grid": delta_z_thumb.tolist(),
+        "metrics": metrics,
+    }), 200
+
+
+@app.route("/api/teacher/diagnose", methods=["POST"])
+@login_required
+def api_teacher_diagnose():
+    """Phase 2: Runs selected Diagnostic Agent (Gemini 2.0 Flash vs Local Expert Engine)."""
+    data = request.get_json() or {}
+    crop_b64 = data.get("crop_base64")
+    stem = data.get("stem")
+    bbox_norm = data.get("bbox_norm")
+    tooth_fdi = int(data.get("tooth_fdi", 16))
+    target_surface = data.get("target_surface", "occlusal_table")
+    notes = data.get("instructor_notes", "")
+    api_key = data.get("api_key")
+    force_agent = data.get("force_agent", "auto")
+
+    crop_bgr = None
+    if crop_b64:
+        if "," in crop_b64:
+            crop_b64 = crop_b64.split(",", 1)[1]
+        img_bytes = base64.b64decode(crop_b64)
+        crop_bgr = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+    elif stem and bbox_norm:
+        p = resolve_photo_path(stem)
+        if p and p.exists():
+            full_img = cv2.imread(str(p))
+            if full_img is not None:
+                h, w = full_img.shape[:2]
+                bx = json.loads(bbox_norm) if isinstance(bbox_norm, str) else bbox_norm
+                x1, y1, x2, y2 = int(bx[0] * w), int(bx[1] * h), int(bx[2] * w), int(bx[3] * h)
+                crop_bgr = full_img[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]
+
+    if crop_bgr is None or crop_bgr.size == 0:
+        return jsonify({"error": "Valid lesion crop image is required."}), 400
+
+    agent = get_clinical_agent(api_key=api_key)
+    diagnosis = agent.diagnose_anomaly(
+        crop_bgr,
+        tooth_fdi=tooth_fdi,
+        target_surface=target_surface,
+        additional_notes=notes,
+        force_agent=force_agent,
+    )
+
+    pathology = diagnosis.get("pathology", "Caries")
+    is_valid, whitelist_meta = validate_tooth_anomaly_combination(tooth_fdi, pathology)
+
+    diagnosis["whitelist_valid"] = is_valid
+    diagnosis["whitelist_meta"] = whitelist_meta
+    diagnosis["tooth_fdi"] = tooth_fdi
+    diagnosis["target_surface"] = target_surface
+
+    return jsonify(diagnosis), 200
+
+
+@app.route("/api/teacher/agent_recommend", methods=["POST"])
+@login_required
+def api_teacher_agent_recommend():
+    """Phase 2 Transfer Agent: Recommends anatomically valid target teeth and surfaces."""
+    data = request.get_json() or {}
+    pathology = data.get("pathology", "Caries")
+    severity = data.get("severity_grade", "")
+    current_fdi = data.get("current_fdi")
+    tagent = get_transfer_agent()
+    rec = tagent.recommend_target_teeth(pathology, severity, current_fdi)
+    return jsonify({"success": True, **rec}), 200
+
+
+@app.route("/api/teacher/carve", methods=["POST"])
+@login_required
+def api_teacher_carve_advanced():
+    """Phase 3: Carves 3D defect using Method A (Parametric) or Method B (Depth Relief)."""
+    data = request.get_json() or {}
+    polygon_norm = data.get("polygon_norm")
+    tooth_fdi = int(data.get("tooth_fdi", 16))
+    target_surface = data.get("target_surface", "occlusal_table")
+    depth_mm = float(data.get("depth_mm", 0.85))
+    margin_steepness = float(data.get("margin_steepness", 0.70))
+    floor_morphology = data.get("floor_morphology", "irregular_concave")
+    pathology = data.get("pathology", "Caries")
+    method = data.get("method", "depth_heightmap")
+    depth_relief_grid = data.get("depth_relief_grid")
+    room_id = data.get("room_id")
+
+    if not polygon_norm or len(polygon_norm) < 3:
+        return jsonify({"error": "Valid 2D SAM polygon coordinates required."}), 400
+
+    is_valid, whitelist_meta = validate_tooth_anomaly_combination(tooth_fdi, pathology)
+    if not is_valid:
+        return jsonify({"error": f"Clinical Whitelist Violation: {whitelist_meta.get('reason', 'Not approved for this tooth.')}"}), 422
+
+    tooth_mesh = load_or_extract_tooth_mesh(target_tooth=tooth_fdi)
+
+    if method == "depth_heightmap" and depth_relief_grid is not None:
+        depth_map = np.array(depth_relief_grid, dtype=np.float32)
+        carved_mesh, influence, metrics = carve_depth_heightmap_defect(
+            mesh=tooth_mesh.copy(),
+            polygon_norm=polygon_norm,
+            depth_relief_map=depth_map,
+            target_surface=target_surface,
+            depth=depth_mm,
+            tooth_fdi=tooth_fdi,
+        )
+    else:
+        carved_mesh, influence, metrics = carve_contour_conforming_defect(
+            mesh=tooth_mesh.copy(),
+            polygon_norm=polygon_norm,
+            target_surface=target_surface,
+            depth=depth_mm,
+            margin_steepness=margin_steepness,
+            floor_morphology=floor_morphology,
+            tooth_fdi=tooth_fdi,
+        )
+
+    case_uid = f"teacher_{tooth_fdi}_{uuid.uuid4().hex[:8]}"
+    npz_path = RENDER_DIR / f"{case_uid}.npz"
+    obj_path = RENDER_DIR / f"{case_uid}.obj"
+    render_path = RENDER_DIR / f"{case_uid}_render.png"
+
+    carved_mesh.export(str(obj_path))
+    np.savez_compressed(
+        str(npz_path),
+        vertices=carved_mesh.vertices.astype(np.float32),
+        faces=carved_mesh.faces.astype(np.int32),
+        gt_cavity=influence.astype(np.float32),
+        carve_params={"anomaly_type": pathology, "depth": depth_mm, "method": method},
+    )
+
+    render_carved_tooth_pyvista(
+        carved_mesh=carved_mesh,
+        gt_mask=influence,
+        output_img_path=str(render_path),
+        carve_params={"anomaly_type": pathology, "depth": depth_mm},
+    )
+    render_b64 = ""
+    if render_path.exists():
+        r_img = cv2.imread(str(render_path))
+        if r_img is not None:
+            render_b64 = encode_image_to_base64(r_img, ext=".png")
+
+    mesh_data = build_threejs_mesh_payload(
+        carved_mesh.vertices,
+        carved_mesh.faces,
+        influence,
+        anomaly_type=pathology,
+        reveal_gt=True,
+    )
+
+    saved_case = None
+    if room_id is not None and str(room_id).strip() != "":
+        if current_user.role == "teacher":
+            room = get_room_by_id(int(room_id))
+            if room and room["teacher_id"] == current_user.id:
+                existing_cases = list_cases_for_room(room["id"])
+                seq_num = 100 + room["id"] * 10 + len(existing_cases) + 1
+                carve_result_dict = {
+                    "case_uid": case_uid,
+                    "npz_path": str(npz_path),
+                    "render_url": f"/static/renders/{case_uid}_render.png",
+                    "npz_url": f"/static/renders/{case_uid}.npz",
+                    "obj_url": f"/static/renders/{case_uid}.obj",
+                    "carve_params": {
+                        "radius": round(float(metrics.get("max_depth_reached_mm", depth_mm)) * 1.5, 2),
+                        "depth": depth_mm,
+                        "local_wall_thickness_mm": 2.5,
+                        "surface": target_surface,
+                    },
+                    "mesh_data": mesh_data,
+                }
+                case_record = build_dynamic_case_record(
+                    validation_info=whitelist_meta,
+                    carve_result=carve_result_dict,
+                    case_seq_num=seq_num,
+                    rigor=str(data.get("rigor", "Intermediate")),
+                    patient_name=data.get("patient_name"),
+                    patient_age=int(data.get("patient_age", 31)),
+                    patient_gender=str(data.get("patient_gender", "Female")),
+                )
+                saved_case = add_case_to_room(
+                    room_id=room["id"],
+                    teacher_id=current_user.id,
+                    case_data=case_record,
+                )
+
+    tooth_meta = APPROVED_FDI_TEETH.get(tooth_fdi, {})
+    return jsonify({
+        "success": True,
+        "case_uid": case_uid,
+        "tooth_fdi": tooth_fdi,
+        "tooth_name": tooth_meta.get("name", f"Tooth #{tooth_fdi}"),
+        "pathology": pathology,
+        "depth_mm": depth_mm,
+        "method": method,
+        "metrics": metrics,
+        "render_base64": render_b64,
+        "render_url": f"/static/renders/{case_uid}_render.png",
+        "npz_url": f"/static/renders/{case_uid}.npz",
+        "obj_url": f"/static/renders/{case_uid}.obj",
+        "mesh_data": mesh_data,
+        "room_case": saved_case,
+        "whitelist_meta": whitelist_meta,
+    }), 200
+
+
+@app.route("/api/teacher/clean_mesh/<int:tooth_fdi>", methods=["GET"])
+@login_required
+def api_teacher_clean_mesh(tooth_fdi: int):
+    """Returns baseline Three.js mesh payload for an uncarved tooth."""
+    try:
+        tooth_mesh = load_or_extract_tooth_mesh(target_tooth=tooth_fdi)
+        zero_inf = np.zeros(len(tooth_mesh.vertices), dtype=np.float32)
+        mesh_data = build_threejs_mesh_payload(
+            tooth_mesh.vertices,
+            tooth_mesh.faces,
+            zero_inf,
+            anomaly_type="Normal",
+            reveal_gt=True,
+        )
+        return jsonify({"success": True, "tooth_fdi": tooth_fdi, "mesh_data": mesh_data}), 200
+    except Exception as exc:
+        return jsonify({"error": f"Failed to load tooth mesh: {exc}"}), 500
+
+
+@app.route("/api/teacher/compare_methods", methods=["POST"])
+@login_required
+def api_teacher_compare_methods():
+    """Renders Method A (Parametric) and Method B (Depth Relief) in parallel viewports."""
+    data = request.get_json() or {}
+    polygon_norm = data.get("polygon_norm")
+    tooth_fdi = int(data.get("tooth_fdi", 16))
+    target_surface = data.get("target_surface", "occlusal_table")
+    depth_mm = float(data.get("depth_mm", 0.85))
+    margin_steepness = float(data.get("margin_steepness", 0.70))
+    floor_morphology = data.get("floor_morphology", "irregular_concave")
+    pathology = data.get("pathology", "Caries")
+    depth_relief_grid = data.get("depth_relief_grid")
+
+    if not polygon_norm or len(polygon_norm) < 3:
+        return jsonify({"error": "Valid 2D SAM polygon coordinates required."}), 400
+
+    is_valid, whitelist_meta = validate_tooth_anomaly_combination(tooth_fdi, pathology)
+    if not is_valid:
+        return jsonify({"error": f"Clinical Whitelist Violation: {whitelist_meta.get('reason', 'Not approved for this tooth.')}"}), 422
+
+    tooth_mesh = load_or_extract_tooth_mesh(target_tooth=tooth_fdi)
+
+    # Method A
+    carved_mesh_a, inf_a, metrics_a = carve_contour_conforming_defect(
+        mesh=tooth_mesh.copy(),
+        polygon_norm=polygon_norm,
+        target_surface=target_surface,
+        depth=depth_mm,
+        margin_steepness=margin_steepness,
+        floor_morphology=floor_morphology,
+        tooth_fdi=tooth_fdi,
+    )
+    path_a = RENDER_DIR / f"compare_a_{tooth_fdi}_{uuid.uuid4().hex[:6]}.png"
+    render_carved_tooth_pyvista(carved_mesh_a, inf_a, str(path_a), carve_params={"anomaly_type": pathology, "depth": depth_mm})
+    render_a_b64 = encode_image_to_base64(cv2.imread(str(path_a)), ext=".png") if path_a.exists() else ""
+    if path_a.exists():
+        try:
+            path_a.unlink()
+        except OSError:
+            pass
+
+    # Method B
+    depth_map = np.array(depth_relief_grid, dtype=np.float32) if depth_relief_grid is not None else np.ones((64, 64), dtype=np.float32)
+    carved_mesh_b, inf_b, metrics_b = carve_depth_heightmap_defect(
+        mesh=tooth_mesh.copy(),
+        polygon_norm=polygon_norm,
+        depth_relief_map=depth_map,
+        target_surface=target_surface,
+        depth=depth_mm,
+        tooth_fdi=tooth_fdi,
+    )
+    path_b = RENDER_DIR / f"compare_b_{tooth_fdi}_{uuid.uuid4().hex[:6]}.png"
+    render_carved_tooth_pyvista(carved_mesh_b, inf_b, str(path_b), carve_params={"anomaly_type": pathology, "depth": depth_mm})
+    render_b_b64 = encode_image_to_base64(cv2.imread(str(path_b)), ext=".png") if path_b.exists() else ""
+    if path_b.exists():
+        try:
+            path_b.unlink()
+        except OSError:
+            pass
+
+    tooth_meta = APPROVED_FDI_TEETH.get(tooth_fdi, {})
+    return jsonify({
+        "success": True,
+        "tooth_fdi": tooth_fdi,
+        "tooth_name": tooth_meta.get("name", f"Tooth #{tooth_fdi}"),
+        "pathology": pathology,
+        "depth_mm": depth_mm,
+        "method_a": {
+            "title": "Method A: Synthetic Contour-Conforming (Parametric Floor)",
+            "render_base64": render_a_b64,
+            "metrics": metrics_a,
+            "floor_type": "parametric_mathematical",
+        },
+        "method_b": {
+            "title": "Method B: Monocular Depth Conformal Transfer (Depth Anything V2)",
+            "render_base64": render_b_b64,
+            "metrics": metrics_b,
+            "floor_type": "depth_heightmap_conformal",
+        },
+        "comparison_highlights": {
+            "method_a_advantage": "Smooth, continuous mathematical floor; ideal for standardized student training cases.",
+            "method_b_advantage": "Photorealistic organic roughness, pit micro-ripples, and authentic demineralization textures transferred directly from photo.",
+            "topology_guarantee": "Both methods 100% preserve watertight manifold vertex count and face connectivity.",
+        },
+    }), 200
+
+
 @app.route("/api/teacher/rooms/<int:room_id>/dashboard", methods=["GET"])
 @role_required("teacher")
 def api_teacher_room_dashboard(room_id: int):
@@ -2016,6 +2673,14 @@ def api_get_student_progress():
         approved_fdi_teeth=APPROVED_FDI_TEETH,
     )
     return jsonify(progress), 200
+
+
+@app.errorhandler(500)
+def handle_500(e):
+    import traceback
+    print("=== SERVER 500 ERROR ===", file=sys.stderr)
+    traceback.print_exc()
+    return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
 
 if __name__ == "__main__":

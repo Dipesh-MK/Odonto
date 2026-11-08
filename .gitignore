@@ -1,12 +1,19 @@
 # Virtual environment
 venv/
 .venv/
+venv_train/
 
 # Datasets and heavy binary model weights
 data/
 alphadent_weights/
 sam2_checkpoints/
 alphadent_repo/
+dataset_3class_seg/
+dataset_3class_seg_balanced/
+runs/
+weights/
+FastSAM-s.pt
+*.pt
 
 # Cache directories
 __pycache__/
@@ -16,6 +23,7 @@ __pycache__/
 # Web runtime uploads and dynamic renders
 static/uploads/*
 static/renders/*
+static/audio/*
 !static/uploads/.gitkeep
 !static/renders/.gitkeep
 
@@ -25,8 +33,18 @@ validation_step2/
 validation_step3/
 hitl_eval_cases/
 hitl_3d_outputs/*.obj
+evaluation_outputs/
+test_results/
+test_3d_renders/
+demo_shortlist_renders/
+novel_samples/
+clinical_test_images/
+test\ images
+test_images/
 
 # Temporary run artifacts
+*.png
+*.pdf
 test_*.png
 spot_check_*.png
 test_result.png

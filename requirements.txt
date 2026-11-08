@@ -18,3 +18,7 @@ kagglehub
 matplotlib
 Pillow
 sam2
+transformers
+ultralytics
+google-genai
+playwright

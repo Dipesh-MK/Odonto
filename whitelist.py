@@ -69,7 +69,7 @@ SUPPORTED_ANOMALIES: Dict[str, Dict[str, Any]] = {
     },
     "Crack": {
         "canonical": "Crack",
-        "aliases": ["crack", "craze line", "enamel crack", "fracture line", "fissure", "cracked tooth", "enamel fracture"],
+        "aliases": ["crack", "craze line", "enamel crack", "fracture line", "fissure", "cracked tooth", "enamel fracture", "chipped cusp", "chipped", "cusp fracture", "incisal chip", "fracture"],
         "label": "Crack / Enamel Fracture",
         "allowed_tooth_types": ["incisor", "canine", "premolar", "molar"],
         "allowed_surfaces": {
@@ -79,7 +79,7 @@ SUPPORTED_ANOMALIES: Dict[str, Dict[str, Any]] = {
             "molar": "occlusal_table",
         },
         "profile": "crack",
-        "description": "Narrow V-groove enamel fracture line. High aspect ratio, minimal width, sharp depth profile.",
+        "description": "Narrow V-groove enamel fracture line or structural chip. High aspect ratio, sharp depth profile.",
     },
     "Erosion": {
         "canonical": "Erosion",

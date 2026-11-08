@@ -411,8 +411,19 @@ def convert_2d_geometry_to_3d_params(
     tooth_type = tooth_info["tooth_type"]
     anatomical_group = tooth_info["anatomical_group"]
 
-    rel_x, rel_y = geometry.get("relative_centroid", [0.5, 0.5])
-    raw_orientation = float(geometry.get("orientation", 0.0))
+    raw_centroid = geometry.get("relative_centroid") if geometry else None
+    if raw_centroid and isinstance(raw_centroid, (list, tuple)) and len(raw_centroid) >= 2 and raw_centroid[0] is not None and raw_centroid[1] is not None:
+        try:
+            rel_x, rel_y = float(raw_centroid[0]), float(raw_centroid[1])
+        except (ValueError, TypeError):
+            rel_x, rel_y = 0.5, 0.5
+    else:
+        rel_x, rel_y = 0.5, 0.5
+
+    try:
+        raw_orientation = float(geometry.get("orientation", 0.0) or 0.0)
+    except (ValueError, TypeError):
+        raw_orientation = 0.0
 
     anomaly_lower = str(anomaly_type).strip().lower()
     is_abrasion = (
@@ -481,11 +492,17 @@ def convert_2d_geometry_to_3d_params(
     min_radius_dyn = max(mesh_resolution_min_r, 0.16 * characteristic_surf_span)
     max_radius_dyn = max(min_radius_dyn * 1.15, 0.32 * characteristic_surf_span)
 
-    rel_r = float(geometry.get("relative_radius", 0.06))
+    try:
+        rel_r = float(geometry.get("relative_radius", 0.06) or 0.06)
+    except (ValueError, TypeError):
+        rel_r = 0.06
     raw_radius = rel_r * characteristic_surf_span * 3.2
     carve_radius = float(np.clip(raw_radius, min_radius_dyn, max_radius_dyn))
 
-    raw_aspect = float(geometry.get("aspect_ratio", 1.0))
+    try:
+        raw_aspect = float(geometry.get("aspect_ratio", 1.0) or 1.0)
+    except (ValueError, TypeError):
+        raw_aspect = 1.0
     if is_crack:
         max_allowed_aspect = 6.0
         aspect_ratio = float(np.clip(raw_aspect, 2.0, max_allowed_aspect))
